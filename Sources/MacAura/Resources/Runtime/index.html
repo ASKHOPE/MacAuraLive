@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MacAura Runtime Wallpaper</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body, html { width:100vw; height:100vh; overflow:hidden; background:#040711; }
+        canvas { display:block; width:100vw; height:100vh; }
+    </style>
+</head>
+<body>
+    <canvas id="c"></canvas>
+
+    <!-- Scene Definition JS (Bypasses WKWebView file:// fetch CORS restriction) -->
+    <script src="scene.js"></script>
+
+    <!-- Core Runtime Scripts -->
+    <script src="Core/EffectRegistry.js"></script>
+    <script src="Core/Runtime.js"></script>
+
+    <!-- Effect Modules -->
+    <script src="Effects/Rain.js"></script>
+    <script src="Effects/Snow.js"></script>
+    <script src="Effects/Stars.js"></script>
+    <script src="Effects/Aurora.js"></script>
+    <script src="Effects/Neon.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const definition = window.macAuraScene || {
+                name: "Rain Scene",
+                background: { colors: ["#02040a", "#091224"] },
+                effects: [{ type: "rain", enabled: true, parameters: { density: "300", speed: "1.2", color: "#78c8ff" } }]
+            };
+            const runtime = new MacAuraRuntime();
+            runtime.init(definition);
+        });
+    </script>
+</body>
+</html>

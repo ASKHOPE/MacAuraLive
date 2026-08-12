@@ -1,0 +1,140 @@
+import Foundation
+import Combine
+import ServiceManagement
+
+public class AppSettings: ObservableObject {
+    public static let shared = AppSettings()
+    
+    @Published public var launchAtLogin: Bool {
+        didSet {
+            UserDefaults.standard.set(launchAtLogin, forKey: "launchAtLogin")
+            updateLaunchAtLogin(enabled: launchAtLogin)
+        }
+    }
+    
+    @Published public var pauseOnBattery: Bool {
+        didSet { UserDefaults.standard.set(pauseOnBattery, forKey: "pauseOnBattery") }
+    }
+    
+    @Published public var pauseOnFullScreen: Bool {
+        didSet { UserDefaults.standard.set(pauseOnFullScreen, forKey: "pauseOnFullScreen") }
+    }
+    
+    @Published public var enableLockScreenWallpaper: Bool {
+        didSet { UserDefaults.standard.set(enableLockScreenWallpaper, forKey: "enableLockScreenWallpaper") }
+    }
+    
+    @Published public var lockScreenWallpaperId: String {
+        didSet { UserDefaults.standard.set(lockScreenWallpaperId, forKey: "lockScreenWallpaperId") }
+    }
+    
+    @Published public var spanAcrossDisplays: Bool {
+        didSet { UserDefaults.standard.set(spanAcrossDisplays, forKey: "spanAcrossDisplays") }
+    }
+    
+    @Published public var audioVolume: Double {
+        didSet { UserDefaults.standard.set(audioVolume, forKey: "audioVolume") }
+    }
+    
+    @Published public var isMuted: Bool {
+        didSet { UserDefaults.standard.set(isMuted, forKey: "isMuted") }
+    }
+    
+    @Published public var defaultAspectFill: Bool {
+        didSet { UserDefaults.standard.set(defaultAspectFill, forKey: "defaultAspectFill") }
+    }
+    
+    @Published public var wallpaperPlacement: String { // "fill", "fit", "stretch", "center", "zoom"
+        didSet { UserDefaults.standard.set(wallpaperPlacement, forKey: "wallpaperPlacement") }
+    }
+    
+    @Published public var wallpaperZoom: Double { // 0.5 to 2.5
+        didSet { UserDefaults.standard.set(wallpaperZoom, forKey: "wallpaperZoom") }
+    }
+    
+    @Published public var isAdminUnlocked: Bool {
+        didSet { UserDefaults.standard.set(isAdminUnlocked, forKey: "isAdminUnlocked") }
+    }
+    
+    // AI API Keys & Configurations (Secured via macOS Keychain)
+    @Published public var claudeApiKey: String {
+        didSet { KeychainManager.shared.saveKey(claudeApiKey, forAccount: "claudeApiKey") }
+    }
+    
+    @Published public var claudeModel: String {
+        didSet { UserDefaults.standard.set(claudeModel, forKey: "claudeModel") }
+    }
+    
+    @Published public var openAiApiKey: String {
+        didSet { KeychainManager.shared.saveKey(openAiApiKey, forAccount: "openAiApiKey") }
+    }
+    
+    @Published public var openAiModel: String {
+        didSet { UserDefaults.standard.set(openAiModel, forKey: "openAiModel") }
+    }
+    
+    @Published public var geminiApiKey: String {
+        didSet { KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey") }
+    }
+    
+    @Published public var openRouterApiKey: String {
+        didSet { KeychainManager.shared.saveKey(openRouterApiKey, forAccount: "openRouterApiKey") }
+    }
+    
+    @Published public var openRouterModel: String {
+        didSet { UserDefaults.standard.set(openRouterModel, forKey: "openRouterModel") }
+    }
+    
+    @Published public var localApiEndpoint: String {
+        didSet { UserDefaults.standard.set(localApiEndpoint, forKey: "localApiEndpoint") }
+    }
+    
+    @Published public var selectedAIProvider: String {
+        didSet { UserDefaults.standard.set(selectedAIProvider, forKey: "selectedAIProvider") }
+    }
+    
+    private init() {
+        let defaults = UserDefaults.standard
+        if #available(macOS 13.0, *) {
+            self.launchAtLogin = SMAppService.mainApp.status == .enabled
+        } else {
+            self.launchAtLogin = defaults.bool(forKey: "launchAtLogin")
+        }
+        self.pauseOnBattery = defaults.object(forKey: "pauseOnBattery") as? Bool ?? true
+        self.pauseOnFullScreen = defaults.object(forKey: "pauseOnFullScreen") as? Bool ?? true
+        self.enableLockScreenWallpaper = defaults.object(forKey: "enableLockScreenWallpaper") as? Bool ?? true
+        self.lockScreenWallpaperId = defaults.string(forKey: "lockScreenWallpaperId") ?? "aurora"
+        self.spanAcrossDisplays = defaults.object(forKey: "spanAcrossDisplays") as? Bool ?? false
+        self.audioVolume = defaults.object(forKey: "audioVolume") as? Double ?? 0.8
+        self.isMuted = defaults.object(forKey: "isMuted") as? Bool ?? true
+        self.defaultAspectFill = defaults.object(forKey: "defaultAspectFill") as? Bool ?? true
+        self.wallpaperPlacement = defaults.string(forKey: "wallpaperPlacement") ?? "fill"
+        self.wallpaperZoom = defaults.object(forKey: "wallpaperZoom") as? Double ?? 1.0
+        self.isAdminUnlocked = defaults.bool(forKey: "isAdminUnlocked")
+        
+        // Retrieve credentials securely from macOS Keychain
+        self.claudeApiKey = KeychainManager.shared.getKey(forAccount: "claudeApiKey")
+        self.claudeModel = defaults.string(forKey: "claudeModel") ?? "claude-3-5-sonnet-20241022"
+        self.openAiApiKey = KeychainManager.shared.getKey(forAccount: "openAiApiKey")
+        self.openAiModel = defaults.string(forKey: "openAiModel") ?? "gpt-4o-mini"
+        self.geminiApiKey = KeychainManager.shared.getKey(forAccount: "geminiApiKey")
+        self.openRouterApiKey = KeychainManager.shared.getKey(forAccount: "openRouterApiKey")
+        self.openRouterModel = defaults.string(forKey: "openRouterModel") ?? "google/gemma-2-9b-it:free"
+        self.localApiEndpoint = defaults.string(forKey: "localApiEndpoint") ?? "http://localhost:11434/v1"
+        self.selectedAIProvider = defaults.string(forKey: "selectedAIProvider") ?? "OpenRouter"
+    }
+    
+    private func updateLaunchAtLogin(enabled: Bool) {
+        if #available(macOS 13.0, *) {
+            do {
+                if enabled {
+                    try SMAppService.mainApp.register()
+                } else {
+                    try SMAppService.mainApp.unregister()
+                }
+            } catch {
+                print("[AppSettings] Launch at login registration notice: \(error)")
+            }
+        }
+    }
+}

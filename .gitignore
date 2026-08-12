@@ -1,0 +1,32 @@
+# Swift build artifacts
+.build/
+.swiftpm/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+DerivedData/
+*.xcuserstate
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# App bundles (built output — not source)
+*.app/
+build/
+
+# Secrets & credentials (never commit these)
+*.env
+.env*
+*.pem
+*.key
+*.p12
+*.mobileprovision
+Secrets.swift
+secrets.json
+
+# Editor
+.idea/
+*.swp
+*.swo
