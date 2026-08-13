@@ -1,16 +1,18 @@
 # MacAuraLive Changelog
 
-## [1.5.0] - 2026-08-14
+## [1.6.0] - 2026-08-14
 
 ### Added
+- **Native Static Wallpaper Engine (`StaticWallpaperView`)**: Implemented high-performance native AppKit CoreGraphics/Metal image rendering with high interpolation, replacing web-view emulation for static images.
+- **Default Original Resolution (macOS Native Fit)**: Set Original Resolution as the application-wide default placement mode, ensuring wallpapers render in their exact 1:1 pixel dimensions and native aspect ratios without forced zoom or stretch.
+- **Sizing & Crop Toolbar Controls**: Added an interactive "Sizing & Crop" selector in the Gallery header and Full Wallpaper Preview modal with quick toggles for Original (1:1), Fit to Screen, Crop to Fill, Stretch, and Zoom.
 - **In-Built Storage & Resource Breakdown**: A dedicated analytics dashboard in Settings displaying real-time disk space usage broken down by App Binary & Metal Engine (~7.5 MB), Live Shaders & Video Loops (~15.0 MB), Static 4K/8K Wallpapers (~0.4 MB), Animated GIFs, AI Generations, and Runtime Cache. Includes a macOS-style multi-color storage bar, percentage breakdown pills, and quick "Clear Cache" and "Open Documents" actions.
 - **Sidebar Playback Speed Slider**: Added a dedicated real-time Playback Speed slider (0.25x to 3.0x) in the sidebar footer that works dynamically across both Video and Web/GenAI procedural canvas shaders.
 - **API Key Action Trio (Save, Test, Clear)**: Added dedicated "Save Key", "Test Key", and "Clear Key" buttons across all AI Workshop providers (Google Gemini & OpenRouter) with live server validation.
-- **Settings Release Notes & Changelog Viewer**: Embedded an interactive "What's New in v1.5.0" Changelog modal directly into Settings and Update cards.
+- **Settings Release Notes & Changelog Viewer**: Embedded an interactive "What's New in v1.6.0" Changelog modal directly into Settings and Update cards.
 
 ### Fixed & Enhanced
 - **Live Wallpaper Slowdown & WebKit Resource Thrashing**: Resolved an issue where live HTML wallpapers (such as Matrix Digital Rain) ran slowly when selected from the Gallery view by eliminating background preview WebViews and implementing explicit `dismantleNSView` teardown.
-- **Full Viewport Static Wallpaper Placement**: Fixed top-center alignment and sizing offsets for static images and GIFs in `WebWallpaperView`, ensuring 100% full-screen fitting across all display modes (`fill`, `fit`, `stretch`, `center`, `zoom`).
 - **Liquid Glass Layout Synchronization**: Standardized all Settings cards to full equal width (`maxWidth: .infinity`) with consistent macOS glassmorphism styling.
 
 ## [1.2.0] - 2026-08-11

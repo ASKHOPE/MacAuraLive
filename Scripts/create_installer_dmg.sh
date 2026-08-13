@@ -9,36 +9,42 @@ echo "🚀 Packaging MacAuraLive DMG Installer for Apple Silicon..."
 bash Scripts/build_app.sh
 
 DMG_TEMP_DIR="build/dmg_temp"
-DMG_OUTPUT="build/MacAuraLive_v1.5.0_Installer_AppleSilicon.dmg"
+DMG_OUTPUT="build/MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg"
+DMG_STAGING="build/dmg_staging"
+DMG_VOLUME_NAME="MacAuraLive Installer"
+SOURCE_APP="build/MacAuraLive.app"
 
-rm -rf "$DMG_TEMP_DIR" "$DMG_OUTPUT"
-mkdir -p "$DMG_TEMP_DIR"
+# Clean prior build artifacts
+rm -rf "$DMG_OUTPUT" "$DMG_STAGING"
 
-# Copy MacAuraLive.app and CHANGELOG.md to DMG temp folder
-cp -R "build/MacAuraLive.app" "$DMG_TEMP_DIR/"
-cp "CHANGELOG.md" "$DMG_TEMP_DIR/CHANGELOG.md"
+mkdir -p "$DMG_STAGING"
+cp -R "$SOURCE_APP" "$DMG_STAGING/"
+ln -s /Applications "$DMG_STAGING/Applications"
 
-# Create symlink to /Applications for drag-to-install
-ln -s /Applications "$DMG_TEMP_DIR/Applications"
+# Copy verified Legal Compliance & Documentation Suite to DMG
+cp -f "CHANGELOG.md" "$DMG_STAGING/CHANGELOG.md" 2>/dev/null || true
+cp -f "Legal/LICENSE" "$DMG_STAGING/LICENSE" 2>/dev/null || true
+cp -f "Legal/TERMS_OF_SERVICE.md" "$DMG_STAGING/TERMS_OF_SERVICE.md" 2>/dev/null || true
+cp -f "Legal/PRIVACY_POLICY.md" "$DMG_STAGING/PRIVACY_POLICY.md" 2>/dev/null || true
+cp -f "Legal/DISCLAIMER.md" "$DMG_STAGING/DISCLAIMER.md" 2>/dev/null || true
+cp -f "Legal/THIRD_PARTY_LICENSES.md" "$DMG_STAGING/THIRD_PARTY_LICENSES.md" 2>/dev/null || true
+cp -f "Legal/EULA.md" "$DMG_STAGING/EULA.md" 2>/dev/null || true
 
-# Create disk image via hdiutil
 echo "📦 Creating disk image: $DMG_OUTPUT"
-hdiutil create -volname "MacAuraLive Installer" \
-               -srcfolder "$DMG_TEMP_DIR" \
-               -ov -format UDZO \
-               "$DMG_OUTPUT"
+hdiutil create -srcfolder "$DMG_STAGING" -volname "$DMG_VOLUME_NAME" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -ov -format UDZO "$DMG_OUTPUT"
 
-rm -rf "$DMG_TEMP_DIR"
+rm -rf "$DMG_STAGING"
 
+# Generate cryptographic checksums
 echo "🔑 Generating SHA-256 and MD5 checksum files..."
+DMG_FILENAME="MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg"
 cd build
-DMG_FILENAME="MacAuraLive_v1.5.0_Installer_AppleSilicon.dmg"
 shasum -a 256 "$DMG_FILENAME" > "${DMG_FILENAME}.sha256"
 md5 -r "$DMG_FILENAME" > "${DMG_FILENAME}.md5"
 
-cat <<EOF > CHECKSUMS.txt
+cat << EOF > CHECKSUMS.txt
 ===================================================================
- MacAuraLive v1.5.0 Official Release Checksums
+ MacAuraLive v1.6.0 Official Release Checksums
 ===================================================================
 File: $DMG_FILENAME
 

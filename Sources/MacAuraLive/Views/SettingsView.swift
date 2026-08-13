@@ -213,11 +213,11 @@ public struct SettingsView: View {
                             .foregroundColor(.secondary)
                         
                         Picker("Placement Mode", selection: $settings.wallpaperPlacement) {
-                            Text("Stretch to Fill Screen (Default)").tag("stretch")
-                            Text("Fill Screen (Aspect Cover)").tag("fill")
-                            Text("Fit to Screen (Aspect Contain)").tag("fit")
-                            Text("Center (Original Size)").tag("center")
-                            Text("Custom Zoom Level").tag("zoom")
+                            Text("Original Resolution (Default - macOS Native Fit)").tag("original")
+                            Text("Fit to Screen (Preserve Aspect Ratio)").tag("fit")
+                            Text("Crop to Fill Screen (Aspect Fill)").tag("fill")
+                            Text("Stretch to Fill Screen").tag("stretch")
+                            Text("Custom Zoom & Scale").tag("zoom")
                         }
                         .pickerStyle(.menu)
                         
@@ -233,7 +233,7 @@ public struct SettingsView: View {
                                         .monospacedDigit()
                                 }
                                 
-                                Slider(value: $settings.wallpaperZoom, in: 0.5...2.5, step: 0.05)
+                                Slider(value: $settings.wallpaperZoom, in: 0.25...3.0, step: 0.05)
                             }
                             .padding(.top, 4)
                         }
@@ -501,6 +501,14 @@ public struct SettingsView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(18)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
                     
                     // Marketplace & Content Provider API Plugins
                     VStack(alignment: .leading, spacing: 14) {
@@ -681,12 +689,12 @@ public struct SettingsView: View {
                         switch updater.status {
                         case .idle:
                             HStack {
-                                Text("Current Version: v1.5.0 (Build 100)")
+                                Text("Current Version: v1.6.0 (Build 100)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Spacer()
                                 Button(action: { showChangelogModal = true }) {
-                                    Label("What's New in v1.5.0 (Changelog)", systemImage: "sparkles")
+                                    Label("What's New in v1.6.0 (Changelog)", systemImage: "sparkles")
                                         .font(.caption)
                                         .fontWeight(.semibold)
                                 }
@@ -787,7 +795,7 @@ public struct SettingsView: View {
                                 Text("MacAuraLive Live Wallpaper Engine")
                                     .font(.title2)
                                     .bold()
-                                Text("v1.5.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
+                                Text("v1.6.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
                                     .font(.caption)
                                     .foregroundColor(.cyan)
                                     .fontWeight(.medium)
@@ -807,7 +815,7 @@ public struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("App Version:").bold().font(.caption)
-                                Text("1.5.0 (Build 100)").font(.caption).foregroundColor(.secondary)
+                                Text("1.6.0 (Build 100)").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
                                 Text("Architecture:").bold().font(.caption)
@@ -842,6 +850,16 @@ public struct SettingsView: View {
                                 showDisclaimerModal = true
                             }
                             .buttonStyle(.bordered)
+                            
+                            Button(action: {
+                                if let url = URL(string: "https://github.com/ASKHOPE/MacAuraLive") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            }) {
+                                Label("Visit Repo", systemImage: "link")
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.blue)
                             
                             Button(action: { showChangelogModal = true }) {
                                 Label("Changelog", systemImage: "doc.plaintext.fill")
@@ -996,6 +1014,12 @@ public struct SettingsView: View {
         .sheet(isPresented: $showOnboardingWizard) {
             OnboardingView(isPresented: $showOnboardingWizard)
         }
+        .onChange(of: settings.wallpaperPlacement) { newPlacement in
+            WallpaperEngine.shared.updatePlacementSettings(placement: newPlacement, zoom: settings.wallpaperZoom)
+        }
+        .onChange(of: settings.wallpaperZoom) { newZoom in
+            WallpaperEngine.shared.updatePlacementSettings(placement: settings.wallpaperPlacement, zoom: newZoom)
+        }
     }
     
     private func openReferenceFolderPicker() {
@@ -1124,7 +1148,9 @@ struct APIKeyCardRow: View {
                 
                 // Save Key Button
                 Button(action: {
-                    key = tempKey
+                    let clean = tempKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !clean.isEmpty else { return }
+                    key = clean
                     withAnimation {
                         showSavedBanner = true
                     }
@@ -1144,7 +1170,7 @@ struct APIKeyCardRow: View {
                 .buttonStyle(.borderedProminent)
                 .tint(showSavedBanner ? .green : .blue)
                 .controlSize(.regular)
-                .disabled(tempKey == key && !key.isEmpty)
+                .disabled(tempKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || (tempKey == key && !key.isEmpty))
                 
                 // Clear Key Button
                 Button(action: {
@@ -1203,10 +1229,10 @@ struct ChangelogModalView: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    // Version 1.5.0
+                    // Version 1.6.0
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text("Version 1.5.0 (Current Release)")
+                            Text("Version 1.6.0 (Current Release)")
                                 .font(.headline)
                                 .bold()
                             Spacer()
@@ -1220,12 +1246,13 @@ struct ChangelogModalView: View {
                         }
                         
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("• Live Wallpaper Acceleration: Removed background preview WebViews from gallery cards, restoring 60 FPS performance to desktop shaders like Matrix Digital Rain.")
-                            Text("• Always-Visible Sidebar Speed Control: Moved Playback Speed control into the sidebar footer alongside Mute and Volume controls.")
-                            Text("• Full Viewport Image Placement & Scaling: Viewport sizing fix so static wallpapers and GIFs fit 100% full screen cleanly without alignment offsets.")
-                            Text("• Responsive User Guide Layout: Category filter pills auto-wrap dynamically across window resize.")
+                            Text("• Native Static Wallpaper Rendering: High-performance CoreGraphics/Metal drawing with zero layout artifacts.")
+                            Text("• Default Original Resolution (macOS Native): Renders wallpapers in original 1:1 pixel dimensions and aspect ratios without forced zoom or stretch.")
+                            Text("• Sizing & Aspect Ratio Quick Controls: Instant Sizing and Crop selector in Gallery and Full Preview modals.")
+                            Text("• Live Wallpaper Acceleration: Removed background preview WebViews from gallery cards, restoring 60 FPS performance to desktop shaders.")
+                            Text("• Real-Time Playback Speed Slider: Fluid 0.25x to 3.0x speed control in the sidebar footer.")
                             Text("• API Key Validation & Live Testing: Test Key, Save Key, and Clear Key action controls across all AI Workshop providers.")
-                            Text("• UI Layout Synchronization: Equal full-width settings cards with modern liquid glass styling.")
+                            Text("• Dedicated In-Built Storage Analytics Card: Live disk footprint breakdown in Settings.")
                         }
                         .font(.caption)
                         .foregroundColor(.secondary)

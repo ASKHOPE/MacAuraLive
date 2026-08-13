@@ -14,6 +14,7 @@ public struct GalleryView: View {
     
     @ObservedObject var storage = WallpaperStorageManager.shared
     @ObservedObject var engine = WallpaperEngine.shared
+    @ObservedObject var settings = AppSettings.shared
     
     @State private var searchText: String = ""
     @State private var selectedCategory: String = "All"
@@ -46,6 +47,17 @@ public struct GalleryView: View {
     
     public init(filterType: GalleryFilterType = .all) {
         self.filterType = filterType
+    }
+    
+    private func placementLabel(_ mode: String) -> String {
+        switch mode {
+        case "original", "center": return "Original (Native)"
+        case "fit": return "Fit"
+        case "fill": return "Crop to Fill"
+        case "stretch": return "Stretch"
+        case "zoom": return "Zoom"
+        default: return "Original (Native)"
+        }
     }
 
     public var currentCategoryPills: [String] {
@@ -145,6 +157,24 @@ public struct GalleryView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.regular)
+                        
+                        Menu {
+                            Picker("Global Sizing", selection: $settings.wallpaperPlacement) {
+                                Label("Original (macOS Default)", systemImage: "viewfinder").tag("original")
+                                Label("Fit to Screen (Aspect Ratio)", systemImage: "aspectratio").tag("fit")
+                                Label("Crop to Fill Screen (Aspect Fill)", systemImage: "crop").tag("fill")
+                                Label("Stretch to Fill Screen", systemImage: "arrow.up.left.and.arrow.down.right").tag("stretch")
+                                Label("Custom Zoom & Scale", systemImage: "plus.magnifyingglass").tag("zoom")
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "aspectratio")
+                                Text("Sizing: \(placementLabel(settings.wallpaperPlacement))")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.regular)
+                        .help("Global Wallpaper Sizing & Aspect Ratio Mode")
                     }
                 }
                 
@@ -815,15 +845,7 @@ struct WallpaperCardView: View {
     
     @ViewBuilder
     private var cardVisualPreview: some View {
-        if wallpaper.type == .builtInWeb || wallpaper.type == .webUrl || wallpaper.pathOrUrl.hasSuffix(".html") {
-            if let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
-                MiniWebPreviewView(url: url)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .disabled(true)
-            } else {
-                staticPosterImage
-            }
-        } else if wallpaper.type == .video {
+        if wallpaper.type == .video {
             if let img = videoThumbnail {
                 Image(nsImage: img)
                     .resizable()
@@ -834,14 +856,7 @@ struct WallpaperCardView: View {
                     .onAppear { generateVideoFrame() }
             }
         } else {
-            if let image = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                staticPosterImage
-            }
+            staticPosterImage
         }
     }
     
@@ -899,7 +914,19 @@ struct FullWallpaperPreviewModal: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var storage = WallpaperStorageManager.shared
     @ObservedObject var engine = WallpaperEngine.shared
+    @ObservedObject var settings = AppSettings.shared
     @State private var videoThumbnail: NSImage? = nil
+    
+    private func placementLabel(_ mode: String) -> String {
+        switch mode {
+        case "fit": return "Fit"
+        case "center": return "Original (1:1)"
+        case "fill": return "Crop to Fill"
+        case "stretch": return "Stretch"
+        case "zoom": return "Zoom"
+        default: return "Fit"
+        }
+    }
     
     var body: some View {
         VStack(spacing: 16) {
@@ -921,7 +948,7 @@ struct FullWallpaperPreviewModal: View {
             
             // Large Full Preview Stage
             ZStack {
-                Color.black.opacity(0.8)
+                Color.black.opacity(0.9)
                 
                 if (wallpaper.type == .builtInWeb || wallpaper.type == .webUrl || wallpaper.pathOrUrl.hasSuffix(".html")),
                    let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
@@ -939,12 +966,32 @@ struct FullWallpaperPreviewModal: View {
                         ProgressView()
                     }
                 } else if let img = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
-                    Image(nsImage: img)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
+                    // Static image preview respecting current placement mode
+                    if settings.wallpaperPlacement == "fill" {
+                        Image(nsImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else if settings.wallpaperPlacement == "stretch" {
+                        Image(nsImage: img)
+                            .resizable()
+                    } else if settings.wallpaperPlacement == "center" {
+                        Image(nsImage: img)
+                            .frame(width: min(img.size.width, 700), height: min(img.size.height, 400))
+                    } else if settings.wallpaperPlacement == "zoom" {
+                        Image(nsImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(CGFloat(settings.wallpaperZoom))
+                    } else {
+                        // Fit to screen (Preserve original proportions)
+                        Image(nsImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
             .cornerRadius(14)
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
@@ -969,9 +1016,35 @@ struct FullWallpaperPreviewModal: View {
                 
                 Spacer()
                 
+                // Wallpaper Sizing & Crop Selector
+                Menu {
+                    Picker("Placement Mode", selection: $settings.wallpaperPlacement) {
+                        Label("Original (macOS Default)", systemImage: "viewfinder").tag("original")
+                        Label("Fit to Screen (Preserve Aspect Ratio)", systemImage: "aspectratio").tag("fit")
+                        Label("Crop to Fill Screen (Aspect Fill)", systemImage: "crop").tag("fill")
+                        Label("Stretch to Fill Screen", systemImage: "arrow.up.left.and.arrow.down.right").tag("stretch")
+                        Label("Custom Zoom & Scale", systemImage: "plus.magnifyingglass").tag("zoom")
+                    }
+                    
+                    if settings.wallpaperPlacement == "zoom" || settings.wallpaperPlacement == "center" || settings.wallpaperPlacement == "original" {
+                        Divider()
+                        Button("Reset Zoom (100%)") { settings.wallpaperZoom = 1.0 }
+                        Button("Zoom In (125%)") { settings.wallpaperZoom = 1.25 }
+                        Button("Zoom In (150%)") { settings.wallpaperZoom = 1.5 }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "crop")
+                        Text("Sizing & Crop: \(placementLabel(settings.wallpaperPlacement))")
+                    }
+                }
+                .menuStyle(.borderedButton)
+                .help("Configure how this wallpaper is sized, cropped, or scaled on your display")
+                
                 Button(action: {
                     storage.setActiveWallpaper(wallpaper)
                     engine.reloadEngine()
+                    engine.updatePlacementSettings(placement: settings.wallpaperPlacement, zoom: settings.wallpaperZoom)
                     dismiss()
                 }) {
                     Label("Apply as Desktop Wallpaper", systemImage: "checkmark.circle.fill")
@@ -982,7 +1055,13 @@ struct FullWallpaperPreviewModal: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 720, minHeight: 520)
+        .frame(minWidth: 740, minHeight: 540)
+        .onChange(of: settings.wallpaperPlacement) { newPlacement in
+            engine.updatePlacementSettings(placement: newPlacement, zoom: settings.wallpaperZoom)
+        }
+        .onChange(of: settings.wallpaperZoom) { newZoom in
+            engine.updatePlacementSettings(placement: settings.wallpaperPlacement, zoom: newZoom)
+        }
     }
     
     private func generateVideoFrame() {

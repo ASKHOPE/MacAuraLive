@@ -268,21 +268,39 @@ public struct AIConfigurationView: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button(action: {
-                        KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey")
+                        let clean = geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !clean.isEmpty else {
+                            validationFeedback["Google Gemini"] = (false, "Cannot save empty key. Please enter your API key.")
+                            return
+                        }
+                        KeychainManager.shared.saveKey(clean, forAccount: "geminiApiKey")
                         validationFeedback["Google Gemini"] = (true, "Key saved securely to macOS Keychain.")
                     }) {
                         Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
+                    .disabled(geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     
-                    Button("Test Key") {
-                        KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey")
+                    Button(action: {
+                        let clean = geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !clean.isEmpty else {
+                            validationFeedback["Google Gemini"] = (false, "Please enter your API key before testing.")
+                            return
+                        }
+                        KeychainManager.shared.saveKey(clean, forAccount: "geminiApiKey")
                         validateKey(provider: "Google Gemini")
+                    }) {
+                        HStack(spacing: 4) {
+                            if validatingProvider == "Google Gemini" {
+                                ProgressView().controlSize(.small)
+                            }
+                            Text(validatingProvider == "Google Gemini" ? "Testing..." : "Test Key")
+                        }
                     }
                     .buttonStyle(.bordered)
                     .tint(.green)
-                    .disabled(geminiApiKey.isEmpty || validatingProvider != nil)
+                    .disabled(geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || validatingProvider != nil)
                     
                     Button(action: {
                         geminiApiKey = ""
@@ -301,7 +319,7 @@ public struct AIConfigurationView: View {
                     .foregroundColor(.secondary)
             }
             
-            if let feedback = validationFeedback["Gemini"] {
+            if let feedback = validationFeedback["Google Gemini"] ?? validationFeedback["Gemini"] {
                 HStack(spacing: 6) {
                     Image(systemName: feedback.success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundColor(feedback.success ? .green : .red)
@@ -388,19 +406,38 @@ public struct AIConfigurationView: View {
                         .textFieldStyle(.roundedBorder)
                     
                     Button(action: {
+                        let clean = settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !clean.isEmpty else {
+                            validationFeedback["OpenRouter"] = (false, "Cannot save empty key. Please enter your API key.")
+                            return
+                        }
+                        settings.openRouterApiKey = clean
                         validationFeedback["OpenRouter"] = (true, "Key saved to Preferences.")
                     }) {
                         Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.purple)
+                    .disabled(settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     
-                    Button("Test Key") {
+                    Button(action: {
+                        let clean = settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !clean.isEmpty else {
+                            validationFeedback["OpenRouter"] = (false, "Please enter your API key before testing.")
+                            return
+                        }
                         validateKey(provider: "OpenRouter")
+                    }) {
+                        HStack(spacing: 4) {
+                            if validatingProvider == "OpenRouter" {
+                                ProgressView().controlSize(.small)
+                            }
+                            Text(validatingProvider == "OpenRouter" ? "Testing..." : "Test Key")
+                        }
                     }
                     .buttonStyle(.bordered)
                     .tint(.green)
-                    .disabled(settings.openRouterApiKey.isEmpty || validatingProvider != nil)
+                    .disabled(settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || validatingProvider != nil)
                     
                     Button(action: {
                         settings.openRouterApiKey = ""
@@ -414,12 +451,13 @@ public struct AIConfigurationView: View {
                 }
                 
                 if let fb = validationFeedback["OpenRouter"] {
-                    HStack {
+                    HStack(spacing: 6) {
                         Image(systemName: fb.success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                            .foregroundColor(fb.success ? .green : .red)
                         Text(fb.message)
+                            .font(.caption)
+                            .foregroundColor(fb.success ? .green : .red)
                     }
-                    .font(.caption)
-                    .foregroundColor(fb.success ? .green : .red)
                 }
             }
         }
@@ -542,7 +580,20 @@ public struct AIConfigurationView: View {
     
     private func validateKey(provider: String) {
         validatingProvider = provider
-        let key: String = provider.contains("OpenRouter") ? settings.openRouterApiKey : ""
+        let key: String
+        if provider.contains("Google") || provider.contains("Gemini") {
+            key = geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if provider.contains("OpenRouter") {
+            key = settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            key = ""
+        }
+        
+        guard !key.isEmpty || provider.contains("Local") else {
+            validatingProvider = nil
+            validationFeedback[provider] = (false, "API key cannot be empty. Please enter your API key first.")
+            return
+        }
         
         AIGenerationManager.shared.validateAPIKey(
             provider: provider,
@@ -551,14 +602,14 @@ public struct AIConfigurationView: View {
             model: settings.openRouterModel
         ) { result in
             DispatchQueue.main.async {
-                validatingProvider = nil
+                self.validatingProvider = nil
                 switch result {
                 case .success(let msg):
-                    validationFeedback[provider] = (true, msg)
-                    appendLog("[VALIDATE_OK] \(msg)")
+                    self.validationFeedback[provider] = (true, msg)
+                    self.appendLog("[VALIDATE_OK] \(msg)")
                 case .failure(let err):
-                    validationFeedback[provider] = (false, "Notice: \(err.localizedDescription)")
-                    appendLog("[VALIDATE_ERR] \(err.localizedDescription)")
+                    self.validationFeedback[provider] = (false, err.localizedDescription)
+                    self.appendLog("[VALIDATE_ERR] \(err.localizedDescription)")
                 }
             }
         }

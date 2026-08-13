@@ -157,7 +157,7 @@ public class AppSettings: ObservableObject {
         self.audioVolume = defaults.object(forKey: "audioVolume") as? Double ?? 0.8
         self.isMuted = defaults.object(forKey: "isMuted") as? Bool ?? true
         self.defaultAspectFill = defaults.object(forKey: "defaultAspectFill") as? Bool ?? true
-        self.wallpaperPlacement = defaults.string(forKey: "wallpaperPlacement") ?? "stretch"
+        self.wallpaperPlacement = defaults.string(forKey: "wallpaperPlacement") ?? "original"
         self.wallpaperZoom = defaults.object(forKey: "wallpaperZoom") as? Double ?? 1.0
         self.isAdminUnlocked = defaults.bool(forKey: "isAdminUnlocked")
         

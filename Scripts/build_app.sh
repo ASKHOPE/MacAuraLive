@@ -55,7 +55,7 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.5.0</string>
+    <string>1.6.0</string>
     <key>CFBundleVersion</key>
     <string>100</string>
     <key>LSMinimumSystemVersion</key>

@@ -158,15 +158,64 @@ public class AIGenerationManager {
         let startTime = Date()
         let cleanKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if provider.contains("OpenRouter") {
+        if !provider.contains("Local") && cleanKey.isEmpty {
+            completion(.failure(NSError(domain: "AIGeneration", code: 400, userInfo: [NSLocalizedDescriptionKey: "API Key cannot be empty. Please enter a valid API key."])))
+            return
+        }
+        
+        if provider.contains("Gemini") || provider.contains("Google") {
+            guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\(cleanKey)") else {
+                completion(.failure(NSError(domain: "Gemini", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid Gemini API Key format"])))
+                return
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.timeoutInterval = 8.0
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            
+            let body: [String: Any] = [
+                "contents": [
+                    ["parts": [["text": "hi"]]]
+                ],
+                "generationConfig": [
+                    "maxOutputTokens": 2
+                ]
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                let duration = String(format: "%.2fs", Date().timeIntervalSince(startTime))
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                if let httpResp = response as? HTTPURLResponse {
+                    if httpResp.statusCode == 200 {
+                        completion(.success("Valid Google Gemini API Key! Connection verified (\(duration))"))
+                    } else {
+                        var errMsg = "Gemini Authentication Failed (HTTP \(httpResp.statusCode))"
+                        if let data = data,
+                           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                           let errDict = json["error"] as? [String: Any],
+                           let message = errDict["message"] as? String {
+                            errMsg = message
+                        }
+                        completion(.failure(NSError(domain: "Gemini", code: httpResp.statusCode, userInfo: [NSLocalizedDescriptionKey: errMsg])))
+                    }
+                } else {
+                    completion(.failure(NSError(domain: "Gemini", code: 500, userInfo: [NSLocalizedDescriptionKey: "No response from Google Gemini server."])))
+                }
+            }
+            self.currentTask = task
+            task.resume()
+            
+        } else if provider.contains("OpenRouter") {
             guard let url = URL(string: "https://openrouter.ai/api/v1/chat/completions") else { return }
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-            request.timeoutInterval = 6.0
+            request.timeoutInterval = 8.0
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            if !cleanKey.isEmpty {
-                request.setValue("Bearer \(cleanKey)", forHTTPHeaderField: "Authorization")
-            }
+            request.setValue("Bearer \(cleanKey)", forHTTPHeaderField: "Authorization")
             request.setValue("https://github.com/macaura/livewallpaper", forHTTPHeaderField: "HTTP-Referer")
             request.setValue("MacAuraLive Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
             
@@ -184,14 +233,21 @@ public class AIGenerationManager {
                     completion(.failure(error))
                     return
                 }
-                if let httpResp = response as? HTTPURLResponse, httpResp.statusCode == 200 {
-                    completion(.success("Verified OpenRouter model '\(targetModel)' (\(duration))"))
-                } else if let data = data,
-                          let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                          let _ = json["choices"] {
-                    completion(.success("Verified OpenRouter connection (\(duration))"))
+                if let httpResp = response as? HTTPURLResponse {
+                    if httpResp.statusCode == 200 {
+                        completion(.success("Valid OpenRouter Key! Verified model '\(targetModel)' (\(duration))"))
+                    } else {
+                        var errMsg = "OpenRouter Authentication Failed (HTTP \(httpResp.statusCode))"
+                        if let data = data,
+                           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                           let errDict = json["error"] as? [String: Any],
+                           let message = errDict["message"] as? String {
+                            errMsg = message
+                        }
+                        completion(.failure(NSError(domain: "OpenRouter", code: httpResp.statusCode, userInfo: [NSLocalizedDescriptionKey: errMsg])))
+                    }
                 } else {
-                    completion(.success("Connected to OpenRouter free tier (\(duration))"))
+                    completion(.failure(NSError(domain: "OpenRouter", code: 500, userInfo: [NSLocalizedDescriptionKey: "No response from OpenRouter server."])))
                 }
             }
             self.currentTask = task

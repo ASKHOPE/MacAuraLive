@@ -239,6 +239,8 @@ public class WallpaperEngine: ObservableObject {
                 webView.setPlacement(placement, zoom: zoom)
             } else if let vidView = win.contentView as? VideoWallpaperView {
                 vidView.setPlacement(placement: placement, zoom: zoom)
+            } else if let staticView = win.contentView as? StaticWallpaperView {
+                staticView.setPlacement(placement: placement, zoom: zoom)
             }
         }
     }
@@ -280,7 +282,16 @@ public class WallpaperEngine: ObservableObject {
             let url = URL(fileURLWithPath: resolvedPath)
             return VideoWallpaperView(videoURL: url, volume: settings.audioVolume, isMuted: settings.isMuted)
             
-        case .gif, .image:
+        case .image:
+            let resolvedPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+                ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+                ?? Bundle.module.path(forResource: (wallpaper.pathOrUrl as NSString).lastPathComponent, ofType: nil, inDirectory: "Resources/Wallpapers/\((wallpaper.pathOrUrl as NSString).deletingLastPathComponent)")
+                ?? getLocalResourcePath(relative: wallpaper.pathOrUrl)
+                ?? wallpaper.pathOrUrl
+            let url = URL(fileURLWithPath: resolvedPath)
+            return StaticWallpaperView(imageURL: url)
+            
+        case .gif:
             let resolvedPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
                 ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
                 ?? Bundle.module.path(forResource: (wallpaper.pathOrUrl as NSString).lastPathComponent, ofType: nil, inDirectory: "Resources/Wallpapers/\((wallpaper.pathOrUrl as NSString).deletingLastPathComponent)")

@@ -73,14 +73,14 @@ if [ -z "$PACKAGE_NAME" ]; then
     ERRORS=$((ERRORS + 1))
 fi
 
-UPDATE_VER=$(grep -o 'currentVersion = "1.5.0"' Sources/MacAuraLive/Core/UpdateManager.swift || true)
+UPDATE_VER=$(grep -o 'currentVersion = "1.6.0"' Sources/MacAuraLive/Core/UpdateManager.swift || true)
 if [ -z "$UPDATE_VER" ]; then
     echo "  ❌ UpdateManager.swift version mismatch."
     ERRORS=$((ERRORS + 1))
 fi
 
 if [ $ERRORS -eq 0 ]; then
-    echo "  ✅ App name 'MacAuraLive' and version '1.5.0' are 100% synchronized."
+    echo "  ✅ App name 'MacAuraLive' and version '1.6.0' are 100% synchronized."
 fi
 
 # 5. Security & Static Analysis Audit

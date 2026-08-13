@@ -14,13 +14,13 @@
 
 <p align="center">
   <a href="https://github.com/ASKHOPE/MacAuraLive/releases/latest">
-    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.5.0%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
+    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.6.0%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
   </a>
 </p>
 
 > **MacAuraLive** is an open-source, hardware-accelerated live wallpaper engine for macOS — built entirely in Swift and SwiftUI, with zero external dependencies.
 > 
-> 📦 **[Download Direct DMG Installer (v1.5.0 Apple Silicon)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.5.0_Installer_AppleSilicon.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
+> 📦 **[Download Direct DMG Installer (v1.6.0 Apple Silicon)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
 ---
 
