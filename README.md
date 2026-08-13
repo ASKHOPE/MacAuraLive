@@ -138,8 +138,8 @@ shasum -a 256 build/MacAuraLive_v1.2.0_Installer_AppleSilicon.dmg
 ```
 
 ### 🔑 Cryptographic Checksums (v1.2.0)
-- **SHA-256**: `a4d76f3017f19e5b44be54282bfe7508a398df01191d08115054f63704e005ff`
-- **MD5**: `55e9c32f88b818fbaf1711b7469e6706`
+- **SHA-256**: `b945e7c659f64b2d3a201d2aa4e716e6d32a2943d47e9069de7ee37868d1356f`
+- **MD5**: `bf0d89576d6d94589b2149df32baf627`
 
 ### First Launch
 On first launch, MacAuraLive will:

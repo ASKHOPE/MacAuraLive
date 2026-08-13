@@ -3,6 +3,9 @@
 # Build script for MacAuraLive on macOS ARM64 / Apple Silicon
 set -e
 
+# 1. Run Pre-Build Verification Test Suite
+bash Scripts/verify_environment.sh
+
 echo "🚀 Building MacAuraLive Wallpaper Engine for macOS..."
 
 swift build -c release
