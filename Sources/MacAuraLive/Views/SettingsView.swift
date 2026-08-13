@@ -4,6 +4,7 @@ public struct SettingsView: View {
     @ObservedObject var settings = AppSettings.shared
     @ObservedObject var engine = WallpaperEngine.shared
     @ObservedObject var storage = WallpaperStorageManager.shared
+    @ObservedObject var updater = UpdateManager.shared
     
     @State private var syncStatusMessage: String? = nil
     @State private var showTOSModal: Bool = false
@@ -423,6 +424,110 @@ public struct SettingsView: View {
                             }
                         }
                     }
+                    
+                    // Software Updates & Releases Card
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.cyan)
+                            Text("Software Updates & Releases")
+                                .font(.title3)
+                                .bold()
+                            Spacer()
+                            
+                            Button(action: {
+                                updater.checkForUpdates()
+                            }) {
+                                HStack(spacing: 6) {
+                                    if updater.status == .checking {
+                                        ProgressView().controlSize(.small)
+                                    } else {
+                                        Image(systemName: "arrow.clockwise")
+                                    }
+                                    Text(updater.status == .checking ? "Checking..." : "Check for Updates")
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.cyan)
+                            .disabled(updater.status == .checking)
+                        }
+                        
+                        switch updater.status {
+                        case .idle:
+                            HStack {
+                                Text("Current Version: v1.2.0 (Build 100)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                if let lastDate = updater.lastCheckedDate {
+                                    Text("Last checked: \(lastDate.formatted(date: .omitted, time: .shortened))")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        case .checking:
+                            Text("Querying GitHub API for latest MacAuraLive release...")
+                                .font(.caption)
+                                .foregroundColor(.cyan)
+                        case .upToDate(let ver):
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("MacAuraLive is up to date! (v\(ver))")
+                                    .font(.subheadline)
+                                    .bold()
+                                    .foregroundColor(.green)
+                                Spacer()
+                                if let lastDate = updater.lastCheckedDate {
+                                    Text("Checked: \(lastDate.formatted(date: .omitted, time: .shortened))")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        case .updateAvailable(let newVer, let notes, let downloadUrl):
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack {
+                                    Image(systemName: "sparkles")
+                                        .foregroundColor(.purple)
+                                    Text("New Update Available: v\(newVer)!")
+                                        .font(.subheadline)
+                                        .bold()
+                                        .foregroundColor(.purple)
+                                    Spacer()
+                                    
+                                    Button("Download v\(newVer) Installer") {
+                                        updater.openDownloadPage(url: downloadUrl)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(.purple)
+                                }
+                                
+                                Text(notes)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(4)
+                            }
+                            .padding(12)
+                            .background(Color.purple.opacity(0.12))
+                            .cornerRadius(10)
+                        case .error(let msg):
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                Text(msg)
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                            }
+                        }
+                    }
+                    .padding(18)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
                     
                     // About MacAuraLive, Licensing & TOS Card
                     VStack(alignment: .leading, spacing: 16) {
