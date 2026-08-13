@@ -2,6 +2,7 @@ import SwiftUI
 
 public enum AITab: String, CaseIterable, Identifiable {
     case openRouter = "OpenRouter"
+    case gemini = "Google Gemini"
     case local = "Local AI (LMStudio/Ollama)"
     case openAI = "ChatGPT (Coming Soon)"
     case claude = "Claude (Coming Soon)"
@@ -11,6 +12,7 @@ public enum AITab: String, CaseIterable, Identifiable {
     public var iconName: String {
         switch self {
         case .openRouter: return "sparkles"
+        case .gemini: return "sparkle"
         case .local: return "cpu"
         case .openAI: return "bubble.left.and.bubble.right"
         case .claude: return "brain.head.profile"
@@ -19,7 +21,7 @@ public enum AITab: String, CaseIterable, Identifiable {
     
     public var isAvailable: Bool {
         switch self {
-        case .openRouter, .local: return true
+        case .openRouter, .gemini, .local: return true
         case .openAI, .claude: return false
         }
     }
@@ -59,9 +61,9 @@ public struct AIConfigurationView: View {
         VStack(alignment: .leading, spacing: 20) {
             // Header
             VStack(alignment: .leading, spacing: 6) {
-                Text("AI Engine Configuration")
+                Text("AI Workshop")
                     .font(.system(size: 28, weight: .bold))
-                Text("Select OpenRouter Free models or Local AI (LMStudio / Ollama).")
+                Text("Generate 60fps WebGL shaders using Google Gemini, OpenRouter, or Local AI (Ollama).")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -72,7 +74,7 @@ public struct AIConfigurationView: View {
                     Button(action: {
                         if tab.isAvailable {
                             activeSubTab = tab
-                            settings.selectedAIProvider = tab == .openRouter ? "OpenRouter" : "Local AI"
+                            settings.selectedAIProvider = tab.rawValue
                         }
                     }) {
                         HStack(spacing: 8) {
@@ -102,6 +104,8 @@ public struct AIConfigurationView: View {
                     switch activeSubTab {
                     case .openRouter:
                         openRouterTabView
+                    case .gemini:
+                        geminiTabView
                     case .local:
                         localAiTabView
                     case .openAI, .claude:
@@ -231,6 +235,68 @@ public struct AIConfigurationView: View {
         .onAppear {
             fetchLiveModels()
         }
+    }
+    
+    @State private var geminiApiKey: String = KeychainManager.shared.getKey(forAccount: "geminiApiKey")
+    
+    // MARK: - Google Gemini Tab View
+    @ViewBuilder
+    private var geminiTabView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Label("Google Gemini API", systemImage: "sparkle")
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.blue)
+                Spacer()
+                Text("Gemini 2.0 Flash / 1.5 Flash")
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.2))
+                    .foregroundColor(.blue)
+                    .cornerRadius(6)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Google Gemini API Key:")
+                    .font(.caption)
+                    .bold()
+                
+                HStack {
+                    SecureField("AIzaSy...", text: $geminiApiKey)
+                        .textFieldStyle(.roundedBorder)
+                    
+                    Button("Save Key") {
+                        KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey")
+                        validateKey(provider: "Google Gemini")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
+                }
+                
+                Text("API keys are hardware-encrypted at rest inside your macOS system Keychain via Security.framework.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            if let feedback = validationFeedback["Gemini"] {
+                HStack(spacing: 6) {
+                    Image(systemName: feedback.success ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .foregroundColor(feedback.success ? .green : .red)
+                    Text(feedback.message)
+                        .font(.caption)
+                        .foregroundColor(feedback.success ? .green : .red)
+                }
+            }
+        }
+        .padding(16)
+        .background(Color.blue.opacity(0.06))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
+        )
     }
     
     // MARK: - OpenRouter Tab View
@@ -474,7 +540,7 @@ public struct AIConfigurationView: View {
     
     private func runTestGeneration() {
         isGenerating = true
-        let provider = activeSubTab == .openRouter ? "OpenRouter" : "Local AI"
+        let provider = activeSubTab.rawValue
         appendLog("[START] Launching 60fps WebGL/Canvas Shader generation using \(provider)...")
         
         AIGenerationManager.shared.generateWallpaper(

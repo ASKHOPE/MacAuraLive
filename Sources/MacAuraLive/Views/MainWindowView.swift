@@ -7,7 +7,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
     case displays = "Displays"
     case lockScreen = "Lock Screen"
     case userGuide = "User Guide"
-    case aiConfig = "AI Configuration"
+    case aiConfig = "AI Workshop"
     case settings = "Settings"
     
     public var id: String { rawValue }
@@ -254,7 +254,7 @@ public struct MainWindowView: View {
                 case .userGuide:
                     UserGuideView()
                 case .aiConfig:
-                    AdminGateView(featureTitle: "AI Planner & LLM Configuration") {
+                    AdminGateView(featureTitle: "AI Workshop & Generation Playground") {
                         AIConfigurationView()
                     }
                 case .settings:
