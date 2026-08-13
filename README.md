@@ -45,12 +45,15 @@
 
 ---
 
-### 🎬 Live Wallpaper Engine & Video Controls
-- **Video Wallpapers** — Hardware-accelerated 1080p / 2K / 4K / 8K video loops via `AVFoundation` (H.264, HEVC/H.265, ProRes)
-- **Interactive Video Seek Slider** — Real-time playback timeline slider with `MM:SS` duration tracking and live seeking for video wallpapers
-- **Interactive WebGL Shaders** — Full HTML5/WebGL/Canvas procedural wallpapers rendered in `WKWebView`
-- **Built-in Shader Pack** — Aurora Borealis, Matrix Digital Rain, Cyberpunk Synthwave, 3D Particle Wave
-- **Static Wallpapers** — High-res image support (JPEG, PNG, HEIC) via `NSWorkspace`
+### 🎬 Live & Static Wallpaper Engine & Sizing Controls
+- **Native Static Wallpaper Engine (`StaticWallpaperView`)** — Pixel-perfect native AppKit CoreGraphics/Metal image rendering with high interpolation.
+- **Default Original Resolution (macOS Native Fit)** — Applies wallpapers in their exact 1:1 pixel dimensions and native aspect ratios centered on the display, preventing distortion or forced cropping.
+- **Interactive Sizing & Crop Controls** — Switch seamlessly between **Original (1:1)**, **Fit to Screen (Aspect Contain)**, **Crop to Fill (Aspect Fill)**, **Stretch to Fill**, and **Custom Zoom & Scale** in the Gallery header and preview modal.
+- **Video Wallpapers** — Hardware-accelerated 1080p / 2K / 4K / 8K video loops via `AVFoundation` (H.264, HEVC/H.265, ProRes).
+- **Interactive Video Seek Slider** — Real-time playback timeline slider with `MM:SS` duration tracking and live seeking for video wallpapers.
+- **Interactive WebGL Shaders** — Full HTML5/WebGL/Canvas procedural wallpapers rendered in `WKWebView`.
+- **Built-in Shader Pack** — Aurora Borealis, Matrix Digital Rain, Cyberpunk Synthwave, 3D Particle Wave.
+- **Live Wallpaper 60 FPS Acceleration** — Optimized gallery thumbnails to prevent background WebKit process contention, maintaining solid 60/120 FPS desktop performance.
 
 ### ⏰ Slideshow & Timed Rotation Engine
 - **Interval Slideshow** — Automatically rotate active wallpapers on a configurable timer (30 sec, 5 min, 15 min, 1 hr, 24 hr)
@@ -137,6 +140,7 @@ MacAuraLive/
     │   ├── WallpaperEngine.swift      # Multi-monitor window orchestrator & playback speed delegation
     │   ├── StorageAnalyticsManager.swift # Live storage footprint calculator & resource analytics
     │   ├── WallpaperWindow.swift      # Below-desktop-icons NSWindow
+    │   ├── StaticWallpaperView.swift  # Native CoreGraphics/Metal static wallpaper renderer
     │   ├── VideoWallpaperView.swift   # AVPlayerLooper 4K video renderer + seek & speed controls
     │   ├── WebWallpaperView.swift     # WKWebView HTML5/WebGL renderer + MacAuraLive SDK
     │   ├── WallpaperStorageManager.swift # Library persistence & file import (~/Documents/MacAuraLiveApp/)
