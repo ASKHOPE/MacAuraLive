@@ -22,6 +22,19 @@
 > 
 > 📦 **[Download Direct DMG Installer (v1.6.0 Apple Silicon)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
+> [!TIP]
+> ### 🍎 macOS First-Time Launch Note (Gatekeeper Override)
+> As an open-source application distributed outside the Mac App Store, macOS may display a standard *"Apple could not verify..."* dialog upon first launch.
+> 
+> **Option 1 (Fastest — One-line Terminal command):**
+> ```bash
+> xattr -cr /Applications/MacAuraLive.app
+> ```
+> 
+> **Option 2 (macOS Settings Override):**
+> 1. **Right-click (Control-click)** on `MacAuraLive.app` in your Applications folder and select **Open**.
+> 2. Or go to **System Settings > Privacy & Security**, scroll down to the **Security** section, and click **"Open Anyway"**.
+
 ---
 
 ## ✨ Features

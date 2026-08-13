@@ -1061,131 +1061,15 @@ struct APIKeyCardRow: View {
     @State private var isRevealed: Bool = false
     @State private var tempKey: String = ""
     @State private var showSavedBanner: Bool = false
+    @State private var isTesting: Bool = false
+    @State private var testFeedback: (Bool, String)? = nil
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Header Info & Status Badge
-            HStack(alignment: .center, spacing: 10) {
-                Image(systemName: iconName)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(iconColor)
-                    .frame(width: 28, height: 28)
-                    .background(iconColor.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(title)
-                            .font(.system(size: 13, weight: .semibold))
-                        
-                        if !key.isEmpty {
-                            HStack(spacing: 3) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 8))
-                                Text("CONFIGURED")
-                            }
-                            .font(.system(size: 9, weight: .bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.85))
-                            .foregroundColor(.white)
-                            .cornerRadius(4)
-                        } else {
-                            Text("OPTIONAL / UNSET")
-                                .font(.system(size: 9, weight: .bold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.white.opacity(0.1))
-                                .foregroundColor(.secondary)
-                                .cornerRadius(4)
-                        }
-                    }
-                    
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                if let urlString = helpUrl, let url = URL(string: urlString) {
-                    Link("Get Key ↗", destination: url)
-                        .font(.caption2)
-                        .foregroundColor(.blue)
-                }
-            }
-            
-            // Input Field & Action Buttons (Save Key & Clear Key)
-            HStack(spacing: 8) {
-                // Key Input Field with Show/Hide Eye Toggle
-                HStack {
-                    if isRevealed {
-                        TextField(placeholder, text: $tempKey)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12, design: .monospaced))
-                    } else {
-                        SecureField(placeholder, text: $tempKey)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12, design: .monospaced))
-                    }
-                    
-                    Button(action: { isRevealed.toggle() }) {
-                        Image(systemName: isRevealed ? "eye.slash.fill" : "eye.fill")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help(isRevealed ? "Hide Secret Key" : "Reveal Secret Key")
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(Color.black.opacity(0.25))
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-                
-                // Save Key Button
-                Button(action: {
-                    let clean = tempKey.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !clean.isEmpty else { return }
-                    key = clean
-                    withAnimation {
-                        showSavedBanner = true
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                        withAnimation {
-                            showSavedBanner = false
-                        }
-                    }
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: showSavedBanner ? "checkmark" : "square.and.arrow.down.fill")
-                        Text(showSavedBanner ? "Saved!" : "Save Key")
-                    }
-                    .font(.caption)
-                    .fontWeight(.medium)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(showSavedBanner ? .green : .blue)
-                .controlSize(.regular)
-                .disabled(tempKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || (tempKey == key && !key.isEmpty))
-                
-                // Clear Key Button
-                Button(action: {
-                    tempKey = ""
-                    key = ""
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "trash.fill")
-                        Text("Clear")
-                    }
-                    .font(.caption)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.regular)
-                .disabled(key.isEmpty && tempKey.isEmpty)
+            headerView
+            inputRowView
+            if let feedback = testFeedback {
+                feedbackBannerView(isSuccess: feedback.0, message: feedback.1)
             }
         }
         .padding(12)
@@ -1200,6 +1084,198 @@ struct APIKeyCardRow: View {
         }
         .onChange(of: key) { newKey in
             tempKey = newKey
+        }
+    }
+    
+    private var headerView: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Image(systemName: iconName)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(iconColor)
+                .frame(width: 28, height: 28)
+                .background(iconColor.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 8) {
+                    Text(title)
+                        .font(.system(size: 13, weight: .semibold))
+                    
+                    if !key.isEmpty {
+                        HStack(spacing: 3) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 8))
+                            Text("CONFIGURED")
+                        }
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.85))
+                        .foregroundColor(.white)
+                        .cornerRadius(4)
+                    } else {
+                        Text("OPTIONAL / UNSET")
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.white.opacity(0.1))
+                            .foregroundColor(.secondary)
+                            .cornerRadius(4)
+                    }
+                }
+                
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            if let urlString = helpUrl, let url = URL(string: urlString) {
+                Link("Get Key ↗", destination: url)
+                    .font(.caption2)
+                    .foregroundColor(.blue)
+            }
+        }
+    }
+    
+    private var inputRowView: some View {
+        HStack(spacing: 8) {
+            HStack {
+                if isRevealed {
+                    TextField(placeholder, text: $tempKey)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12, design: .monospaced))
+                } else {
+                    SecureField(placeholder, text: $tempKey)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 12, design: .monospaced))
+                }
+                
+                Button(action: { isRevealed.toggle() }) {
+                    Image(systemName: isRevealed ? "eye.slash.fill" : "eye.fill")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(Color.black.opacity(0.25))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            )
+            
+            // Save Key
+            Button(action: saveAction) {
+                HStack(spacing: 4) {
+                    Image(systemName: showSavedBanner ? "checkmark" : "square.and.arrow.down.fill")
+                    Text(showSavedBanner ? "Saved!" : "Save Key")
+                }
+                .font(.caption)
+                .fontWeight(.medium)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(showSavedBanner ? .green : .blue)
+            .controlSize(.regular)
+            .disabled(tempKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            
+            // Test Key
+            Button(action: testAction) {
+                HStack(spacing: 4) {
+                    if isTesting {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Image(systemName: "checkmark.shield.fill")
+                    }
+                    Text(isTesting ? "Testing..." : "Test Key")
+                }
+                .font(.caption)
+                .fontWeight(.medium)
+            }
+            .buttonStyle(.bordered)
+            .tint(.green)
+            .controlSize(.regular)
+            .disabled(tempKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTesting)
+            
+            // Clear Key
+            Button(action: {
+                tempKey = ""
+                key = ""
+                testFeedback = nil
+            }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "trash.fill")
+                    Text("Clear")
+                }
+                .font(.caption)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.regular)
+            .disabled(key.isEmpty && tempKey.isEmpty)
+        }
+    }
+    
+    private func feedbackBannerView(isSuccess: Bool, message: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                .foregroundColor(isSuccess ? .green : .orange)
+            Text(message)
+                .font(.caption2)
+                .foregroundColor(isSuccess ? .green : .orange)
+                .lineLimit(2)
+            Spacer()
+            Button(action: { testFeedback = nil }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 8))
+                    .foregroundColor(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(6)
+        .background((isSuccess ? Color.green : Color.orange).opacity(0.12))
+        .cornerRadius(6)
+    }
+    
+    private func saveAction() {
+        let clean = tempKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else {
+            testFeedback = (false, "Cannot save empty key.")
+            return
+        }
+        key = clean
+        testFeedback = (true, "Key saved securely to Keychain.")
+        withAnimation {
+            showSavedBanner = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation {
+                showSavedBanner = false
+            }
+        }
+    }
+    
+    private func testAction() {
+        let clean = tempKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else {
+            testFeedback = (false, "Please enter an API key before testing.")
+            return
+        }
+        isTesting = true
+        testFeedback = nil
+        
+        AIGenerationManager.shared.validateAPIKey(provider: title, apiKey: clean, endpoint: "", model: "") { result in
+            DispatchQueue.main.async {
+                isTesting = false
+                switch result {
+                case .success(let msg):
+                    testFeedback = (true, msg)
+                case .failure(let err):
+                    testFeedback = (false, err.localizedDescription)
+                }
+            }
         }
     }
 }

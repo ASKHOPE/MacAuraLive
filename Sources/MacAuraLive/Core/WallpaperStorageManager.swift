@@ -99,6 +99,8 @@ public class WallpaperStorageManager: ObservableObject {
         copyResource(subpath: "Static/TurbulentOcean/wallpaper.jpg", to: staticDir.appendingPathComponent("turbulent_ocean.jpg"))
         copyResource(subpath: "Static/MountainRidges/wallpaper.jpg", to: staticDir.appendingPathComponent("mountain_ridges.jpg"))
         copyResource(subpath: "Static/BlueCurves/wallpaper.jpg", to: staticDir.appendingPathComponent("blue_curves.jpg"))
+        copyResource(subpath: "Static/DeepSpaceNebula/wallpaper.jpg", to: staticDir.appendingPathComponent("deep_space_nebula.jpg"))
+        copyResource(subpath: "Static/AlpineGlacier/wallpaper.jpg", to: staticDir.appendingPathComponent("alpine_glacier.jpg"))
         copyResource(subpath: "Video/ShivaayWaves/wallpaper.mp4", to: liveDir.appendingPathComponent("shivaay_waves.mp4"))
     }
     
@@ -301,37 +303,61 @@ public class WallpaperStorageManager: ObservableObject {
                 id: "turbulent_ocean",
                 title: "Turbulent Ocean Water",
                 category: "Nature",
-                resolutionTag: "4K UHD",
+                resolutionTag: "5K Retina",
                 type: .image,
                 pathOrUrl: "Static/TurbulentOcean/wallpaper.jpg",
                 thumbnailIcon: "water.waves",
                 hasAudio: false,
                 author: "Kristaps Ungurs (Unsplash)",
-                description: "Turbulent ocean water swirls and crashes beautifully in 4K resolution. Photo by Kristaps Ungurs on Unsplash."
+                description: "Turbulent ocean water swirls and crashes in pristine 5K uncompressed resolution (5272x3948). Photo by Kristaps Ungurs."
             ),
             WallpaperItem(
                 id: "mountain_ridges",
                 title: "Abstract Mountain Ridges",
                 category: "Abstract",
-                resolutionTag: "4K UHD",
+                resolutionTag: "6K UHD",
                 type: .image,
                 pathOrUrl: "Static/MountainRidges/wallpaper.jpg",
                 thumbnailIcon: "waveform",
                 hasAudio: false,
                 author: "Oxana Golubets (Unsplash)",
-                description: "Abstract waves resemble mountain ridges in blue tones. Photo by Oxana Golubets on Unsplash."
+                description: "Abstract waves resembling mountain ridges in ultra-crisp 6K resolution (6000x4000). Photo by Oxana Golubets."
             ),
             WallpaperItem(
                 id: "blue_curves",
                 title: "Abstract Blue Curves",
                 category: "Abstract",
-                resolutionTag: "4K UHD",
+                resolutionTag: "5K Retina",
                 type: .image,
                 pathOrUrl: "Static/BlueCurves/wallpaper.jpg",
                 thumbnailIcon: "sparkles",
                 hasAudio: false,
+                author: "Jacob Buchhave (Unsplash)",
+                description: "Elegant layered abstract curves in ultra-sharp 5.5K resolution (5464x3640). Photo by Jacob Buchhave."
+            ),
+            WallpaperItem(
+                id: "deep_space_nebula",
+                title: "Deep Space Cosmic Nebula",
+                category: "Abstract",
+                resolutionTag: "4K UHD",
+                type: .image,
+                pathOrUrl: "Static/DeepSpaceNebula/wallpaper.jpg",
+                thumbnailIcon: "sparkles",
+                hasAudio: false,
+                author: "MacAuraLive Core",
+                description: "Pristine 4K UHD abstract deep space cosmic nebula and star clusters (3840x2160)."
+            ),
+            WallpaperItem(
+                id: "alpine_glacier",
+                title: "Majestic Alpine Glacier",
+                category: "Nature",
+                resolutionTag: "9K Master",
+                type: .image,
+                pathOrUrl: "Static/AlpineGlacier/wallpaper.jpg",
+                thumbnailIcon: "mountain.2.fill",
+                hasAudio: false,
                 author: "Hassaan Here (Unsplash)",
-                description: "Close-up of elegant blue layered abstract paper curves. Photo by Hassaan Here on Unsplash."
+                description: "Breathtaking snowy mountain peaks in massive 9K master resolution (9000x6000). Photo by Hassaan Here."
             ),
             WallpaperItem(
                 id: "shivaay_waves",
