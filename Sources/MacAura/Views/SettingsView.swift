@@ -171,20 +171,9 @@ public struct SettingsView: View {
                     
                     // Display & Spanning Configuration Card
                     VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Text("Multi-Monitor & Lock Screen Settings")
-                                .font(.title3)
-                                .bold()
-                            Spacer()
-                            Text("ALPHA - TESTING")
-                                .font(.caption2)
-                                .bold()
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.orange.opacity(0.2))
-                                .foregroundColor(.orange)
-                                .cornerRadius(6)
-                        }
+                        Text("Multi-Monitor Display Spanning")
+                            .font(.title3)
+                            .bold()
                         
                         Toggle(isOn: $settings.spanAcrossDisplays) {
                             VStack(alignment: .leading, spacing: 2) {
@@ -193,17 +182,7 @@ public struct SettingsView: View {
                                 Text("Stretches a single ultra-wide 4K/8K live wallpaper across multiple monitors without black screens.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Toggle(isOn: $settings.enableLockScreenWallpaper) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Enable Live Wallpaper on macOS Lock Screen")
-                                    .font(.body)
-                                Text("Maintains 60fps live wallpaper rendering when your screen is locked.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+            }
                         }
                     }
                     .padding(18)
@@ -380,7 +359,7 @@ public struct SettingsView: View {
                                 .cornerRadius(6)
                         }
                         
-                        Text("Early access features (Lock Screen Wallpaper & AI Configuration) are protected by Admin Passcode.")
+                        Text("Early access features (AI Configuration) are protected by Admin Passcode.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         

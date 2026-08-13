@@ -184,10 +184,19 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     
     @objc private func openDashboard() {
         NSApp.activate(ignoringOtherApps: true)
-        if let window = NSApp.windows.first(where: { $0.title.contains("MacAura") }) {
+        
+        // Find the main content window — exclude NSPanels (status bar auxiliary windows)
+        // SwiftUI WindowGroup windows may have an empty title at runtime, so don't filter by title
+        let contentWindow = NSApp.windows.first(where: {
+            !($0 is NSPanel) && $0.canBecomeMain
+        })
+        
+        if let window = contentWindow {
+            // Restore if minimised to Dock
+            if window.isMiniaturized { window.deminiaturize(nil) }
             window.makeKeyAndOrderFront(nil)
-        } else {
-            NSApp.windows.first?.makeKeyAndOrderFront(nil)
+            // orderFrontRegardless ensures it comes up even in .accessory policy mode
+            window.orderFrontRegardless()
         }
     }
     

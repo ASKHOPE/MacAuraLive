@@ -8,6 +8,10 @@ public class WallpaperEngine: ObservableObject {
     @Published public var isPaused: Bool = false
     @Published public var perDisplayWallpaperMap: [CGDirectDisplayID: String] = [:] // displayID -> wallpaperID
     
+    // Playback Timeline Slider Tracking
+    @Published public var playbackCurrentTime: Double = 0.0
+    @Published public var playbackDuration: Double = 0.0
+    
     private var windowMap: [CGDirectDisplayID: WallpaperWindow] = [:] // displayID -> WallpaperWindow
     private var cancellables = Set<AnyCancellable>()
     
@@ -184,6 +188,20 @@ public class WallpaperEngine: ObservableObject {
     public func setWallpaperForDisplay(displayID: CGDirectDisplayID, wallpaperID: String) {
         perDisplayWallpaperMap[displayID] = wallpaperID
         reloadEngine()
+    }
+    
+    public func updatePlaybackPosition(current: Double, duration: Double) {
+        self.playbackCurrentTime = current
+        self.playbackDuration = duration
+    }
+    
+    public func seekToPosition(seconds: Double) {
+        self.playbackCurrentTime = seconds
+        for win in windowMap.values {
+            if let vidView = win.contentView as? VideoWallpaperView {
+                vidView.seek(to: seconds)
+            }
+        }
     }
     
     public func updateAudioSettings(volume: Double, isMuted: Bool) {

@@ -33,6 +33,11 @@ public class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(lockScreenWallpaperId, forKey: "lockScreenWallpaperId") }
     }
     
+    /// Persisted absolute file path of the last successfully applied lock screen image
+    @Published public var lockScreenImagePath: String {
+        didSet { UserDefaults.standard.set(lockScreenImagePath, forKey: "lockScreenImagePath") }
+    }
+    
     @Published public var spanAcrossDisplays: Bool {
         didSet { UserDefaults.standard.set(spanAcrossDisplays, forKey: "spanAcrossDisplays") }
     }
@@ -109,6 +114,7 @@ public class AppSettings: ObservableObject {
         self.pauseOnFullScreen = defaults.object(forKey: "pauseOnFullScreen") as? Bool ?? true
         self.enableLockScreenWallpaper = defaults.object(forKey: "enableLockScreenWallpaper") as? Bool ?? true
         self.lockScreenWallpaperId = defaults.string(forKey: "lockScreenWallpaperId") ?? "aurora"
+        self.lockScreenImagePath = defaults.string(forKey: "lockScreenImagePath") ?? ""
         self.spanAcrossDisplays = defaults.object(forKey: "spanAcrossDisplays") as? Bool ?? false
         self.audioVolume = defaults.object(forKey: "audioVolume") as? Double ?? 0.8
         self.isMuted = defaults.object(forKey: "isMuted") as? Bool ?? true

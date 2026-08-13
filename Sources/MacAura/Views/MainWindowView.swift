@@ -3,6 +3,7 @@ import SwiftUI
 public enum NavigationTab: String, CaseIterable, Identifiable {
     case liveWallpapers = "Live Wallpapers"
     case staticWallpapers = "Static Wallpapers"
+    case slideshow = "Slideshow & Schedule"
     case displays = "Displays"
     case lockScreen = "Lock Screen"
     case aiConfig = "AI Configuration"
@@ -14,6 +15,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
         switch self {
         case .liveWallpapers: return "play.rectangle.fill"
         case .staticWallpapers: return "photo.fill"
+        case .slideshow: return "clock.arrow.2.circlepath"
         case .displays: return "desktopcomputer"
         case .lockScreen: return "lock.rectangle.on.rectangle.fill"
         case .aiConfig: return "sparkles.tv"
@@ -29,6 +31,13 @@ public struct MainWindowView: View {
     @ObservedObject var settings = AppSettings.shared
 
     public init() {}
+
+    private func formatTime(_ seconds: Double) -> String {
+        guard !seconds.isNaN && !seconds.isInfinite && seconds >= 0 else { return "00:00" }
+        let mins = Int(seconds) / 60
+        let secs = Int(seconds) % 60
+        return String(format: "%02d:%02d", mins, secs)
+    }
 
     public var body: some View {
         NavigationSplitView {
@@ -83,7 +92,8 @@ public struct MainWindowView: View {
                 
                 let activeItem = storage.getActiveWallpaper()
                 let isStatic = activeItem == nil || activeItem?.type == .image || activeItem?.category == "Static"
-                let isVideoWithAudio = activeItem?.type == .video && activeItem?.hasAudio == true
+                let isVideo = activeItem?.type == .video
+                let isVideoWithAudio = isVideo == true && activeItem?.hasAudio == true
                 
                 // Active Engine & Audio Controls Widget Container (ONLY shown if a Live Wallpaper is active)
                 if !isStatic, let item = activeItem {
@@ -114,6 +124,39 @@ public struct MainWindowView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.primary)
                                 .lineLimit(1)
+                        }
+                        
+                        // Interactive Video Playback Slider Widget
+                        if isVideo, engine.playbackDuration > 0 {
+                            Divider()
+                                .padding(.vertical, 2)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Image(systemName: "film")
+                                        .font(.caption2)
+                                        .foregroundColor(.cyan)
+                                    Text("Seek:")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text("\(formatTime(engine.playbackCurrentTime)) / \(formatTime(engine.playbackDuration))")
+                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.cyan)
+                                }
+                                
+                                Slider(
+                                    value: Binding(
+                                        get: { engine.playbackCurrentTime },
+                                        set: { newValue in
+                                            engine.seekToPosition(seconds: newValue)
+                                        }
+                                    ),
+                                    in: 0...max(0.1, engine.playbackDuration)
+                                )
+                                .controlSize(.small)
+                                .tint(.cyan)
+                            }
                         }
                         
                         // Audio Volume & Mute Widget (ONLY visible for Videos with audio)
@@ -176,12 +219,12 @@ public struct MainWindowView: View {
                     GalleryView(filterType: .liveOnly)
                 case .staticWallpapers:
                     GalleryView(filterType: .staticOnly)
+                case .slideshow:
+                    SlideshowView()
                 case .displays:
                     DisplayManagerView()
                 case .lockScreen:
-                    AdminGateView(featureTitle: "macOS Lock Screen Wallpaper") {
-                        LockScreenView()
-                    }
+                    LockScreenView()
                 case .aiConfig:
                     AdminGateView(featureTitle: "AI Planner & LLM Configuration") {
                         AIConfigurationView()

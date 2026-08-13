@@ -82,7 +82,19 @@ public class WallpaperStorageManager: ObservableObject {
     // AVAssetReader PCM Audio Peak & RMS Waveform Sample Analyzer
     private func checkHasAudio(url: URL) -> Bool {
         let asset = AVAsset(url: url)
-        let audioTracks = asset.tracks(withMediaType: .audio)
+        let audioTracks: [AVAssetTrack]
+        if #available(macOS 13.0, *) {
+            let semaphore = DispatchSemaphore(value: 0)
+            var loadedTracks: [AVAssetTrack] = []
+            Task {
+                loadedTracks = (try? await asset.loadTracks(withMediaType: .audio)) ?? []
+                semaphore.signal()
+            }
+            _ = semaphore.wait(timeout: .now() + 1.0)
+            audioTracks = loadedTracks
+        } else {
+            audioTracks = asset.tracks(withMediaType: .audio)
+        }
         guard !audioTracks.isEmpty, let track = audioTracks.first else { return false }
         
         guard let reader = try? AVAssetReader(asset: asset) else { return false }

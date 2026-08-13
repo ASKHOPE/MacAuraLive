@@ -20,6 +20,8 @@ public class VideoWallpaperView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var timeObserverToken: Any?
+    
     public func setupPlayer(url: URL, volume: Double = 0.0, isMuted: Bool = true) {
         self.wantsLayer = true
         
@@ -48,9 +50,28 @@ public class VideoWallpaperView: NSView {
         queuePlayer.isMuted = isMuted
         queuePlayer.play()
         
+        // Add periodic time observer for playback progress UI
+        let interval = CMTime(seconds: 0.25, preferredTimescale: 600)
+        timeObserverToken = queuePlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak queuePlayer] time in
+            guard let player = queuePlayer, let item = player.currentItem else { return }
+            let durSec = item.duration.seconds
+            let curSec = time.seconds
+            if !durSec.isNaN && !durSec.isInfinite && durSec > 0 {
+                DispatchQueue.main.async {
+                    WallpaperEngine.shared.updatePlaybackPosition(current: curSec, duration: durSec)
+                }
+            }
+        }
+        
         let placement = AppSettings.shared.wallpaperPlacement
         let zoom = AppSettings.shared.wallpaperZoom
         setPlacement(placement: placement, zoom: zoom)
+    }
+    
+    public func seek(to seconds: Double) {
+        guard let player = player else { return }
+        let targetTime = CMTime(seconds: seconds, preferredTimescale: 600)
+        player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
     public func setPlacement(placement: String, zoom: Double = 1.0) {
@@ -97,6 +118,10 @@ public class VideoWallpaperView: NSView {
     }
     
     deinit {
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+            timeObserverToken = nil
+        }
         playerLooper?.disableLooping()
         playerLooper = nil
         player?.pause()
