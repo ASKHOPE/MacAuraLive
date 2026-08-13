@@ -173,10 +173,16 @@ window.macAura.onUpdate(function(state) {
 
 ---
 
-## ⚖️ Legal
+## ⚖️ Legal & Security Documentation
 
-### License
-MIT License — see [LICENSE](LICENSE)
+| Document | Description |
+| :--- | :--- |
+| **[LICENSE](LICENSE)** | Open-Source MIT License Grant |
+| **[EULA.md](EULA.md)** | End User License Agreement & Software Grant |
+| **[TERMS_OF_SERVICE.md](TERMS_OF_SERVICE.md)** | Terms of Service, User Responsibilities & Media Copyright Rules |
+| **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** | 100% On-Device Privacy Policy & Permission Usage |
+| **[SECURITY.md](SECURITY.md)** | Security Architecture, Vulnerability Reporting & Keychain Protection |
+| **[DMCA.md](DMCA.md)** | DMCA Copyright Policy & Takedown Notice Procedures |
 
 ### Disclaimer
 > MacAura is provided **"as-is"** without warranty of any kind. The authors are not responsible for any damage to hardware, software, data loss, or system instability arising from use of this application. Use at your own risk.

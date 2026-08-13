@@ -77,7 +77,8 @@ public struct OnboardingView: View {
     
     // MARK: - Steps
     
-    private var welcomeStep: View {
+    @ViewBuilder
+    private var welcomeStep: some View {
         VStack(spacing: 18) {
             if let icon = NSImage(named: "AppIcon") {
                 Image(nsImage: icon)
@@ -116,7 +117,8 @@ public struct OnboardingView: View {
         .padding(.horizontal, 30)
     }
     
-    private var permissionsStep: View {
+    @ViewBuilder
+    private var permissionsStep: some View {
         VStack(spacing: 16) {
             VStack(spacing: 4) {
                 Text("Permissions & Setup")
@@ -218,7 +220,8 @@ public struct OnboardingView: View {
         .padding(.horizontal, 30)
     }
     
-    private var completeStep: View {
+    @ViewBuilder
+    private var completeStep: some View {
         VStack(spacing: 20) {
             ZStack {
                 Circle()
