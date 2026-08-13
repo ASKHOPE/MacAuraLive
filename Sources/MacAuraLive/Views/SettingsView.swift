@@ -35,9 +35,9 @@ public struct SettingsView: View {
                         HStack(alignment: .top, spacing: 12) {
                             Toggle(isOn: $settings.launchAtLogin) {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Launch MacAura on System Startup / Login")
+                                    Text("Launch MacAuraLive on System Startup / Login")
                                         .font(.body)
-                                    Text("Automatically starts MacAura and restores your active live wallpaper when macOS boots.")
+                                    Text("Automatically starts MacAuraLive and restores your active live wallpaper when macOS boots.")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
@@ -74,7 +74,7 @@ public struct SettingsView: View {
                                         .font(.caption)
                                         .bold()
                                         .foregroundColor(.orange)
-                                    Text("Open System Settings › General › Login Items & Extensions and allow MacAura.")
+                                    Text("Open System Settings › General › Login Items & Extensions and allow MacAuraLive.")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }
@@ -100,7 +100,7 @@ public struct SettingsView: View {
                                         .font(.caption)
                                         .bold()
                                         .foregroundColor(.red)
-                                    Text("SMAppService requires MacAura to be located in /Applications. Move the app there and try again.")
+                                    Text("SMAppService requires MacAuraLive to be located in /Applications. Move the app there and try again.")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }
@@ -200,7 +200,7 @@ public struct SettingsView: View {
                             Image(systemName: "folder.fill")
                                 .font(.title3)
                                 .foregroundColor(.blue)
-                            Text("Default MacAura Document Directories")
+                            Text("Default MacAuraLive Document Directories")
                                 .font(.title3)
                                 .bold()
                             Spacer()
@@ -214,7 +214,7 @@ public struct SettingsView: View {
                                 .cornerRadius(6)
                         }
                         
-                        Text("MacAura automatically maintains the following folder structure inside your macOS Documents directory:")
+                        Text("MacAuraLive automatically maintains the following folder structure inside your macOS Documents directory:")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
@@ -295,7 +295,7 @@ public struct SettingsView: View {
                                 .cornerRadius(6)
                         }
                         
-                        Text("Select a local folder (e.g., ~/Movies/Wallpapers). MacAura will continuously monitor and auto-import all MP4, GIF, and Image wallpapers.")
+                        Text("Select a local folder (e.g., ~/Movies/Wallpapers). MacAuraLive will continuously monitor and auto-import all MP4, GIF, and Image wallpapers.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
@@ -424,7 +424,7 @@ public struct SettingsView: View {
                         }
                     }
                     
-                    // About MacAura, Licensing & TOS Card
+                    // About MacAuraLive, Licensing & TOS Card
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 14) {
                             ZStack {
@@ -445,7 +445,7 @@ public struct SettingsView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("MacAura Live Wallpaper Engine")
+                                Text("MacAuraLive Live Wallpaper Engine")
                                     .font(.title2)
                                     .bold()
                                 Text("v1.2.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
@@ -506,7 +506,7 @@ public struct SettingsView: View {
                             
                             Spacer()
                             
-                            Text("© 2026 MacAura")
+                            Text("© 2026 MacAuraLive")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
@@ -525,7 +525,7 @@ public struct SettingsView: View {
         .sheet(isPresented: $showTOSModal) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack {
-                    Text("MacAura Terms of Service & Use")
+                    Text("MacAuraLive Terms of Service & Use")
                         .font(.title2)
                         .bold()
                     Spacer()
@@ -536,19 +536,19 @@ public struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("1. Acceptance & Agreement")
                             .font(.headline)
-                        Text("By downloading, installing, running, or using MacAura Live Wallpaper ('Software'), you expressly acknowledge and agree to be bound by these Terms of Service. If you do not agree to all terms, you are not authorized to install or use this Software.")
+                        Text("By downloading, installing, running, or using MacAuraLive Live Wallpaper ('Software'), you expressly acknowledge and agree to be bound by these Terms of Service. If you do not agree to all terms, you are not authorized to install or use this Software.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
                         Text("2. Privacy & 100% Local On-Device Processing")
                             .font(.headline)
-                        Text("MacAura is engineered with strict privacy principles. All video loops, WebGL canvas shaders, and user preferences are executed and stored 100% locally in your Mac's RAM and file system. MacAura collects zero analytics, telemetry, personal identifier data, or usage logs, and never transmits data to any external server or cloud service.")
+                        Text("MacAuraLive is engineered with strict privacy principles. All video loops, WebGL canvas shaders, and user preferences are executed and stored 100% locally in your Mac's RAM and file system. MacAuraLive collects zero analytics, telemetry, personal identifier data, or usage logs, and never transmits data to any external server or cloud service.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
                         Text("3. Permitted Personal Use & Copyright Responsibility")
                             .font(.headline)
-                        Text("MacAura is provided solely for personal, non-commercial desktop customization. You are solely responsible for ensuring that any third-party video, audio, GIF, or image assets you import into the software comply with applicable intellectual property and copyright laws.")
+                        Text("MacAuraLive is provided solely for personal, non-commercial desktop customization. You are solely responsible for ensuring that any third-party video, audio, GIF, or image assets you import into the software comply with applicable intellectual property and copyright laws.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
@@ -578,19 +578,19 @@ public struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("End User License Agreement (EULA)")
                             .font(.headline)
-                        Text("MacAura Live Wallpaper is licensed, not sold. Subject to your compliance with this Agreement, you are granted a non-exclusive, non-transferable, revocable license to install and execute the Software on compatible macOS devices owned or controlled by you.")
+                        Text("MacAuraLive Live Wallpaper is licensed, not sold. Subject to your compliance with this Agreement, you are granted a non-exclusive, non-transferable, revocable license to install and execute the Software on compatible macOS devices owned or controlled by you.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
                         Text("Open-Source & Platform Framework Acknowledgments")
                             .font(.headline)
-                        Text("MacAura incorporates native macOS and open-source rendering technologies:\n• Apple Accelerate Framework (vDSP FFT real-time DSP processing)\n• Apple ScreenCaptureKit & AVFoundation (Native macOS Media Subsystems)\n• WebGL 2.0 & Three.js Canvas Shader Runtimes (MIT License)")
+                        Text("MacAuraLive incorporates native macOS and open-source rendering technologies:\n• Apple Accelerate Framework (vDSP FFT real-time DSP processing)\n• Apple ScreenCaptureKit & AVFoundation (Native macOS Media Subsystems)\n• WebGL 2.0 & Three.js Canvas Shader Runtimes (MIT License)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
                         Text("Restrictions")
                             .font(.headline)
-                        Text("You may not reverse-engineer, decompile, disassemble, rent, lease, distribute, or create derivative commercial works based upon MacAura except as expressly permitted under open-source license components.")
+                        Text("You may not reverse-engineer, decompile, disassemble, rent, lease, distribute, or create derivative commercial works based upon MacAuraLive except as expressly permitted under open-source license components.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -634,7 +634,7 @@ public struct SettingsView: View {
                         
                         Text("4. Third-Party Trademarks")
                             .font(.headline)
-                        Text("Apple, macOS, Apple Music, ScreenCaptureKit, Metal, and Spotify are registered trademarks of Apple Inc. and Spotify AB. MacAura is an independent software application and is not affiliated with, endorsed by, or sponsored by Apple Inc. or Spotify AB.")
+                        Text("Apple, macOS, Apple Music, ScreenCaptureKit, Metal, and Spotify are registered trademarks of Apple Inc. and Spotify AB. MacAuraLive is an independent software application and is not affiliated with, endorsed by, or sponsored by Apple Inc. or Spotify AB.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

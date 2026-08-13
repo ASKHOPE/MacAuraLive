@@ -187,7 +187,7 @@ public struct AIConfigurationView: View {
                                     ScrollView {
                                         VStack(alignment: .leading, spacing: 4) {
                                             if terminalLogs.isEmpty {
-                                                Text("$ MacAura AI Engine initialized. Ready for prompt...")
+                                                Text("$ MacAuraLive AI Engine initialized. Ready for prompt...")
                                                     .font(.system(.caption, design: .monospaced))
                                                     .foregroundColor(.gray)
                                             } else {

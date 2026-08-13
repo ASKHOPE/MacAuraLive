@@ -39,7 +39,7 @@ public struct UserGuideView: View {
                         description: "Set an independent static image for your macOS Lock Screen.",
                         content: """
                         • Open the 'Lock Screen' tab.
-                        • Click 'Browse Image…' to select any photo from your Mac, or select a static image from your MacAura library.
+                        • Click 'Browse Image…' to select any photo from your Mac, or select a static image from your MacAuraLive library.
                         • Click 'Set as Lock Screen Wallpaper'.
                         • macOS lock screen mirrors your desktop wallpaper — your static image will display on lock screen, while keeping your live wallpaper active on desktop!
                         """
@@ -77,9 +77,9 @@ public struct UserGuideView: View {
                         title: "5. Troubleshooting & Permissions",
                         description: "Permissions guidance and performance tips.",
                         content: """
-                        • Screen Recording Permission: Required for full-screen application detection so MacAura can pause and give 100% GPU to games or video editors.
-                        • Launch at Login: Enable in Settings to launch MacAura silently in your menu bar on system boot.
-                        • Menu Bar Icon: Click the MacAura icon in your macOS status bar for quick play/pause, volume control, or 'Open Dashboard'.
+                        • Screen Recording Permission: Required for full-screen application detection so MacAuraLive can pause and give 100% GPU to games or video editors.
+                        • Launch at Login: Enable in Settings to launch MacAuraLive silently in your menu bar on system boot.
+                        • Menu Bar Icon: Click the MacAuraLive icon in your macOS status bar for quick play/pause, volume control, or 'Open Dashboard'.
                         """
                     )
                 }

@@ -20,7 +20,7 @@ public class WallpaperStorageManager: ObservableObject {
     private init() {
         let fileManager = FileManager.default
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
-        self.appSupportDirectory = appSupport.appendingPathComponent("MacAura", isDirectory: true)
+        self.appSupportDirectory = appSupport.appendingPathComponent("MacAuraLive", isDirectory: true)
         self.wallpapersDirectory = appSupportDirectory.appendingPathComponent("Wallpapers", isDirectory: true)
         self.metaFileURL = appSupportDirectory.appendingPathComponent("wallpapers.json")
         self.referencedFolderURL = UserDefaults.standard.string(forKey: "referencedFolderURL")
@@ -373,7 +373,7 @@ public class WallpaperStorageManager: ObservableObject {
                         background: { colors: ["#02040a", "#091224"] },
                         effects: [{ type: "rain", enabled: true, parameters: { density: "300", speed: "1.2", color: "#78c8ff" } }]
                     };
-                    const runtime = new MacAuraRuntime();
+                    const runtime = new MacAuraLiveRuntime();
                     runtime.init(def);
                 });
             </script>
@@ -428,7 +428,7 @@ public class WallpaperStorageManager: ObservableObject {
             id: wallpaperID,
             name: finalDef.name,
             version: "1.0",
-            author: "MacAura AI Planner",
+            author: "MacAuraLive AI Planner",
             type: "webgl",
             entryPoint: "index.html",
             performance: WallpaperPerformanceConfig(targetFps: 60, allowThrottle: true),
@@ -452,7 +452,7 @@ public class WallpaperStorageManager: ObservableObject {
             pathOrUrl: indexURL.path,
             thumbnailIcon: "sparkles",
             hasAudio: containsAudio,
-            author: "MacAura AI Planner",
+            author: "MacAuraLive AI Planner",
             description: "Procedural Runtime Wallpaper for prompt: '\(cleanPrompt)'",
             manifest: manifestObj,
             customSettings: defaultSettings
@@ -496,7 +496,7 @@ public class WallpaperStorageManager: ObservableObject {
         try? registryJS.write(to: coreDir.appendingPathComponent("EffectRegistry.js"), atomically: true, encoding: .utf8)
         
         let runtimeJS = """
-        class MacAuraRuntime {
+        class MacAuraLiveRuntime {
             constructor() {
                 this.canvas = document.getElementById('c');
                 this.ctx = this.canvas.getContext('2d');

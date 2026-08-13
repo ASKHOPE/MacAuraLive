@@ -1,16 +1,16 @@
-# MacAura Privacy Policy
+# MacAuraLive Privacy Policy
 
 **Last Updated: August 14, 2026**
 
-At **MacAura**, your privacy is our top priority. MacAura is designed as a **100% local, on-device application** for macOS.
+At **MacAuraLive**, your privacy is our top priority. MacAuraLive is designed as a **100% local, on-device application** for macOS.
 
 ---
 
 ## 1. Zero Data Collection & Telemetry
 
-- **No Tracking:** MacAura does **not** collect, store, transmit, or analyze any personal data, usage metrics, device identifiers, or crash reports.
-- **No Analytics:** There are zero analytics SDKs, tracking pixels, or third-party telemetry scripts embedded in MacAura.
-- **No External Servers:** MacAura operates completely offline, except when you explicitly use AI generation features with your own configured API keys.
+- **No Tracking:** MacAuraLive does **not** collect, store, transmit, or analyze any personal data, usage metrics, device identifiers, or crash reports.
+- **No Analytics:** There are zero analytics SDKs, tracking pixels, or third-party telemetry scripts embedded in MacAuraLive.
+- **No External Servers:** MacAuraLive operates completely offline, except when you explicitly use AI generation features with your own configured API keys.
 
 ---
 
@@ -23,13 +23,13 @@ At **MacAura**, your privacy is our top priority. MacAura is designed as a **100
 
 ## 3. macOS Permissions Usage
 
-MacAura requests the following system permissions solely for local functionality:
+MacAuraLive requests the following system permissions solely for local functionality:
 
 | Permission | Purpose | Data Handling |
 | :--- | :--- | :--- |
 | **Screen Recording** (`CGPreflightScreenCaptureAccess`) | Detects when a full-screen application or game is active to automatically pause rendering and save 100% GPU/CPU power. | **Zero recording or storage.** Window bounds are checked strictly in real-time memory. No pixels, screen content, or audio are ever recorded, saved, or transmitted. |
 | **File System Access** | Allows you to select and import wallpapers from your local disk or monitored folders (`~/Documents/MacauraApp/`). | Access is strictly local to your chosen files. |
-| **System Startup** (`SMAppService`) | Enables MacAura to launch silently in your menu bar when macOS boots. | Managed entirely by macOS `ServiceManagement` APIs. |
+| **System Startup** (`SMAppService`) | Enables MacAuraLive to launch silently in your menu bar when macOS boots. | Managed entirely by macOS `ServiceManagement` APIs. |
 
 ---
 

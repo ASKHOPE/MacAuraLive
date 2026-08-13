@@ -2,20 +2,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "MacAura",
+    name: "MacAuraLive",
     platforms: [
         .macOS(.v13)
     ],
     products: [
         .executable(
-            name: "MacAura",
-            targets: ["MacAura"]
+            name: "MacAuraLive",
+            targets: ["MacAuraLive"]
         )
     ],
     dependencies: [],
     targets: [
         .executableTarget(
-            name: "MacAura",
+            name: "MacAuraLive",
             dependencies: [],
             resources: [
                 .copy("Resources")

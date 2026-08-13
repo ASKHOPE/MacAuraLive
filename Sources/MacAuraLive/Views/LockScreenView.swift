@@ -201,9 +201,9 @@ public struct LockScreenView: View {
                     .cornerRadius(10)
                 }
 
-                // Library thumbnails (if any static images exist in MacAura library)
+                // Library thumbnails (if any static images exist in MacAuraLive library)
                 if !staticWallpapers.isEmpty {
-                    Text("From MacAura Library")
+                    Text("From MacAuraLive Library")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     ScrollView(.horizontal, showsIndicators: false) {

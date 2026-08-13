@@ -1,28 +1,28 @@
-# MacAura Terms of Service
+# MacAuraLive Terms of Service
 
 **Last Updated: August 14, 2026**
 
-Welcome to **MacAura Live Wallpaper Engine for macOS** ("MacAura", "the Software", "we", "us", or "our"). By downloading, installing, compiling, or using MacAura, you ("User", "you") agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not install or use the Software.
+Welcome to **MacAuraLive Live Wallpaper Engine for macOS** ("MacAuraLive", "the Software", "we", "us", or "our"). By downloading, installing, compiling, or using MacAuraLive, you ("User", "you") agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not install or use the Software.
 
 ---
 
 ## 1. Open Source License Grant
 
-MacAura is licensed under the **MIT License**. You are granted a non-exclusive, worldwide, royalty-free license to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the Software, subject to the conditions set forth in the [LICENSE](LICENSE) file.
+MacAuraLive is licensed under the **MIT License**. You are granted a non-exclusive, worldwide, royalty-free license to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of the Software, subject to the conditions set forth in the [LICENSE](LICENSE) file.
 
 ---
 
 ## 2. User Responsibilities & Content Rights
 
 ### A. User-Imported Media & Assets
-MacAura enables users to import custom video loops (`.mp4`, `.mov`, `.m4v`), animated GIFs (`.gif`), static images (`.jpeg`, `.png`, `.heic`), and interactive WebGL/HTML5 shaders.
-- **Copyright Compliance:** You represent and warrant that you hold all necessary rights, licenses, or permissions for any media or shaders you import into MacAura.
-- **Third-Party Rights:** MacAura does not host, distribute, or claim ownership over third-party media imported by users. You are solely responsible for ensuring your use of imported media complies with applicable copyright, trademark, and intellectual property laws.
+MacAuraLive enables users to import custom video loops (`.mp4`, `.mov`, `.m4v`), animated GIFs (`.gif`), static images (`.jpeg`, `.png`, `.heic`), and interactive WebGL/HTML5 shaders.
+- **Copyright Compliance:** You represent and warrant that you hold all necessary rights, licenses, or permissions for any media or shaders you import into MacAuraLive.
+- **Third-Party Rights:** MacAuraLive does not host, distribute, or claim ownership over third-party media imported by users. You are solely responsible for ensuring your use of imported media complies with applicable copyright, trademark, and intellectual property laws.
 
 ### B. AI Generation API Keys
-MacAura includes an optional AI Wallpaper Generator feature allowing integration with third-party Large Language Model (LLM) provider APIs (such as OpenAI, Anthropic Claude, Google Gemini, or OpenRouter).
+MacAuraLive includes an optional AI Wallpaper Generator feature allowing integration with third-party Large Language Model (LLM) provider APIs (such as OpenAI, Anthropic Claude, Google Gemini, or OpenRouter).
 - You are solely responsible for managing your own API keys and complying with the respective API Terms of Service of each provider.
-- All API keys are stored exclusively in your local macOS **Keychain** (`Security.framework`). MacAura never transmits your API keys to any third-party server other than the official provider API endpoint configured by you.
+- All API keys are stored exclusively in your local macOS **Keychain** (`Security.framework`). MacAuraLive never transmits your API keys to any third-party server other than the official provider API endpoint configured by you.
 
 ---
 
@@ -30,9 +30,9 @@ MacAura includes an optional AI Wallpaper Generator feature allowing integration
 
 Continuous 60 FPS live video wallpaper playback and procedural WebGL 3D shader rendering naturally increase GPU, CPU, and battery power consumption.
 
-- **"AS IS" Operation:** MacAura is provided "AS IS" without any performance guarantees.
-- **Battery Usage:** Users operating laptop computers on battery power are strongly encouraged to enable the "Pause on Battery" feature in MacAura App Preferences.
-- **Hardware Limitation:** MacAura and its developers shall not be held liable for any hardware degradation, thermal throttling, overheating, battery degradation, or system instability resulting from continuous wallpaper execution.
+- **"AS IS" Operation:** MacAuraLive is provided "AS IS" without any performance guarantees.
+- **Battery Usage:** Users operating laptop computers on battery power are strongly encouraged to enable the "Pause on Battery" feature in MacAuraLive App Preferences.
+- **Hardware Limitation:** MacAuraLive and its developers shall not be held liable for any hardware degradation, thermal throttling, overheating, battery degradation, or system instability resulting from continuous wallpaper execution.
 
 ---
 
@@ -47,7 +47,7 @@ IN NO EVENT SHALL THE AUTHORS, COPYRIGHT HOLDERS, OR CONTRIBUTORS BE LIABLE FOR 
 ## 5. Trademark Notices
 
 - **Apple, macOS, Metal, AVFoundation, SwiftUI, and AppKit** are registered trademarks of **Apple Inc.**
-- MacAura is an independent open-source software project and is **not** affiliated with, endorsed by, sponsored by, or associated with Apple Inc. or any third-party media rights holder.
+- MacAuraLive is an independent open-source software project and is **not** affiliated with, endorsed by, sponsored by, or associated with Apple Inc. or any third-party media rights holder.
 
 ---
 

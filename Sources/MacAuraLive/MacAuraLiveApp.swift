@@ -2,13 +2,13 @@ import SwiftUI
 import AppKit
 
 @main
-struct MacAuraApp: App {
+struct MacAuraLiveApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
     @State private var showOnboardingSheet: Bool = false
     
     var body: some Scene {
-        WindowGroup("MacAura Live Wallpaper Dashboard") {
+        WindowGroup("MacAuraLive Live Wallpaper Dashboard") {
             MainWindowView()
                 .background(WindowAccessor { window in
                     appDelegate.registerMainWindow(window)
@@ -81,11 +81,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
         let runningApps = NSWorkspace.shared.runningApplications
         let otherInstances = runningApps.filter { app in
             app.processIdentifier != currentPID &&
-            (app.bundleIdentifier == bundleID || app.localizedName == "MacAura")
+            (app.bundleIdentifier == bundleID || app.localizedName == "MacAuraLive")
         }
         
         if let existingApp = otherInstances.first {
-            print("[MacAura] Existing instance detected (PID \(existingApp.processIdentifier)). Activating existing app and exiting.")
+            print("[MacAuraLive] Existing instance detected (PID \(existingApp.processIdentifier)). Activating existing app and exiting.")
             existingApp.activate(options: [.activateIgnoringOtherApps])
             exit(0)
         }
@@ -122,14 +122,14 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
                 image.isTemplate = false
                 button.image = image
             } else {
-                button.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "MacAura Live Wallpaper")
+                button.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "MacAuraLive Live Wallpaper")
             }
         }
         
         let menu = NSMenu()
         menu.delegate = self
         
-        let titleItem = NSMenuItem(title: "MacAura Live Wallpaper", action: nil, keyEquivalent: "")
+        let titleItem = NSMenuItem(title: "MacAuraLive Live Wallpaper", action: nil, keyEquivalent: "")
         titleItem.isEnabled = false
         menu.addItem(titleItem)
         
@@ -163,7 +163,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
         
         menu.addItem(NSMenuItem.separator())
         
-        let quitItem = NSMenuItem(title: "Quit MacAura", action: #selector(quitApp), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit MacAuraLive", action: #selector(quitApp), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
         

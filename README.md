@@ -1,7 +1,7 @@
-# MacAura — Live Wallpaper Engine for macOS
+# MacAuraLive — Live Wallpaper Engine for macOS
 
 <p align="center">
-  <img src="Sources/MacAura/Resources/Assets/AppIcon.png" width="120" alt="MacAura Icon"/>
+  <img src="Sources/MacAuraLive/Resources/Assets/AppIcon.png" width="120" alt="MacAuraLive Icon"/>
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Status-Active-purple?style=flat-square" />
 </p>
 
-> **MacAura** is an open-source, hardware-accelerated live wallpaper engine for macOS — built entirely in Swift and SwiftUI, with zero external dependencies.
+> **MacAuraLive** is an open-source, hardware-accelerated live wallpaper engine for macOS — built entirely in Swift and SwiftUI, with zero external dependencies.
 
 ---
 
@@ -68,12 +68,12 @@
 ## 🛠️ Architecture
 
 ```
-MacAura/
+MacAuraLive/
 ├── Package.swift                      # Swift Package Manifest (macOS 13.0+)
 ├── Scripts/
 │   └── build_app.sh                  # Release build + .app bundle packager
-└── Sources/MacAura/
-    ├── MacAuraApp.swift               # @main entry, NSStatusItem, Dock & Launch at Login toggles
+└── Sources/MacAuraLive/
+    ├── MacAuraLiveApp.swift               # @main entry, NSStatusItem, Dock & Launch at Login toggles
     ├── Models/
     │   ├── WallpaperItem.swift        # Wallpaper data model
     │   ├── AppSettings.swift          # UserDefaults + Keychain settings & LaunchAtLogin status
@@ -82,7 +82,7 @@ MacAura/
     │   ├── WallpaperEngine.swift      # Multi-monitor window orchestrator & playback position state
     │   ├── WallpaperWindow.swift      # Below-desktop-icons NSWindow
     │   ├── VideoWallpaperView.swift   # AVPlayerLooper 4K video renderer + seek & time observer
-    │   ├── WebWallpaperView.swift     # WKWebView HTML5/WebGL renderer + MacAura SDK
+    │   ├── WebWallpaperView.swift     # WKWebView HTML5/WebGL renderer + MacAuraLive SDK
     │   ├── WallpaperStorageManager.swift # Library persistence & file import
     │   ├── SlideshowManager.swift     # Interval slideshow timer & time-of-day scheduled rules
     │   ├── AIGenerationManager.swift  # Multi-provider AI wallpaper generation
@@ -130,12 +130,12 @@ cd wallpapermacs
 # 2. Build the signed .app bundle
 ./Scripts/build_app.sh
 
-# 3. Launch MacAura
-open build/MacAura.app
+# 3. Launch MacAuraLive
+open build/MacAuraLive.app
 ```
 
 ### First Launch
-On first launch, MacAura will:
+On first launch, MacAuraLive will:
 1. Create `~/Documents/MacauraApp/` with subfolders for your wallpaper library
 2. Appear in your **menu bar** and **Dock**
 3. Request **Screen Recording** permission (required to detect full-screen apps and auto-pause rendering)
@@ -154,9 +154,9 @@ On first launch, MacAura will:
 
 ---
 
-## 📦 MacAura SDK (for Wallpaper Developers)
+## 📦 MacAuraLive SDK (for Wallpaper Developers)
 
-Custom HTML5 wallpapers can tap into the MacAura SDK injected into every `WKWebView`:
+Custom HTML5 wallpapers can tap into the MacAuraLive SDK injected into every `WKWebView`:
 
 ```javascript
 window.macAura.onInit(function(config) {
@@ -185,12 +185,12 @@ window.macAura.onUpdate(function(state) {
 | **[DMCA.md](DMCA.md)** | DMCA Copyright Policy & Takedown Notice Procedures |
 
 ### Disclaimer
-> MacAura is provided **"as-is"** without warranty of any kind. The authors are not responsible for any damage to hardware, software, data loss, or system instability arising from use of this application. Use at your own risk.
+> MacAuraLive is provided **"as-is"** without warranty of any kind. The authors are not responsible for any damage to hardware, software, data loss, or system instability arising from use of this application. Use at your own risk.
 >
-> Setting live wallpapers increases GPU and CPU load. Ensure your Mac has adequate cooling. MacAura is not responsible for overheating, hardware degradation, or reduced battery lifespan resulting from continuous use.
+> Setting live wallpapers increases GPU and CPU load. Ensure your Mac has adequate cooling. MacAuraLive is not responsible for overheating, hardware degradation, or reduced battery lifespan resulting from continuous use.
 
 ### Trademarks
-Apple, macOS, Metal, AVFoundation, SwiftUI, and related marks are trademarks of **Apple Inc.** MacAura is an independent project and is not affiliated with, endorsed by, or sponsored by Apple Inc.
+Apple, macOS, Metal, AVFoundation, SwiftUI, and related marks are trademarks of **Apple Inc.** MacAuraLive is an independent project and is not affiliated with, endorsed by, or sponsored by Apple Inc.
 
 ---
 

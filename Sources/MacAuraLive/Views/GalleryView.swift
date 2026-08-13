@@ -854,7 +854,7 @@ struct WallpaperCardView: View {
     
     private func getBuiltInURL(path: String) -> URL? {
         guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
-        let fullPath = appSupport.appendingPathComponent("MacAura/Wallpapers/\(path)")
+        let fullPath = appSupport.appendingPathComponent("MacAuraLive/Wallpapers/\(path)")
         if FileManager.default.fileExists(atPath: fullPath.path) {
             return fullPath
         }

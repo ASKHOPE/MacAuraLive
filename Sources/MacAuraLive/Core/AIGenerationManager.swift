@@ -26,9 +26,9 @@ public class AIGenerationManager {
     
     // AI Wallpaper Scene Planner Prompt
     private let systemPrompt = """
-    You are MacAura's Wallpaper Scene Planner.
+    You are MacAuraLive's Wallpaper Scene Planner.
     You do NOT generate executable HTML or JS code.
-    You compose wallpapers using the available effects in the MacAura Effect Registry: ["rain", "snow", "stars", "aurora", "neon"].
+    You compose wallpapers using the available effects in the MacAuraLive Effect Registry: ["rain", "snow", "stars", "aurora", "neon"].
     
     You MUST return ONLY a valid JSON WallpaperDefinition matching this schema:
     {
@@ -88,7 +88,7 @@ public class AIGenerationManager {
         request.httpMethod = "GET"
         request.timeoutInterval = 8.0
         request.setValue("https://github.com/macaura/livewallpaper", forHTTPHeaderField: "HTTP-Referer")
-        request.setValue("MacAura Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
+        request.setValue("MacAuraLive Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
@@ -157,7 +157,7 @@ public class AIGenerationManager {
                 request.setValue("Bearer \(cleanKey)", forHTTPHeaderField: "Authorization")
             }
             request.setValue("https://github.com/macaura/livewallpaper", forHTTPHeaderField: "HTTP-Referer")
-            request.setValue("MacAura Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
+            request.setValue("MacAuraLive Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
             
             let targetModel = model.isEmpty ? "google/gemma-2-9b-it:free" : model
             let body: [String: Any] = [
@@ -287,7 +287,7 @@ public class AIGenerationManager {
         }
         
         request.setValue("https://github.com/macaura/livewallpaper", forHTTPHeaderField: "HTTP-Referer")
-        request.setValue("MacAura Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
+        request.setValue("MacAuraLive Live Wallpaper Engine", forHTTPHeaderField: "X-OpenRouter-Title")
         
         let modelName = model.isEmpty ? "google/gemma-2-9b-it:free" : model
         onStatusUpdate?("[INIT] Connecting to OpenRouter using model '\(modelName)'...")

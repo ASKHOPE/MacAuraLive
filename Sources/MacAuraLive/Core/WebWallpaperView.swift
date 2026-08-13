@@ -27,7 +27,7 @@ public class WebWallpaperView: NSView, WKNavigationDelegate {
         config.mediaTypesRequiringUserActionForPlayback = []
         SecurityHardeningManager.shared.configureSecureWebView(config)
         
-        // Inject the MacAura SDK Polyfill
+        // Inject the MacAuraLive SDK Polyfill
         let sdkScriptSource = """
         window.macAura = {
             state: {

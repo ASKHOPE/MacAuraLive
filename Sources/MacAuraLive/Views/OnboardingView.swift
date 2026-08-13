@@ -57,7 +57,7 @@ public struct OnboardingView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
                 } else {
-                    Button("Get Started with MacAura") {
+                    Button("Get Started with MacAuraLive") {
                         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
                         isPresented = false
                     }
@@ -98,7 +98,7 @@ public struct OnboardingView: View {
             }
             
             VStack(spacing: 6) {
-                Text("Welcome to MacAura")
+                Text("Welcome to MacAuraLive")
                     .font(.system(size: 26, weight: .bold))
                 Text("Hardware-accelerated live wallpapers for macOS.")
                     .font(.subheadline)
@@ -123,7 +123,7 @@ public struct OnboardingView: View {
             VStack(spacing: 4) {
                 Text("Permissions & Setup")
                     .font(.system(size: 22, weight: .bold))
-                Text("MacAura uses system permissions for optimal performance.")
+                Text("MacAuraLive uses system permissions for optimal performance.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -143,7 +143,7 @@ public struct OnboardingView: View {
                         Text("Screen Recording Permission")
                             .font(.subheadline)
                             .bold()
-                        Text("Allows MacAura to detect full-screen apps and auto-pause to save battery & GPU.")
+                        Text("Allows MacAuraLive to detect full-screen apps and auto-pause to save battery & GPU.")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -178,7 +178,7 @@ public struct OnboardingView: View {
                         Text("Applications Folder")
                             .font(.subheadline)
                             .bold()
-                        Text(isInApplications ? "MacAura is installed in /Applications." : "Recommended: Move MacAura to /Applications for auto-launch support.")
+                        Text(isInApplications ? "MacAuraLive is installed in /Applications." : "Recommended: Move MacAuraLive to /Applications for auto-launch support.")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -199,7 +199,7 @@ public struct OnboardingView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Start MacAura on System Login")
+                        Text("Start MacAuraLive on System Login")
                             .font(.subheadline)
                             .bold()
                         Text("Automatically start your live wallpaper when macOS boots.")
@@ -235,7 +235,7 @@ public struct OnboardingView: View {
             VStack(spacing: 6) {
                 Text("Setup Complete!")
                     .font(.system(size: 24, weight: .bold))
-                Text("MacAura is ready to transform your desktop.")
+                Text("MacAuraLive is ready to transform your desktop.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -244,7 +244,7 @@ public struct OnboardingView: View {
                 HStack {
                     Image(systemName: "menubar.arrow.up.rectangle")
                         .foregroundColor(.blue)
-                    Text("MacAura runs in your menu bar for quick access.")
+                    Text("MacAuraLive runs in your menu bar for quick access.")
                         .font(.caption)
                 }
                 HStack {

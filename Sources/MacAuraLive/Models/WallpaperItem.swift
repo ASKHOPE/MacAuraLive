@@ -33,7 +33,7 @@ public struct WallpaperItem: Identifiable, Codable, Hashable {
         pathOrUrl: String,
         thumbnailIcon: String = "sparkles",
         hasAudio: Bool = false,
-        author: String = "MacAura",
+        author: String = "MacAuraLive",
         description: String = "",
         manifest: WallpaperManifest? = nil,
         customSettings: [String: String]? = nil

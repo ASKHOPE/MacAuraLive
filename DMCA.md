@@ -2,19 +2,19 @@
 
 **Last Updated: August 14, 2026**
 
-MacAura respects the intellectual property rights of creators and copyright holders.
+MacAuraLive respects the intellectual property rights of creators and copyright holders.
 
 ---
 
 ## 1. Local Processing Notice
 
-MacAura is a **local desktop engine**. MacAura does **not** host, store, index, stream, or distribute third-party media assets on central servers. All wallpapers, videos, images, and WebGL scripts rendered by MacAura are stored exclusively on the user's local hardware device.
+MacAuraLive is a **local desktop engine**. MacAuraLive does **not** host, store, index, stream, or distribute third-party media assets on central servers. All wallpapers, videos, images, and WebGL scripts rendered by MacAuraLive are stored exclusively on the user's local hardware device.
 
 ---
 
 ## 2. User Responsibilities & Fair Use
 
-Users are solely responsible for ensuring that any media imported into MacAura is owned by them, used under a valid license, or falls under applicable Fair Use / Fair Dealing doctrines. MacAura developers do not encourage or condone copyright infringement.
+Users are solely responsible for ensuring that any media imported into MacAuraLive is owned by them, used under a valid license, or falls under applicable Fair Use / Fair Dealing doctrines. MacAuraLive developers do not encourage or condone copyright infringement.
 
 ---
 

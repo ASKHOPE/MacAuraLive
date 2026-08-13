@@ -67,7 +67,7 @@ public struct MainWindowView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("MacAura")
+                        Text("MacAuraLive")
                             .font(.system(size: 20, weight: .bold))
                         Text("Live Wallpaper Engine")
                             .font(.caption)

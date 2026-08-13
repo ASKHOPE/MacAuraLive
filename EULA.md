@@ -1,4 +1,4 @@
-# MacAura End User License Agreement (EULA)
+# MacAuraLive End User License Agreement (EULA)
 
 **Last Updated: August 14, 2026**
 
@@ -8,7 +8,7 @@ IMPORTANT: PLEASE READ THIS END USER LICENSE AGREEMENT ("EULA") CAREFULLY BEFORE
 
 ## 1. Grant of License
 
-Subject to the terms of this EULA and the MIT License, the developers of MacAura grant you a revocable, non-exclusive, non-transferable, limited right to install and use the Software on Apple-branded hardware devices running macOS 13.0 or later that you own or control.
+Subject to the terms of this EULA and the MIT License, the developers of MacAuraLive grant you a revocable, non-exclusive, non-transferable, limited right to install and use the Software on Apple-branded hardware devices running macOS 13.0 or later that you own or control.
 
 ---
 
@@ -18,13 +18,13 @@ You agree that you will NOT:
 1. Use the Software for any illegal purpose or in violation of any local, state, national, or international law.
 2. Circumvent, disable, or interfere with security-related features of the Software or features that prevent or restrict use or copying of any content.
 3. Use the Software to infringe upon the copyright, trademark, trade secret, or other intellectual property rights of any third party.
-4. Impersonate the developers of MacAura or represent MacAura as an official Apple Inc. product or service.
+4. Impersonate the developers of MacAuraLive or represent MacAuraLive as an official Apple Inc. product or service.
 
 ---
 
 ## 3. Intellectual Property Rights
 
-- **The Software:** The structure, organization, code, UI design, and visual branding of MacAura are the intellectual property of the MacAura open-source contributors.
+- **The Software:** The structure, organization, code, UI design, and visual branding of MacAuraLive are the intellectual property of the MacAuraLive open-source contributors.
 - **User Content:** You retain all ownership rights to any custom video loops, graphics, GIFs, static images, or HTML5 shaders you import into the Software. You are solely responsible for obtaining necessary licenses or permissions for any content you display using the Software.
 
 ---
