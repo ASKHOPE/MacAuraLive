@@ -124,16 +124,27 @@ public class AIGenerationManager {
     ) {
         let settings = AppSettings.shared
         
+        // 1. Strict Security & Scope Enforcement
+        let sanitizedPrompt: String
+        do {
+            sanitizedPrompt = try SecurityHardeningManager.shared.validateAndSanitizeWallpaperPrompt(prompt)
+            onStatusUpdate?("[SECURITY] Prompt validated against injection rules & restricted to live wallpaper scope.")
+        } catch {
+            onStatusUpdate?("[SECURITY REJECTED] \(error.localizedDescription)")
+            completion(.failure(error))
+            return
+        }
+        
         if provider.contains("OpenRouter") {
-            generateOpenRouter(prompt: prompt, apiKey: settings.openRouterApiKey, model: settings.openRouterModel, onStatusUpdate: onStatusUpdate, completion: completion)
+            generateOpenRouter(prompt: sanitizedPrompt, apiKey: settings.openRouterApiKey, model: settings.openRouterModel, onStatusUpdate: onStatusUpdate, completion: completion)
         } else if provider.contains("ChatGPT") || provider.contains("OpenAI") {
-            generateOpenAI(prompt: prompt, apiKey: settings.openAiApiKey, model: settings.openAiModel, onStatusUpdate: onStatusUpdate, completion: completion)
+            generateOpenAI(prompt: sanitizedPrompt, apiKey: settings.openAiApiKey, model: settings.openAiModel, onStatusUpdate: onStatusUpdate, completion: completion)
         } else if provider.contains("Claude") {
-            generateClaude(prompt: prompt, apiKey: settings.claudeApiKey, onStatusUpdate: onStatusUpdate, completion: completion)
+            generateClaude(prompt: sanitizedPrompt, apiKey: settings.claudeApiKey, onStatusUpdate: onStatusUpdate, completion: completion)
         } else if provider.contains("Gemini") {
-            generateGemini(prompt: prompt, apiKey: settings.geminiApiKey, onStatusUpdate: onStatusUpdate, completion: completion)
+            generateGemini(prompt: sanitizedPrompt, apiKey: settings.geminiApiKey, onStatusUpdate: onStatusUpdate, completion: completion)
         } else {
-            generateLocalOpenAPI(prompt: prompt, endpoint: settings.localApiEndpoint, onStatusUpdate: onStatusUpdate, completion: completion)
+            generateLocalOpenAPI(prompt: sanitizedPrompt, endpoint: settings.localApiEndpoint, onStatusUpdate: onStatusUpdate, completion: completion)
         }
     }
     
@@ -598,6 +609,7 @@ public class AIGenerationManager {
         if cleaned.hasSuffix("```") {
             cleaned = String(cleaned.dropLast(3))
         }
-        return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        let stripped = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+        return SecurityHardeningManager.shared.sanitizeGeneratedHTML(stripped)
     }
 }
