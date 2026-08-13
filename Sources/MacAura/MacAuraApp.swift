@@ -10,6 +10,9 @@ struct MacAuraApp: App {
     var body: some Scene {
         WindowGroup("MacAura Live Wallpaper Dashboard") {
             MainWindowView()
+                .background(WindowAccessor { window in
+                    appDelegate.registerMainWindow(window)
+                })
                 .onAppear {
                     NSWindow.allowsAutomaticWindowTabbing = false
                     if !hasCompletedOnboarding {
@@ -28,13 +31,42 @@ struct MacAuraApp: App {
     }
 }
 
-public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
-    var statusItem: NSStatusItem?
+/// Helper to get a direct reference to the parent NSWindow
+struct WindowAccessor: NSViewRepresentable {
+    let callback: (NSWindow) -> Void
     
-    /// true = visible in Dock (default), false = menu bar only
-    private var isDockVisible: Bool {
-        get { UserDefaults.standard.object(forKey: "isDockVisible") as? Bool ?? true }
-        set { UserDefaults.standard.set(newValue, forKey: "isDockVisible") }
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            if let window = view.window {
+                callback(window)
+            }
+        }
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async {
+            if let window = nsView.window {
+                callback(window)
+            }
+        }
+    }
+}
+
+public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWindowDelegate {
+    var statusItem: NSStatusItem?
+    private(set) var mainWindow: NSWindow?
+    
+    public func registerMainWindow(_ window: NSWindow) {
+        self.mainWindow = window
+        window.delegate = self
+    }
+
+    /// Intercept red close button click on the main window: hide window instead of destroying it
+    public func windowShouldClose(_ sender: NSWindow) -> Bool {
+        sender.orderOut(nil)
+        return false // Intercept destruction
     }
 
     public func applicationWillFinishLaunching(_ notification: Notification) {
@@ -66,34 +98,17 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Refresh SMAppService status badge immediately
         AppSettings.shared.refreshLaunchAtLoginStatus()
         
-        // Restore dock visibility preference FIRST (before icon, since policy change can clear it)
-        applyDockVisibility(isDockVisible)
-        
         // Setup Status Bar Menu
         setupStatusBar()
         
-        // Set app icon — do it after a short delay so it sticks after activation policy is applied
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.applyAppIcon()
-        }
+        // Set app icon
+        applyAppIcon()
     }
     
     private func applyAppIcon() {
         if let iconPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
            let icon = NSImage(contentsOfFile: iconPath) {
             NSApp.applicationIconImage = icon
-        }
-    }
-    
-    private func applyDockVisibility(_ visible: Bool) {
-        if visible {
-            NSApp.setActivationPolicy(.regular)
-        } else {
-            NSApp.setActivationPolicy(.accessory)
-        }
-        // Re-apply icon after policy change since macOS may reset it
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.applyAppIcon()
         }
     }
     
@@ -146,12 +161,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         launchAtLoginItem.target = self
         menu.addItem(launchAtLoginItem)
         
-        // Dock visibility toggle
-        let dockTitle = isDockVisible ? "Remove from Dock" : "Keep in Dock"
-        let dockItem = NSMenuItem(title: dockTitle, action: #selector(toggleDockVisibility), keyEquivalent: "")
-        dockItem.target = self
-        menu.addItem(dockItem)
-        
         menu.addItem(NSMenuItem.separator())
         
         let quitItem = NSMenuItem(title: "Quit MacAura", action: #selector(quitApp), keyEquivalent: "q")
@@ -190,12 +199,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 loginItem.title = isLaunchAtLogin ? "✓ Launch at Login" : "Launch at Login"
                 loginItem.image = NSImage(systemSymbolName: isLaunchAtLogin ? "checkmark.circle.fill" : "circle", accessibilityDescription: nil)
             }
-            
-            // Dock visibility item — find it by action
-            if let dockItem = menu.items.first(where: { $0.action == #selector(toggleDockVisibility) }) {
-                dockItem.title = isDockVisible ? "Remove from Dock" : "Keep in Dock"
-                dockItem.image = NSImage(systemSymbolName: isDockVisible ? "dock.rectangle.badge.minus" : "dock.rectangle", accessibilityDescription: nil)
-            }
         }
     }
     
@@ -212,31 +215,19 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         AppSettings.shared.launchAtLogin.toggle()
     }
     
-    @objc private func openDashboard() {
+    @objc public func openDashboard() {
         NSApp.activate(ignoringOtherApps: true)
         
-        // Find the main content window — exclude NSPanels (status bar auxiliary windows)
-        // SwiftUI WindowGroup windows may have an empty title at runtime, so don't filter by title
-        let contentWindow = NSApp.windows.first(where: {
-            !($0 is NSPanel) && $0.canBecomeMain
-        })
+        let targetWindow = mainWindow ?? NSApp.windows.first(where: { !($0 is NSPanel) && $0.canBecomeMain })
         
-        if let window = contentWindow {
-            // Restore if minimised to Dock
+        if let window = targetWindow {
+            if window.delegate == nil {
+                window.delegate = self
+            }
             if window.isMiniaturized { window.deminiaturize(nil) }
+            window.setIsVisible(true)
             window.makeKeyAndOrderFront(nil)
-            // orderFrontRegardless ensures it comes up even in .accessory policy mode
             window.orderFrontRegardless()
-        }
-    }
-    
-    @objc private func toggleDockVisibility() {
-        isDockVisible.toggle()
-        applyDockVisibility(isDockVisible)
-        // Refresh menu label immediately
-        if let dockItem = statusItem?.menu?.items.first(where: { $0.action == #selector(toggleDockVisibility) }) {
-            dockItem.title = isDockVisible ? "Remove from Dock" : "Keep in Dock"
-            dockItem.image = NSImage(systemSymbolName: isDockVisible ? "dock.rectangle.badge.minus" : "dock.rectangle", accessibilityDescription: nil)
         }
     }
     
@@ -253,31 +244,27 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return true
     }
     
-    // Adds custom items to the Dock right-click context menu
+    /// Native macOS Dock right-click context menu items
     public func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let dockMenu = NSMenu()
         
-        let dockToggleItem = NSMenuItem(
-            title: isDockVisible ? "Remove from Dock" : "Keep in Dock",
-            action: #selector(toggleDockVisibility),
+        let openItem = NSMenuItem(
+            title: "Open Dashboard...",
+            action: #selector(openDashboard),
             keyEquivalent: ""
         )
-        dockToggleItem.target = self
-        dockToggleItem.image = NSImage(
-            systemSymbolName: isDockVisible ? "dock.rectangle.badge.minus" : "dock.rectangle",
-            accessibilityDescription: nil
-        )
-        dockMenu.addItem(dockToggleItem)
+        openItem.target = self
+        dockMenu.addItem(openItem)
         
         dockMenu.addItem(NSMenuItem.separator())
         
-        let playPauseDockItem = NSMenuItem(
+        let playPauseItem = NSMenuItem(
             title: WallpaperEngine.shared.isPaused ? "Resume Wallpaper" : "Pause Wallpaper",
             action: #selector(togglePlayPause),
             keyEquivalent: ""
         )
-        playPauseDockItem.target = self
-        dockMenu.addItem(playPauseDockItem)
+        playPauseItem.target = self
+        dockMenu.addItem(playPauseItem)
         
         return dockMenu
     }
