@@ -26,7 +26,7 @@ MacAuraLive provides built-in plugin adapters for searching, discovering, and do
   - **Unsplash:** Subject to the [Unsplash Terms of Service](https://unsplash.com/terms) and [Unsplash License](https://unsplash.com/license). Photographer attribution and direct links are preserved.
   - **Pixabay:** Subject to the [Pixabay Terms of Service](https://pixabay.com/service/terms/) and [Pixabay Content License](https://pixabay.com/service/license-summary/).
   - **Pexels:** Subject to the [Pexels Terms of Service](https://www.pexels.com/terms/) and [Pexels License](https://www.pexels.com/license/).
-- **Local Storage & Offline Functionality:** Downloaded wallpapers and video loops are saved permanently on your local disk under `~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/`. Once downloaded, assets run locally on your device without recurring network traffic.
+- **Local Storage & Offline Functionality:** Downloaded wallpapers and video loops are saved directly on your local disk under `~/Documents/MacAuraLiveApp/` in their respective categorized folders (`livewallpaper`, `staticwallpaper`, `gif`). Once downloaded, assets run locally on your device without recurring network traffic.
 - **User-Configured API Keys:** If you provide custom API keys for Unsplash, Pixabay, or Pexels, they are stored exclusively in your local macOS **Keychain** (`Security.framework`) and protected by the hardware Secure Enclave.
 
 ### C. AI Generation API Keys

@@ -31,14 +31,38 @@ public class WallpaperStorageManager: ObservableObject {
         loadWallpapers()
     }
     
+    public var userDocumentsRootURL: URL? {
+        guard let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        return docsURL.appendingPathComponent("MacAuraLiveApp", isDirectory: true)
+    }
+    
+    public func targetDirectory(for type: WallpaperType) -> URL {
+        let root = userDocumentsRootURL ?? appSupportDirectory
+        let subfolder: String
+        switch type {
+        case .video:
+            subfolder = "livewallpaper"
+        case .image:
+            subfolder = "staticwallpaper"
+        case .gif:
+            subfolder = "gif"
+        case .builtInWeb, .webUrl:
+            subfolder = "animatedcode"
+        }
+        let target = root.appendingPathComponent(subfolder, isDirectory: true)
+        if !FileManager.default.fileExists(atPath: target.path) {
+            try? FileManager.default.createDirectory(at: target, withIntermediateDirectories: true, attributes: nil)
+        }
+        return target
+    }
+    
     private func setupDefaultDocumentDirectories() {
         let fm = FileManager.default
-        guard let docsURL = fm.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-        let macauraRoot = docsURL.appendingPathComponent("MacAuraLiveApp")
+        guard let macauraRoot = userDocumentsRootURL else { return }
         
         let subfolders = ["livewallpaper", "staticwallpaper", "gif", "animatedcode"]
         for sub in subfolders {
-            let folderURL = macauraRoot.appendingPathComponent(sub)
+            let folderURL = macauraRoot.appendingPathComponent(sub, isDirectory: true)
             if !fm.fileExists(atPath: folderURL.path) {
                 try? fm.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
             }

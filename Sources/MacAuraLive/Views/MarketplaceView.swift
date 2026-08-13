@@ -494,7 +494,7 @@ public struct MarketplaceView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("5. Local Machine Storage & Offline Persistence")
                             .font(.headline)
-                        Text("All downloaded wallpapers are permanently saved directly on your local device under '~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/'. Once downloaded, wallpapers function 100% offline without recurring network requests.")
+                        Text("All downloaded wallpapers are saved directly on your local device under '~/Documents/MacAuraLiveApp/' in their respective 'livewallpaper', 'staticwallpaper', and 'gif' folders. Once downloaded, wallpapers function 100% offline without recurring network requests.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

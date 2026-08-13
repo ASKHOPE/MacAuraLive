@@ -29,18 +29,7 @@ public class OnlineMarketplaceManager: ObservableObject {
         return [unsplashPlugin, pixabayPlugin, pexelsPlugin]
     }
     
-    private let downloadsDirectory: URL
-    
     private init() {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
-        self.downloadsDirectory = appSupport
-            .appendingPathComponent("MacAuraLive", isDirectory: true)
-            .appendingPathComponent("Wallpapers", isDirectory: true)
-            .appendingPathComponent("Downloads", isDirectory: true)
-        
-        try? FileManager.default.createDirectory(at: downloadsDirectory, withIntermediateDirectories: true)
-        
         refreshDownloadedItems()
         
         // Initial fetch
@@ -124,8 +113,7 @@ public class OnlineMarketplaceManager: ObservableObject {
             return false
         }
         
-        let providerFolder = downloadsDirectory.appendingPathComponent(item.provider.rawValue, isDirectory: true)
-        try? FileManager.default.createDirectory(at: providerFolder, withIntermediateDirectories: true)
+        let targetDir = WallpaperStorageManager.shared.targetDirectory(for: item.mediaType)
         
         let ext = item.mediaType == .video ? "mp4" : "jpg"
         let safeTitle = item.title
@@ -133,8 +121,8 @@ public class OnlineMarketplaceManager: ObservableObject {
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }
             .joined(separator: "_")
-        let filename = "\(item.id)_\(safeTitle).\(ext)"
-        let destinationURL = providerFolder.appendingPathComponent(filename)
+        let filename = "\(item.provider.rawValue.lowercased())_\(item.id)_\(safeTitle).\(ext)"
+        let destinationURL = targetDir.appendingPathComponent(filename)
         
         do {
             self.downloadProgress[item.id] = 0.3

@@ -16,7 +16,7 @@ Subject to the terms of this EULA and the MIT License, the developers of MacAura
 
 1. **Internet Access Requirements:** While MacAuraLive's core engine, built-in wallpapers, and local playback function 100% offline, an active internet connection is required to search, preview, and download assets from online Marketplace plugins (Unsplash, Pixabay, Pexels) and to execute AI Wallpaper Generation queries.
 2. **Third-Party Service Availability:** The Software connects directly to third-party APIs. MacAuraLive makes no guarantee regarding the uptime, uninterrupted availability, content accuracy, or rate limits imposed by third-party platforms.
-3. **Local Storage of Downloaded Content:** Downloaded media items are stored permanently on your local disk (`~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/`). You are responsible for managing available storage capacity on your device.
+3. **Local Storage of Downloaded Content:** Downloaded media items are stored directly on your local disk in your user documents folder (`~/Documents/MacAuraLiveApp/`). You are responsible for managing available storage capacity on your device.
 
 ---
 

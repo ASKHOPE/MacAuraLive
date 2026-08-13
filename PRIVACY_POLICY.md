@@ -25,7 +25,7 @@ MacAuraLive includes modular plugins allowing you to discover, search, and downl
   - [Unsplash Privacy Policy](https://unsplash.com/privacy)
   - [Pixabay Privacy Policy](https://pixabay.com/service/privacy/)
   - [Pexels Privacy Policy](https://www.pexels.com/privacy-policy/)
-- **Local Asset Persistence:** Downloaded wallpapers and video assets are saved permanently to your Mac (`~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/`). Once stored on your local disk, wallpapers are rendered 100% offline without further network connections.
+- **Local Asset Persistence:** Downloaded wallpapers and video assets are saved directly to your Mac in your Documents folder (`~/Documents/MacAuraLiveApp/livewallpaper/` and `~/Documents/MacAuraLiveApp/staticwallpaper/`). Once stored on your local disk, wallpapers are rendered 100% offline without further network connections.
 
 ---
 
@@ -42,7 +42,7 @@ MacAuraLive requests the following system permissions solely for local device fu
 
 | Permission | Purpose | Data Handling |
 | :--- | :--- | :--- |
-| **File System Access (Read/Write)** | Allows importing local files/folders, storing downloaded 4K wallpapers in `~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/`, and persisting custom manifests. | Access is strictly local to your device. No files are uploaded to external servers. |
+| **File System Access (Read/Write)** | Allows importing local files/folders, storing downloaded 4K wallpapers in `~/Documents/MacAuraLiveApp/`, and persisting custom manifests. | Access is strictly local to your device. No files are uploaded to external servers. |
 | **Network Access (Client HTTPS)** | Enables searching online plugins (Unsplash, Pixabay, Pexels), downloading media files, and communicating with user-configured AI providers. | Direct client-to-API requests over TLS 1.3 encryption. |
 | **Screen Recording** (`CGPreflightScreenCaptureAccess`) | Detects when a full-screen application or game is active to automatically pause rendering and save 100% GPU/CPU power. | **Zero recording or storage.** Window bounds are checked strictly in real-time memory. No pixels, screen content, or audio are ever recorded, saved, or transmitted. |
 | **System Startup** (`SMAppService`) | Enables MacAuraLive to launch silently in your menu bar when macOS boots. | Managed entirely by macOS `ServiceManagement` APIs. |
