@@ -127,6 +127,77 @@ public struct SettingsView: View {
                     )
 
                     
+                    // App Theme & macOS Appearance Customization Card
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Image(systemName: "paintpalette.fill")
+                                .font(.title3)
+                                .foregroundColor(.pink)
+                            Text("App Theme & macOS Appearance")
+                                .font(.title3)
+                                .bold()
+                            Spacer()
+                            Text(settings.appTheme == "system" ? "AUTO (macOS)" : settings.appTheme.uppercased())
+                                .font(.caption2)
+                                .bold()
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.pink.opacity(0.18))
+                                .foregroundColor(.pink)
+                                .cornerRadius(6)
+                        }
+                        
+                        Text("Customize dashboard appearance to follow native macOS settings with glassmorphic transparency and auto-adapting Day/Night wallpapers.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        // Theme Selection Segmented Picker
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Appearance Mode")
+                                .font(.body)
+                                .fontWeight(.medium)
+                            
+                            Picker("Appearance Mode", selection: $settings.appTheme) {
+                                Text("💻 Follow macOS Native (Auto)").tag("system")
+                                Text("🌙 Dark Mode").tag("dark")
+                                Text("☀️ Light Mode").tag("light")
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                        
+                        Divider()
+                            .padding(.vertical, 2)
+                        
+                        // Frosted Glass Transparency & Vibrancy Toggle
+                        Toggle(isOn: $settings.enableTransparency) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Enable macOS Frosted Glass Vibrancy & Translucency")
+                                    .font(.body)
+                                Text("Uses native NSVisualEffectView behind-window blur for an ultra-premium liquid macOS glass aesthetic.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        // Day/Night Automatic Wallpaper Adaptation
+                        Toggle(isOn: $settings.autoDayNightWallpapers) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Dynamic Day & Night Wallpaper Auto-Adaptation")
+                                    .font(.body)
+                                Text("Automatically activates Night wallpapers when macOS Dark Mode triggers, and Day wallpapers when Light Mode triggers.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding(18)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                    
                     // Wallpaper Placement & Scaling Options Card
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Wallpaper Placement & Scaling")

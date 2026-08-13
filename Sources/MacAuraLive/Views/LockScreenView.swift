@@ -232,7 +232,6 @@ public struct LockScreenView: View {
                             .fontWeight(.semibold)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.purple)
 
                     if !staticWallpapers.isEmpty {
                         Button {
@@ -358,30 +357,14 @@ public struct LockScreenView: View {
     // MARK: - Image Loading
 
     /// Loads the selected wallpaper image into `previewImage` state.
-    /// Tries the absolute file path first, then bundle resources as a fallback.
+    /// Loads the selected wallpaper image into `previewImage` state.
     private func loadPreviewImage() {
         guard let wp = selectedWallpaper else {
             previewImage = nil
             return
         }
 
-        // 1. Try direct absolute file path (user-imported images)
-        if let img = NSImage(contentsOfFile: wp.pathOrUrl) {
-            previewImage = img
-            return
-        }
-
-        // 2. Try as a bundle resource path (built-in assets)
-        if let resourcePath = Bundle.module.path(forResource: wp.pathOrUrl, ofType: nil, inDirectory: "Resources"),
-           let img = NSImage(contentsOfFile: resourcePath) {
-            previewImage = img
-            return
-        }
-
-        // 3. Try the filename component inside the bundle Wallpapers folder
-        let filename = (wp.pathOrUrl as NSString).lastPathComponent
-        if let resourcePath = Bundle.module.path(forResource: filename, ofType: nil, inDirectory: "Resources/Wallpapers"),
-           let img = NSImage(contentsOfFile: resourcePath) {
+        if let img = WallpaperStorageManager.shared.resolveImage(for: wp) {
             previewImage = img
             return
         }
@@ -412,10 +395,10 @@ private struct WallpaperThumbnailButton: View {
         Button(action: onTap) {
             ZStack(alignment: .bottom) {
                 Group {
-                    if let img = NSImage(contentsOfFile: item.pathOrUrl) {
+                    if let img = WallpaperStorageManager.shared.resolveImage(for: item) {
                         Image(nsImage: img)
                             .resizable()
-                            .scaledToFill()
+                            .aspectRatio(contentMode: .fill)
                     } else {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white.opacity(0.1))
@@ -440,11 +423,11 @@ private struct WallpaperThumbnailButton: View {
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color.purple : Color.white.opacity(0.12),
-                            lineWidth: isSelected ? 2.5 : 1)
+                    .stroke(isSelected ? Color.accentColor : Color.white.opacity(0.12),
+                            lineWidth: isSelected ? 2 : 1)
             )
-            .shadow(color: isSelected ? Color.purple.opacity(0.4) : .clear, radius: 6)
-            .scaleEffect(isSelected ? 1.04 : 1.0)
+            .shadow(color: isSelected ? Color.accentColor.opacity(0.3) : .clear, radius: 6)
+            .scaleEffect(isSelected ? 1.03 : 1.0)
             .animation(.spring(response: 0.25), value: isSelected)
         }
         .buttonStyle(.plain)

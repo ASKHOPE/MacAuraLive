@@ -137,7 +137,7 @@ public struct SlideshowView: View {
                                 Text("Slideshow Playlist Selection")
                                     .font(.title3)
                                     .bold()
-                                let count = slideshow.includedWallpaperIds.isEmpty ? storage.wallpapers.count : slideshow.includedWallpaperIds.count
+                                let count = slideshow.includedWallpaperIds.count
                                 Text("Selected \(count) of \(storage.wallpapers.count) wallpapers for rotation.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -248,7 +248,6 @@ public struct SlideshowView: View {
                                 Label("Add Time Rule", systemImage: "plus.circle.fill")
                             }
                             .buttonStyle(.borderedProminent)
-                            .tint(.purple)
                         }
 
                         Divider()
@@ -261,52 +260,7 @@ public struct SlideshowView: View {
                         } else {
                             VStack(spacing: 10) {
                                 ForEach(slideshow.scheduleRules) { rule in
-                                    HStack(spacing: 16) {
-                                        // Time Badge
-                                        Text(rule.timeString)
-                                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 6)
-                                            .background(Color.purple.opacity(0.2))
-                                            .foregroundColor(.purple)
-                                            .cornerRadius(8)
-
-                                        // Label & Wallpaper Title
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(rule.label)
-                                                .font(.subheadline)
-                                                .bold()
-                                            let wpTitle = storage.wallpapers.first(where: { $0.id == rule.wallpaperId })?.title ?? rule.wallpaperId
-                                            Text("Wallpaper: \(wpTitle)")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-
-                                        Spacer()
-
-                                        // Enable Toggle
-                                        Toggle("", isOn: Binding(
-                                            get: { rule.isEnabled },
-                                            set: { _ in slideshow.toggleRule(id: rule.id) }
-                                        ))
-                                        .toggleStyle(.switch)
-
-                                        // Delete Button
-                                        Button {
-                                            slideshow.deleteRule(id: rule.id)
-                                        } label: {
-                                            Image(systemName: "trash.fill")
-                                                .foregroundColor(.red.opacity(0.8))
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                    .padding(14)
-                                    .background(Color.white.opacity(0.04))
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                                    )
+                                    ScheduleRuleRow(rule: rule)
                                 }
                             }
                         }
@@ -316,7 +270,7 @@ public struct SlideshowView: View {
                     .cornerRadius(16)
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
                     )
                 }
             }
@@ -348,17 +302,15 @@ public struct SlideshowView: View {
                     Spacer()
 
                     Button("Save Schedule") {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "HH:mm"
-                        let timeStr = formatter.string(from: newTime)
-                        let labelToUse = newLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Scheduled Wallpaper" : newLabel
-                        slideshow.addRule(timeString: timeStr, wallpaperId: selectedWallpaperId, label: labelToUse)
+                        let tf = DateFormatter()
+                        tf.dateFormat = "HH:mm"
+                        let timeStr = tf.string(from: newTime)
+                        let label = newLabel.isEmpty ? "Scheduled Rotation" : newLabel
+                        slideshow.addRule(timeString: timeStr, wallpaperId: selectedWallpaperId, label: label)
                         newLabel = ""
                         showAddSheet = false
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.purple)
-                    .disabled(selectedWallpaperId.isEmpty)
                 }
             }
             .padding(24)
@@ -386,16 +338,23 @@ private struct PlaylistThumbnailCard: View {
                 VStack(spacing: 6) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(LinearGradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .fill(Color.black.opacity(0.4))
                             .frame(width: cardWidth, height: cardHeight)
 
-                        if item.type == .image, let img = ImageCache.shared.image(forPath: item.pathOrUrl) {
+                        if let img = WallpaperStorageManager.shared.resolveImage(for: item) {
                             Image(nsImage: img)
                                 .resizable()
-                                .scaledToFill()
+                                .aspectRatio(contentMode: .fill)
                                 .frame(width: cardWidth, height: cardHeight)
                                 .cornerRadius(10)
                                 .clipped()
+                        } else if (item.type == .builtInWeb || item.type == .webUrl),
+                                  let url = WallpaperStorageManager.shared.resolveURL(for: item) {
+                            MiniWebPreviewView(url: url)
+                                .frame(width: cardWidth, height: cardHeight)
+                                .cornerRadius(10)
+                                .clipped()
+                                .disabled(true)
                         } else {
                             Image(systemName: item.thumbnailIcon)
                                 .font(.system(size: cardWidth * 0.22))
@@ -414,9 +373,9 @@ private struct PlaylistThumbnailCard: View {
                 ZStack {
                     Circle()
                         .fill(isIncluded ? Color.green : Color.black.opacity(0.6))
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                     Image(systemName: isIncluded ? "checkmark" : "plus")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.white)
                 }
                 .padding(6)
@@ -432,3 +391,61 @@ private struct PlaylistThumbnailCard: View {
         .buttonStyle(.plain)
     }
 }
+
+// MARK: - Schedule Rule Row Component
+
+private struct ScheduleRuleRow: View {
+    @ObservedObject var slideshow = SlideshowManager.shared
+    @ObservedObject var storage = WallpaperStorageManager.shared
+    let rule: ScheduledRule
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Time Badge
+            Text(rule.timeString)
+                .font(.system(size: 15, weight: .bold, design: .monospaced))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.accentColor.opacity(0.15))
+                .foregroundColor(.accentColor)
+                .cornerRadius(8)
+
+            // Label & Wallpaper Title
+            VStack(alignment: .leading, spacing: 2) {
+                Text(rule.label)
+                    .font(.subheadline)
+                    .bold()
+                let wpTitle = storage.wallpapers.first(where: { $0.id == rule.wallpaperId })?.title ?? rule.wallpaperId
+                Text("Wallpaper: \(wpTitle)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            // Enable Toggle
+            Toggle("", isOn: Binding(
+                get: { rule.isEnabled },
+                set: { _ in slideshow.toggleRule(id: rule.id) }
+            ))
+            .toggleStyle(.switch)
+
+            // Delete Button
+            Button {
+                slideshow.deleteRule(id: rule.id)
+            } label: {
+                Image(systemName: "trash.fill")
+                    .foregroundColor(.red.opacity(0.8))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(14)
+        .background(Color.white.opacity(0.04))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+    }
+}
+

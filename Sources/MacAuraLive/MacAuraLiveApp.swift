@@ -61,6 +61,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
     public func registerMainWindow(_ window: NSWindow) {
         self.mainWindow = window
         window.delegate = self
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.titlebarAppearsTransparent = true
+        window.styleMask.insert(.fullSizeContentView)
     }
 
     /// Intercept red close button click on the main window: hide window instead of destroying it

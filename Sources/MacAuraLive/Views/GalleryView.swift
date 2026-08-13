@@ -93,70 +93,66 @@ public struct GalleryView: View {
     public var body: some View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 20) {
-                // Header Bar
-                HStack {
+                // Clean macOS Header Bar
+                HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(filterType == .staticOnly ? "Static Wallpapers" : (filterType == .liveOnly ? "Live Wallpapers" : "Wallpaper Library"))
-                            .font(.system(size: 28, weight: .bold))
-                        Text("Browse high-definition video, GIF, static images, and real-time AI live shaders.")
+                            .font(.system(size: 26, weight: .bold))
+                        Text("Browse high-definition video loops, static photos, and real-time AI live shaders.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
                     
                     Spacer()
                     
-                    // Real-Time Search Field
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.secondary)
-                        TextField("Search wallpapers...", text: $searchText)
-                            .textFieldStyle(.plain)
-                            .frame(width: 180)
-                        if !searchText.isEmpty {
-                            Button(action: { searchText = "" }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
+                    // Search & Actions
+                    HStack(spacing: 10) {
+                        // Search Field
+                        HStack(spacing: 6) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                            TextField("Search wallpapers...", text: $searchText)
+                                .textFieldStyle(.plain)
+                                .font(.subheadline)
+                                .frame(width: 170)
+                            if !searchText.isEmpty {
+                                Button(action: { searchText = "" }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                        .font(.caption)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.06))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+                        
+                        Button { openFolderPicker() } label: {
+                            Label("Import Folder", systemImage: "folder.badge.plus")
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.regular)
+                        
+                        Button { openFilePicker() } label: {
+                            Label("Import File", systemImage: "plus.circle.fill")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(8)
-                    
-                    // Action Buttons
-                    
-                    Button(action: { openFolderPicker() }) {
-                        Label("Import Folder", systemImage: "folder.badge.plus")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.white.opacity(0.12))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Button(action: { openFilePicker() }) {
-                        Label("Import File", systemImage: "plus.circle.fill")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .buttonStyle(.plain)
                 }
                 
-                // Category Selector Pills (Dynamically configured for Static vs Live)
-                HStack(spacing: 10) {
+                // Sleek Filter Bar
+                HStack(spacing: 8) {
                     ForEach(currentCategoryPills, id: \.self) { cat in
                         Button(action: { selectedCategory = cat }) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 5) {
                                 if cat == "With Audio" {
                                     Image(systemName: "speaker.wave.2.fill")
                                         .font(.caption2)
@@ -168,14 +164,18 @@ public struct GalleryView: View {
                                         .font(.caption2)
                                 }
                                 Text(cat)
+                                    .font(.caption)
+                                    .fontWeight(selectedCategory == cat ? .bold : .medium)
                             }
-                            .font(.subheadline)
-                            .fontWeight(selectedCategory == cat ? .bold : .regular)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(selectedCategory == cat ? (cat == "With Audio" ? Color.pink : Color.blue) : Color.white.opacity(0.08))
-                            .foregroundColor(.white)
-                            .cornerRadius(20)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(selectedCategory == cat ? Color.accentColor : Color.white.opacity(0.06))
+                            .foregroundColor(selectedCategory == cat ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selectedCategory == cat ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -809,28 +809,11 @@ struct WallpaperCardView: View {
     
     @ViewBuilder
     private var cardVisualPreview: some View {
-        if wallpaper.type == .builtInWeb {
-            if let url = getBuiltInURL(path: wallpaper.pathOrUrl) {
+        if wallpaper.type == .builtInWeb || wallpaper.type == .webUrl || wallpaper.pathOrUrl.hasSuffix(".html") {
+            if let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
                 MiniWebPreviewView(url: url)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .disabled(true)
-            } else {
-                staticPosterImage
-            }
-        } else if wallpaper.pathOrUrl.hasSuffix(".html") || wallpaper.type == .webUrl {
-            if let url = URL(string: wallpaper.pathOrUrl) ?? URL(fileURLWithPath: wallpaper.pathOrUrl) as URL? {
-                MiniWebPreviewView(url: url)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .disabled(true)
-            } else {
-                staticPosterImage
-            }
-        } else if wallpaper.type == .image || wallpaper.type == .gif {
-            if let image = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 staticPosterImage
             }
@@ -845,7 +828,14 @@ struct WallpaperCardView: View {
                     .onAppear { generateVideoFrame() }
             }
         } else {
-            staticPosterImage
+            if let image = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                staticPosterImage
+            }
         }
     }
     
@@ -856,11 +846,16 @@ struct WallpaperCardView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+            } else if let img = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
                 Image(nsImage: img)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if (wallpaper.type == .builtInWeb || wallpaper.type == .webUrl),
+                      let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
+                MiniWebPreviewView(url: url)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .disabled(true)
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: wallpaper.thumbnailIcon)
@@ -879,23 +874,9 @@ struct WallpaperCardView: View {
         }
     }
     
-    private func getBuiltInURL(path: String) -> URL? {
-        if let resourceURL = Bundle.module.url(forResource: path, withExtension: nil, subdirectory: "Resources/Wallpapers") {
-            return resourceURL
-        }
-        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
-        let fullPath = appSupport.appendingPathComponent("MacAuraLive/Wallpapers/\(path)")
-        if FileManager.default.fileExists(atPath: fullPath.path) {
-            return fullPath
-        }
-        return nil
-    }
-    
     private func generateVideoFrame() {
-        let videoPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
-            ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
-            ?? wallpaper.pathOrUrl
-        let asset = AVAsset(url: URL(fileURLWithPath: videoPath))
+        guard let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) else { return }
+        let asset = AVAsset(url: url)
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         let time = CMTime(seconds: 1.0, preferredTimescale: 60)
@@ -940,29 +921,22 @@ struct FullWallpaperPreviewModal: View {
             ZStack {
                 Color.black.opacity(0.8)
                 
-                if wallpaper.type == .builtInWeb, let url = getBuiltInURL(path: wallpaper.pathOrUrl) {
+                if (wallpaper.type == .builtInWeb || wallpaper.type == .webUrl || wallpaper.pathOrUrl.hasSuffix(".html")),
+                   let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
                     MiniWebPreviewView(url: url)
-                } else if wallpaper.pathOrUrl.hasSuffix(".html") || wallpaper.type == .webUrl,
-                          let url = URL(string: wallpaper.pathOrUrl) ?? URL(fileURLWithPath: wallpaper.pathOrUrl) as URL? {
-                    MiniWebPreviewView(url: url)
-                } else if wallpaper.type == .image || wallpaper.type == .gif,
-                          let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
-                    Image(nsImage: img)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
                 } else if wallpaper.type == .video {
                     if let img = videoThumbnail {
                         Image(nsImage: img)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                    } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+                    } else if let img = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
                         Image(nsImage: img)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                     } else {
                         ProgressView()
                     }
-                } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+                } else if let img = WallpaperStorageManager.shared.resolveImage(for: wallpaper) {
                     Image(nsImage: img)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -1009,23 +983,9 @@ struct FullWallpaperPreviewModal: View {
         .frame(minWidth: 720, minHeight: 520)
     }
     
-    private func getBuiltInURL(path: String) -> URL? {
-        if let resourceURL = Bundle.module.url(forResource: path, withExtension: nil, subdirectory: "Resources/Wallpapers") {
-            return resourceURL
-        }
-        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
-        let fullPath = appSupport.appendingPathComponent("MacAuraLive/Wallpapers/\(path)")
-        if FileManager.default.fileExists(atPath: fullPath.path) {
-            return fullPath
-        }
-        return nil
-    }
-    
     private func generateVideoFrame() {
-        let videoPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
-            ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
-            ?? wallpaper.pathOrUrl
-        let asset = AVAsset(url: URL(fileURLWithPath: videoPath))
+        guard let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) else { return }
+        let asset = AVAsset(url: url)
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         let time = CMTime(seconds: 1.0, preferredTimescale: 60)

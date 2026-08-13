@@ -177,6 +177,19 @@ public class WebWallpaperView: NSView, WKNavigationDelegate {
         webView?.reload()
     }
     
+    // MARK: - WKNavigationDelegate
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let placement = AppSettings.shared.wallpaperPlacement
+        let zoom = AppSettings.shared.wallpaperZoom
+        setPlacement(placement, zoom: zoom)
+        
+        let volume = AppSettings.shared.audioVolume
+        let isMuted = AppSettings.shared.isMuted
+        setVolume(volume, isMuted: isMuted)
+        
+        updateSDKState()
+    }
+    
     deinit {
         webView?.stopLoading()
         webView?.navigationDelegate = nil

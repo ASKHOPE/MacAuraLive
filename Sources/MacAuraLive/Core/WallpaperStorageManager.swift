@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import AppKit
 
 public class WallpaperStorageManager: ObservableObject {
     public static let shared = WallpaperStorageManager()
@@ -67,9 +68,102 @@ public class WallpaperStorageManager: ObservableObject {
                 try? fm.createDirectory(at: folderURL, withIntermediateDirectories: true, attributes: nil)
             }
         }
+        
+        copyBundledWallpapersToUserDocuments()
+    }
+    
+    public func copyBundledWallpapersToUserDocuments() {
+        guard let root = userDocumentsRootURL else { return }
+        let fm = FileManager.default
+        
+        let staticDir = root.appendingPathComponent("staticwallpaper", isDirectory: true)
+        let liveDir = root.appendingPathComponent("livewallpaper", isDirectory: true)
+        let codeDir = root.appendingPathComponent("animatedcode", isDirectory: true)
+        
+        // Bundle copy helper
+        func copyResource(subpath: String, to destinationURL: URL) {
+            if !fm.fileExists(atPath: destinationURL.path) {
+                if let src = Bundle.module.url(forResource: subpath, withExtension: nil, subdirectory: "Resources/Wallpapers") ??
+                             Bundle.module.url(forResource: subpath, withExtension: nil, subdirectory: "Resources") ??
+                             Bundle.module.url(forResource: "Wallpapers/\(subpath)", withExtension: nil) {
+                    try? fm.copyItem(at: src, to: destinationURL)
+                    print("[WallpaperStorageManager] Successfully extracted \(subpath) to \(destinationURL.path)")
+                }
+            }
+        }
+        
+        copyResource(subpath: "Static/TurbulentOcean/wallpaper.jpg", to: staticDir.appendingPathComponent("turbulent_ocean.jpg"))
+        copyResource(subpath: "Static/MountainRidges/wallpaper.jpg", to: staticDir.appendingPathComponent("mountain_ridges.jpg"))
+        copyResource(subpath: "Static/BlueCurves/wallpaper.jpg", to: staticDir.appendingPathComponent("blue_curves.jpg"))
+        copyResource(subpath: "Video/ShivaayWaves/wallpaper.mp4", to: liveDir.appendingPathComponent("shivaay_waves.mp4"))
+    }
+    
+    public func resolveURL(for wallpaper: WallpaperItem) -> URL? {
+        return resolveURL(forPath: wallpaper.pathOrUrl)
+    }
+    
+    public func resolveURL(forPath pathOrUrl: String) -> URL? {
+        let fm = FileManager.default
+        
+        // 1. Direct Web URL
+        if pathOrUrl.hasPrefix("http://") || pathOrUrl.hasPrefix("https://") {
+            return URL(string: pathOrUrl)
+        }
+        
+        // 2. Direct Absolute File Path
+        if fm.fileExists(atPath: pathOrUrl) {
+            return URL(fileURLWithPath: pathOrUrl)
+        }
+        
+        // 3. User Documents Directory (~/Documents/MacAuraLiveApp/)
+        if let docsRoot = userDocumentsRootURL {
+            let directDocs = docsRoot.appendingPathComponent(pathOrUrl)
+            if fm.fileExists(atPath: directDocs.path) { return directDocs }
+            
+            let lastComponent = (pathOrUrl as NSString).lastPathComponent
+            for sub in ["livewallpaper", "staticwallpaper", "gif", "animatedcode"] {
+                let subDirect = docsRoot.appendingPathComponent(sub).appendingPathComponent(pathOrUrl)
+                if fm.fileExists(atPath: subDirect.path) { return subDirect }
+                
+                let subByFileName = docsRoot.appendingPathComponent(sub).appendingPathComponent(lastComponent)
+                if fm.fileExists(atPath: subByFileName.path) { return subByFileName }
+            }
+        }
+        
+        // 4. Swift Package Bundle Resources
+        if let bundleURL = Bundle.module.url(forResource: pathOrUrl, withExtension: nil, subdirectory: "Resources/Wallpapers") ??
+                           Bundle.module.url(forResource: pathOrUrl, withExtension: nil, subdirectory: "Resources") ??
+                           Bundle.module.url(forResource: "Wallpapers/\(pathOrUrl)", withExtension: nil) ??
+                           Bundle.module.url(forResource: (pathOrUrl as NSString).lastPathComponent, withExtension: nil) {
+            return bundleURL
+        }
+        
+        // 5. Application Support Directory Fallback
+        let appSupportDirect = appSupportDirectory.appendingPathComponent("Wallpapers/\(pathOrUrl)")
+        if fm.fileExists(atPath: appSupportDirect.path) { return appSupportDirect }
+        
+        return nil
+    }
+    
+    public func resolveImage(for wallpaper: WallpaperItem) -> NSImage? {
+        return resolveImage(forPath: wallpaper.pathOrUrl)
+    }
+    
+    public func resolveImage(forPath pathOrUrl: String) -> NSImage? {
+        if let url = resolveURL(forPath: pathOrUrl), url.isFileURL {
+            if let img = NSImage(contentsOf: url) {
+                return img
+            }
+        }
+        if FileManager.default.fileExists(atPath: pathOrUrl),
+           let img = NSImage(contentsOfFile: pathOrUrl) {
+            return img
+        }
+        return nil
     }
     
     public func loadWallpapers() {
+        setupDefaultDocumentDirectories()
         var items = getBuiltInWallpapers()
         
         if FileManager.default.fileExists(atPath: metaFileURL.path),
@@ -78,17 +172,7 @@ public class WallpaperStorageManager: ObservableObject {
             let builtInIds = Set(items.map { $0.id })
             var customItems = saved.filter { !builtInIds.contains($0.id) }
             
-            // Re-verify audio tracks for custom video items using AVAssetReader RMS PCM analysis
-            for i in 0..<customItems.count {
-                if customItems[i].type == .video {
-                    let fileURL = URL(fileURLWithPath: customItems[i].pathOrUrl)
-                    if FileManager.default.fileExists(atPath: fileURL.path) {
-                        customItems[i].hasAudio = checkHasAudio(url: fileURL)
-                    } else {
-                        customItems[i].hasAudio = false
-                    }
-                }
-            }
+            // Removed expensive audio re-verification that triggered repeated permission prompts
             
             items.append(contentsOf: customItems)
         }
@@ -792,7 +876,31 @@ public class WallpaperStorageManager: ObservableObject {
     public func addCustomFileWallpaper(url: URL, title: String) -> WallpaperItem? {
         let ext = url.pathExtension.lowercased()
         let filename = UUID().uuidString + "_" + url.lastPathComponent
-        let destURL = wallpapersDirectory.appendingPathComponent(filename)
+        
+        let categoryName: String
+        let type: WallpaperType
+        let icon: String
+        let hasAudioTrack: Bool
+        
+        if ext == "gif" {
+            categoryName = "GIF"
+            type = .gif
+            icon = "photo.stack.fill"
+            hasAudioTrack = false
+        } else if ["png", "jpg", "jpeg", "webp", "heic"].contains(ext) {
+            categoryName = "GenAI"
+            type = .image
+            icon = "sparkles"
+            hasAudioTrack = false
+        } else {
+            categoryName = "MP4 Video"
+            type = .video
+            icon = "play.rectangle.fill"
+            hasAudioTrack = true // We will set this correctly after copy
+        }
+        
+        let targetDir = targetDirectory(for: type)
+        let destURL = targetDir.appendingPathComponent(filename)
         
         let accessing = url.startAccessingSecurityScopedResource()
         defer {
@@ -814,26 +922,11 @@ public class WallpaperStorageManager: ObservableObject {
                 return nil
             }
             
-            let categoryName: String
-            let type: WallpaperType
-            let icon: String
-            let hasAudioTrack: Bool
-            
-            if ext == "gif" {
-                categoryName = "GIF"
-                type = .gif
-                icon = "photo.stack.fill"
-                hasAudioTrack = false
-            } else if ["png", "jpg", "jpeg", "webp", "heic"].contains(ext) {
-                categoryName = "GenAI"
-                type = .image
-                icon = "sparkles"
-                hasAudioTrack = false
+            let finalHasAudioTrack: Bool
+            if type == .video {
+                finalHasAudioTrack = checkHasAudio(url: destURL)
             } else {
-                categoryName = "MP4 Video"
-                type = .video
-                icon = "play.rectangle.fill"
-                hasAudioTrack = checkHasAudio(url: destURL)
+                finalHasAudioTrack = hasAudioTrack
             }
             
             let item = WallpaperItem(
@@ -844,7 +937,7 @@ public class WallpaperStorageManager: ObservableObject {
                 type: type,
                 pathOrUrl: destURL.path,
                 thumbnailIcon: icon,
-                hasAudio: hasAudioTrack,
+                hasAudio: finalHasAudioTrack,
                 author: "User Library",
                 description: "Imported \(ext.uppercased()) wallpaper stored permanently."
             )
@@ -936,6 +1029,15 @@ public class WallpaperStorageManager: ObservableObject {
         }
         if let data = try? JSONEncoder().encode(customOnly) {
             try? data.write(to: metaFileURL)
+        }
+    }
+    
+    public func adaptWallpaperForDayNight(isDarkMode: Bool) {
+        let targetCategory = isDarkMode ? "Night" : "Day"
+        if let matching = wallpapers.first(where: { $0.category.lowercased() == targetCategory.lowercased() }) {
+            print("[WallpaperStorageManager] Auto-adapting wallpaper to \(targetCategory): \(matching.title)")
+            setActiveWallpaper(matching)
+            WallpaperEngine.shared.reloadEngine()
         }
     }
 }

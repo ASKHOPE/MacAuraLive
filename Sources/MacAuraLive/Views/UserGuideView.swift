@@ -288,17 +288,12 @@ public struct UserGuideView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 16) {
             // Header Bar
-            HStack {
+            HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "book.pages.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.blue)
-                        Text("User Guide & Documentation")
-                            .font(.system(size: 26, weight: .bold))
-                    }
+                    Text("User Guide & Documentation")
+                        .font(.system(size: 26, weight: .bold))
                     Text("Complete step-by-step manuals, feature how-tos, keyboard shortcuts, and architecture references.")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -307,22 +302,25 @@ public struct UserGuideView: View {
                 Spacer()
                 
                 // Search Input
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
-                    TextField("Search guides, features, shortcuts...", text: $searchQuery)
+                        .font(.caption)
+                    TextField("Search guides, shortcuts...", text: $searchQuery)
                         .textFieldStyle(.plain)
-                        .frame(width: 220)
+                        .font(.subheadline)
+                        .frame(width: 200)
                     if !searchQuery.isEmpty {
                         Button(action: { searchQuery = "" }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.secondary)
+                                .font(.caption)
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 10)
-                .padding(.vertical, 7)
+                .padding(.vertical, 6)
                 .background(Color.white.opacity(0.06))
                 .cornerRadius(8)
                 .overlay(
@@ -331,29 +329,31 @@ public struct UserGuideView: View {
                 )
             }
             
-            // Category Filter Pills
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(GuideCategory.allCases) { category in
-                        Button(action: { selectedCategory = category }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: category.iconName)
-                                    .font(.system(size: 11))
-                                Text(category.rawValue)
-                                    .font(.caption)
-                                    .fontWeight(selectedCategory == category ? .bold : .medium)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(selectedCategory == category ? Color.blue : Color.white.opacity(0.06))
-                            .foregroundColor(selectedCategory == category ? .white : .primary)
-                            .cornerRadius(10)
+            // Category Filter Pills with unified styling
+            FlowLayout(spacing: 6) {
+                ForEach(GuideCategory.allCases) { category in
+                    Button(action: { selectedCategory = category }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: category.iconName)
+                                .font(.caption2)
+                            Text(category.rawValue)
+                                .font(.caption)
+                                .fontWeight(selectedCategory == category ? .bold : .medium)
                         }
-                        .buttonStyle(.plain)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(selectedCategory == category ? Color.accentColor : Color.white.opacity(0.06))
+                        .foregroundColor(selectedCategory == category ? .white : .primary)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(selectedCategory == category ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
-                .padding(.vertical, 2)
             }
+            .padding(.vertical, 2)
             
             Divider()
             
@@ -418,11 +418,11 @@ private struct InteractiveGuideCard: View {
                 HStack(alignment: .center, spacing: 14) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(topic.badgeColor.opacity(0.15))
+                            .fill(Color.accentColor.opacity(0.12))
                             .frame(width: 38, height: 38)
                         Image(systemName: topic.category.iconName)
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(topic.badgeColor)
+                            .foregroundColor(.accentColor)
                     }
                     
                     VStack(alignment: .leading, spacing: 3) {
@@ -435,8 +435,8 @@ private struct InteractiveGuideCard: View {
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(topic.badgeColor.opacity(0.85))
-                                .foregroundColor(.white)
+                                .background(Color.white.opacity(0.12))
+                                .foregroundColor(.primary)
                                 .cornerRadius(4)
                         }
                         
@@ -450,7 +450,7 @@ private struct InteractiveGuideCard: View {
                     
                     Image(systemName: isExpanded ? "chevron.up.circle.fill" : "chevron.down.circle")
                         .font(.system(size: 18))
-                        .foregroundColor(isExpanded ? topic.badgeColor : .secondary)
+                        .foregroundColor(isExpanded ? .accentColor : .secondary)
                 }
                 .padding(16)
             }

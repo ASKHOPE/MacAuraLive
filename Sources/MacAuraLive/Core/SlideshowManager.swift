@@ -180,7 +180,6 @@ public class SlideshowManager: ObservableObject {
     }
 
     public func isWallpaperIncluded(id: String) -> Bool {
-        if includedWallpaperIds.isEmpty { return true } // All included by default
         return includedWallpaperIds.contains(id)
     }
 

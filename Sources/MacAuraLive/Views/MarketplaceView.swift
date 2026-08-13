@@ -94,20 +94,13 @@ public struct MarketplaceView: View {
     
     // MARK: - Header
     
+    // MARK: - Header
+    
     private var headerView: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text("Marketplace")
-                        .font(.system(size: 28, weight: .bold))
-                    Text("ONLINE PLUGINS")
-                        .font(.system(size: 10, weight: .black))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .leading, endPoint: .trailing))
-                        .foregroundColor(.white)
-                        .cornerRadius(4)
-                }
+                Text("Marketplace")
+                    .font(.system(size: 26, weight: .bold))
                 Text("Discover and download 4K wallpapers and cinematic motion loops from Unsplash, Pixabay, and Pexels.")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -115,14 +108,16 @@ public struct MarketplaceView: View {
             
             Spacer()
             
-            // Action Buttons
+            // Single-line Search & Actions
             HStack(spacing: 10) {
                 // Search Field
-                HStack {
+                HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
+                        .font(.caption)
                     TextField("Search online...", text: $marketplace.searchQuery)
                         .textFieldStyle(.plain)
+                        .font(.subheadline)
                         .frame(width: 160)
                         .onSubmit {
                             Task { await marketplace.fetchMarketplaceWallpapers() }
@@ -134,38 +129,31 @@ public struct MarketplaceView: View {
                         }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.secondary)
+                                .font(.caption)
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.06))
                 .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
                 
-                Button(action: { showApiKeyModal = true }) {
-                    Label("Configure API Keys", systemImage: "key.fill")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.white.opacity(0.12))
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                Button { showApiKeyModal = true } label: {
+                    Label("API Keys", systemImage: "key.fill")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
                 
-                Button(action: { showTermsModal = true }) {
-                    Label("Terms & License", systemImage: "doc.text.fill")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.white.opacity(0.12))
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                Button { showTermsModal = true } label: {
+                    Label("Licenses", systemImage: "doc.text.fill")
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
             }
         }
     }
@@ -173,34 +161,38 @@ public struct MarketplaceView: View {
     // MARK: - Filter Bar
     
     private var filterBarView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
                 // Provider Selector Pills
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     ForEach(WallpaperSourceProvider.allCases) { prov in
                         Button(action: {
                             marketplace.selectedProvider = prov
                             Task { await marketplace.fetchMarketplaceWallpapers() }
                         }) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 5) {
                                 Image(systemName: prov.iconName)
-                                    .font(.caption)
+                                    .font(.caption2)
                                 Text(prov.rawValue)
                                     .font(.caption)
                                     .fontWeight(marketplace.selectedProvider == prov ? .bold : .medium)
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedProvider == prov ? Color.blue : Color.white.opacity(0.08))
-                            .foregroundColor(marketplace.selectedProvider == prov ? .white : .secondary)
-                            .cornerRadius(12)
+                            .background(marketplace.selectedProvider == prov ? Color.accentColor : Color.white.opacity(0.06))
+                            .foregroundColor(marketplace.selectedProvider == prov ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(marketplace.selectedProvider == prov ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 
                 Divider()
-                    .frame(height: 18)
+                    .frame(height: 16)
                 
                 // Media Type Selector Pills
                 HStack(spacing: 6) {
@@ -211,11 +203,15 @@ public struct MarketplaceView: View {
                         Text("All Types")
                             .font(.caption)
                             .fontWeight(marketplace.selectedMediaTypeFilter == nil ? .bold : .medium)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == nil ? Color.purple : Color.white.opacity(0.08))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == nil ? .white : .secondary)
-                            .cornerRadius(12)
+                            .background(marketplace.selectedMediaTypeFilter == nil ? Color.accentColor : Color.white.opacity(0.06))
+                            .foregroundColor(marketplace.selectedMediaTypeFilter == nil ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(marketplace.selectedMediaTypeFilter == nil ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                     
@@ -226,11 +222,15 @@ public struct MarketplaceView: View {
                         Label("4K Photos", systemImage: "photo.fill")
                             .font(.caption)
                             .fontWeight(marketplace.selectedMediaTypeFilter == .image ? .bold : .medium)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .image ? Color.purple : Color.white.opacity(0.08))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == .image ? .white : .secondary)
-                            .cornerRadius(12)
+                            .background(marketplace.selectedMediaTypeFilter == .image ? Color.accentColor : Color.white.opacity(0.06))
+                            .foregroundColor(marketplace.selectedMediaTypeFilter == .image ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(marketplace.selectedMediaTypeFilter == .image ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                     
@@ -241,11 +241,15 @@ public struct MarketplaceView: View {
                         Label("Video Loops", systemImage: "play.rectangle.fill")
                             .font(.caption)
                             .fontWeight(marketplace.selectedMediaTypeFilter == .video ? .bold : .medium)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .video ? Color.purple : Color.white.opacity(0.08))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == .video ? .white : .secondary)
-                            .cornerRadius(12)
+                            .background(marketplace.selectedMediaTypeFilter == .video ? Color.accentColor : Color.white.opacity(0.06))
+                            .foregroundColor(marketplace.selectedMediaTypeFilter == .video ? .white : .primary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(marketplace.selectedMediaTypeFilter == .video ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -253,25 +257,26 @@ public struct MarketplaceView: View {
             
             // Quick Discovery Tags
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     ForEach(discoveryTags, id: \.self) { tag in
                         Button(action: {
                             marketplace.activeTag = tag
                             marketplace.searchQuery = tag == "All" ? "" : tag
                             Task { await marketplace.fetchMarketplaceWallpapers() }
                         }) {
-                            Text(tag == "All" ? "✨ All Discoveries" : "# \(tag)")
+                            Text(tag == "All" ? "✨ All Discoveries" : "#\(tag)")
                                 .font(.caption2)
                                 .fontWeight(marketplace.activeTag == tag ? .bold : .medium)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .background(marketplace.activeTag == tag ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                                .background(marketplace.activeTag == tag ? Color.white.opacity(0.2) : Color.white.opacity(0.04))
                                 .foregroundColor(marketplace.activeTag == tag ? .white : .secondary)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
                         }
                         .buttonStyle(.plain)
                     }
                 }
+                .padding(.vertical, 2)
             }
         }
         .padding(14)
@@ -625,7 +630,7 @@ private struct MarketplaceCardView: View {
                         .font(.system(size: 9, weight: .bold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 3)
-                        .background(Color.purple.opacity(0.85))
+                        .background(Color.white.opacity(0.18))
                         .foregroundColor(.white)
                         .cornerRadius(6)
                     
@@ -637,7 +642,7 @@ private struct MarketplaceCardView: View {
                                 .font(.caption2)
                                 .foregroundColor(.white)
                                 .padding(6)
-                                .background(Color.blue.opacity(0.85))
+                                .background(Color.accentColor.opacity(0.9))
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
