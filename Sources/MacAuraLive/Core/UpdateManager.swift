@@ -16,7 +16,7 @@ public class UpdateManager: ObservableObject {
     @Published public var status: UpdateStatus = .idle
     @Published public var lastCheckedDate: Date? = nil
     
-    public let currentVersion = "1.2.0"
+    public let currentVersion = "1.4.0"
     public let githubReleasesURL = "https://api.github.com/repos/ASKHOPE/MacAuraLive/releases/latest"
     
     private init() {}
@@ -45,7 +45,7 @@ public class UpdateManager: ObservableObject {
                 
                 guard let data = data,
                       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                    self?.status = .upToDate(version: self?.currentVersion ?? "1.2.0")
+                    self?.status = .upToDate(version: self?.currentVersion ?? "1.4.0")
                     return
                 }
                 
@@ -62,10 +62,10 @@ public class UpdateManager: ObservableObject {
                     }
                 }
                 
-                if self?.isVersion(latestVersion, newerThan: self?.currentVersion ?? "1.2.0") == true {
+                if self?.isVersion(latestVersion, newerThan: self?.currentVersion ?? "1.4.0") == true {
                     self?.status = .updateAvailable(version: latestVersion, releaseNotes: body, downloadUrl: downloadUrl)
                 } else {
-                    self?.status = .upToDate(version: self?.currentVersion ?? "1.2.0")
+                    self?.status = .upToDate(version: self?.currentVersion ?? "1.4.0")
                 }
             }
         }.resume()

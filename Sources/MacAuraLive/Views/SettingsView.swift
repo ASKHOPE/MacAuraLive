@@ -597,7 +597,7 @@ public struct SettingsView: View {
                         switch updater.status {
                         case .idle:
                             HStack {
-                                Text("Current Version: v1.2.0 (Build 100)")
+                                Text("Current Version: v1.4.0 (Build 100)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Spacer()
@@ -694,7 +694,7 @@ public struct SettingsView: View {
                                 Text("MacAuraLive Live Wallpaper Engine")
                                     .font(.title2)
                                     .bold()
-                                Text("v1.2.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
+                                Text("v1.4.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
                                     .font(.caption)
                                     .foregroundColor(.cyan)
                                     .fontWeight(.medium)
@@ -714,7 +714,7 @@ public struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("App Version:").bold().font(.caption)
-                                Text("1.2.0 (Build 100)").font(.caption).foregroundColor(.secondary)
+                                Text("1.4.0 (Build 100)").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
                                 Text("Architecture:").bold().font(.caption)
