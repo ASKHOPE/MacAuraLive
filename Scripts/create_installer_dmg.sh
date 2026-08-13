@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# MacAura DMG Installer Builder Script
+# MacAura DMG Installer Builder Script (Apple Silicon Native)
 set -e
 
-echo "🚀 Packaging MacAura DMG Installer..."
+echo "🚀 Packaging MacAura DMG Installer for Apple Silicon..."
 
 # Ensure release build exists
 bash Scripts/build_app.sh
 
 DMG_TEMP_DIR="build/dmg_temp"
-DMG_OUTPUT="build/MacAura_v1.2.0_Installer.dmg"
+DMG_OUTPUT="build/MacAura_v1.2.0_Installer_AppleSilicon.dmg"
 
 rm -rf "$DMG_TEMP_DIR" "$DMG_OUTPUT"
 mkdir -p "$DMG_TEMP_DIR"
