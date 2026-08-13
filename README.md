@@ -17,6 +17,25 @@
 ---
 
 ## ✨ Features
+## 📸 Application User Interface Gallery
+
+| 01. Live Wallpapers Gallery | 02. Static Wallpapers |
+| :---: | :---: |
+| ![Live Wallpapers](Documentation/Screenshots/01_live_wallpapers.png) | ![Static Wallpapers](Documentation/Screenshots/02_static_wallpapers.png) |
+
+| 03. Slideshow & Schedule | 04. Multi-Monitor Displays |
+| :---: | :---: |
+| ![Slideshow & Schedule](Documentation/Screenshots/03_slideshow_schedule.png) | ![Displays](Documentation/Screenshots/04_displays.png) |
+
+| 05. macOS Lock Screen | 06. Built-in User Guide |
+| :---: | :---: |
+| ![Lock Screen](Documentation/Screenshots/05_lock_screen.png) | ![User Guide](Documentation/Screenshots/06_user_guide.png) |
+
+| 07. AI Workshop (Google Gemini / OpenRouter) | 08. Software Updates & Settings |
+| :---: | :---: |
+| ![AI Workshop](Documentation/Screenshots/07_ai_workshop.png) | ![Settings](Documentation/Screenshots/08_settings.png) |
+
+---
 
 ### 🎬 Live Wallpaper Engine & Video Controls
 - **Video Wallpapers** — Hardware-accelerated 1080p / 2K / 4K / 8K video loops via `AVFoundation` (H.264, HEVC/H.265, ProRes)

@@ -265,6 +265,56 @@ public struct MainWindowView: View {
             .frame(minWidth: 700, minHeight: 520)
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            if CommandLine.arguments.contains("--capture-screenshots") {
+                exportAllScreenshots()
+            }
+        }
+    }
+    
+    private func exportAllScreenshots() {
+        let outDir = "/Users/hosanna/Documents/wallpapermacs/Documentation/Screenshots"
+        try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
+        
+        let tabMap: [(NavigationTab, String)] = [
+            (.liveWallpapers, "01_live_wallpapers.png"),
+            (.staticWallpapers, "02_static_wallpapers.png"),
+            (.slideshow, "03_slideshow_schedule.png"),
+            (.displays, "04_displays.png"),
+            (.lockScreen, "05_lock_screen.png"),
+            (.userGuide, "06_user_guide.png"),
+            (.aiConfig, "07_ai_workshop.png"),
+            (.settings, "08_settings.png")
+        ]
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            for (idx, (tab, filename)) in tabMap.enumerated() {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.8) {
+                    self.selectedTab = tab
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        if let window = NSApp.windows.first(where: { $0.isVisible }),
+                           let view = window.contentView {
+                            let rect = view.bounds
+                            if let bitmap = view.bitmapImageRepForCachingDisplay(in: rect) {
+                                view.cacheDisplay(in: rect, to: bitmap)
+                                if let pngData = bitmap.representation(using: .png, properties: [:]) {
+                                    let savePath = "\(outDir)/\(filename)"
+                                    try? pngData.write(to: URL(fileURLWithPath: savePath))
+                                    print("[ScreenshotAutomation] ✅ Exported tab '\(tab.rawValue)' to \(savePath)")
+                                }
+                            }
+                        }
+                        
+                        if idx == tabMap.count - 1 {
+                            print("[ScreenshotAutomation] 🎉 All 8 UI tab screenshots exported successfully!")
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                NSApp.terminate(nil)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
