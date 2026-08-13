@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import ServiceManagement
+import AppKit
 
 public class AppSettings: ObservableObject {
     public static let shared = AppSettings()
@@ -11,6 +12,10 @@ public class AppSettings: ObservableObject {
             updateLaunchAtLogin(enabled: launchAtLogin)
         }
     }
+    
+    /// Human-readable registration status for the Settings UI
+    @Published public var launchAtLoginStatus: String = "Checking..."
+    @Published public var launchAtLoginError: String? = nil
     
     @Published public var pauseOnBattery: Bool {
         didSet { UserDefaults.standard.set(pauseOnBattery, forKey: "pauseOnBattery") }
@@ -122,6 +127,9 @@ public class AppSettings: ObservableObject {
         self.openRouterModel = defaults.string(forKey: "openRouterModel") ?? "google/gemma-2-9b-it:free"
         self.localApiEndpoint = defaults.string(forKey: "localApiEndpoint") ?? "http://localhost:11434/v1"
         self.selectedAIProvider = defaults.string(forKey: "selectedAIProvider") ?? "OpenRouter"
+        
+        // Populate status immediately after all properties are set
+        DispatchQueue.main.async { self.refreshLaunchAtLoginStatus() }
     }
     
     private func updateLaunchAtLogin(enabled: Bool) {
@@ -132,9 +140,34 @@ public class AppSettings: ObservableObject {
                 } else {
                     try SMAppService.mainApp.unregister()
                 }
+                DispatchQueue.main.async { self.refreshLaunchAtLoginStatus() }
+                launchAtLoginError = nil
             } catch {
-                print("[AppSettings] Launch at login registration notice: \(error)")
+                print("[AppSettings] Launch at login error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.launchAtLoginError = error.localizedDescription
+                    self.refreshLaunchAtLoginStatus()
+                }
             }
+        }
+    }
+    
+    public func refreshLaunchAtLoginStatus() {
+        if #available(macOS 13.0, *) {
+            switch SMAppService.mainApp.status {
+            case .enabled:
+                launchAtLoginStatus = "Active"
+            case .requiresApproval:
+                launchAtLoginStatus = "Requires Approval"
+            case .notRegistered:
+                launchAtLoginStatus = "Not Registered"
+            case .notFound:
+                launchAtLoginStatus = "Not Found — Move app to /Applications"
+            @unknown default:
+                launchAtLoginStatus = "Unknown"
+            }
+        } else {
+            launchAtLoginStatus = launchAtLogin ? "Active (Legacy)" : "Off"
         }
     }
 }

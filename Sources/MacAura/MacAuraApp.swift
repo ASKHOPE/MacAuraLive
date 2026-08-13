@@ -33,6 +33,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Initialize Wallpaper Engine
         WallpaperEngine.shared.startEngine()
         
+        // Refresh SMAppService status badge immediately
+        AppSettings.shared.refreshLaunchAtLoginStatus()
+        
         // Restore dock visibility preference FIRST (before icon, since policy change can clear it)
         applyDockVisibility(isDockVisible)
         
@@ -103,6 +106,16 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         
         menu.addItem(NSMenuItem.separator())
         
+        // Launch at Login quick toggle
+        let loginTitle = AppSettings.shared.launchAtLogin ? "✓ Launch at Login" : "Launch at Login"
+        let launchAtLoginItem = NSMenuItem(
+            title: loginTitle,
+            action: #selector(toggleLaunchAtLogin),
+            keyEquivalent: ""
+        )
+        launchAtLoginItem.target = self
+        menu.addItem(launchAtLoginItem)
+        
         // Dock visibility toggle
         let dockTitle = isDockVisible ? "Remove from Dock" : "Keep in Dock"
         let dockItem = NSMenuItem(title: dockTitle, action: #selector(toggleDockVisibility), keyEquivalent: "")
@@ -126,6 +139,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         
         let isPaused = WallpaperEngine.shared.isPaused
         let isMuted = AppSettings.shared.isMuted
+        let isLaunchAtLogin = AppSettings.shared.launchAtLogin
         
         if menu.items.count > 3 {
             // Playback item (index 2)
@@ -140,6 +154,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             // Mute item (index 3)
             menu.items[3].title = isMuted ? "Unmute Audio" : "Mute Audio"
             menu.items[3].isHidden = !wallpaperHasAudio
+            
+            // Launch at Login item — find by action
+            if let loginItem = menu.items.first(where: { $0.action == #selector(toggleLaunchAtLogin) }) {
+                loginItem.title = isLaunchAtLogin ? "✓ Launch at Login" : "Launch at Login"
+                loginItem.image = NSImage(systemSymbolName: isLaunchAtLogin ? "checkmark.circle.fill" : "circle", accessibilityDescription: nil)
+            }
             
             // Dock visibility item — find it by action
             if let dockItem = menu.items.first(where: { $0.action == #selector(toggleDockVisibility) }) {
@@ -156,6 +176,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func toggleMute() {
         AppSettings.shared.isMuted.toggle()
         WallpaperEngine.shared.updateAudioSettings(volume: AppSettings.shared.audioVolume, isMuted: AppSettings.shared.isMuted)
+    }
+    
+    @objc private func toggleLaunchAtLogin() {
+        AppSettings.shared.launchAtLogin.toggle()
     }
     
     @objc private func openDashboard() {

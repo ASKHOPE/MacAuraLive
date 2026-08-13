@@ -8,6 +8,7 @@ public struct LockScreenView: View {
     
     @State private var currentTimeString: String = ""
     @State private var currentDateString: String = ""
+    @State private var showSnapshotConfirm: Bool = false
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
 
     public init() {}
@@ -146,6 +147,95 @@ public struct LockScreenView: View {
                     .stroke(Color.white.opacity(0.1), lineWidth: 1)
             )
             
+            // How Lock Screen Works – Info Card
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundColor(.cyan)
+                        .font(.title3)
+                    Text("How Lock Screen Wallpaper Works")
+                        .font(.headline)
+                        .bold()
+                }
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    FeatureRow(
+                        icon: "display",
+                        iconColor: .blue,
+                        title: "While Unlocked",
+                        description: "Full live animated wallpaper plays on your desktop at the desktop window layer."
+                    )
+                    FeatureRow(
+                        icon: "lock.fill",
+                        iconColor: .purple,
+                        title: "On Screen Lock",
+                        description: "MacAura elevates the wallpaper window to the screen-saver layer, then captures the current frame as a PNG and sets it as your system desktop wallpaper. macOS lock screen automatically mirrors the desktop wallpaper."
+                    )
+                    FeatureRow(
+                        icon: "lock.open.fill",
+                        iconColor: .green,
+                        title: "On Unlock",
+                        description: "The live engine resumes at full quality on the desktop layer."
+                    )
+                }
+                .padding(12)
+                .background(Color.white.opacity(0.04))
+                .cornerRadius(10)
+                
+                // Note about macOS limitation
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.circle")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("Note: Apple does not provide a public API to display custom video on the lock screen password overlay. The snapshot approach gives the best visual match possible.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                
+                // Test Snapshot Button
+                HStack(spacing: 12) {
+                    Button {
+                        lockManager.captureAndSetDesktopSnapshot()
+                        showSnapshotConfirm = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            showSnapshotConfirm = false
+                        }
+                    } label: {
+                        Label("Test: Snapshot Current Wallpaper", systemImage: "camera.viewfinder")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.cyan)
+                    
+                    if showSnapshotConfirm {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Done! Lock your screen to see it.")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                        .transition(.opacity)
+                    }
+                    
+                    Spacer()
+                }
+                
+                if !lockManager.snapshotStatus.isEmpty {
+                    Text(lockManager.snapshotStatus)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 2)
+                }
+            }
+            .padding(20)
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+            )
+            .animation(.easeInOut(duration: 0.2), value: showSnapshotConfirm)
+            
             Spacer()
         }
     }
@@ -158,5 +248,37 @@ public struct LockScreenView: View {
         let dateForm = DateFormatter()
         dateForm.dateFormat = "EEEE, MMMM d"
         currentDateString = dateForm.string(from: Date())
+    }
+}
+
+// MARK: - Supporting View
+
+private struct FeatureRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 30, height: 30)
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                    .foregroundColor(iconColor)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline)
+                    .bold()
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
     }
 }

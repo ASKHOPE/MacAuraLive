@@ -31,14 +31,89 @@ public struct SettingsView: View {
                             .font(.title3)
                             .bold()
                         
-                        Toggle(isOn: $settings.launchAtLogin) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Launch MacAura on System Startup / Login")
-                                    .font(.body)
-                                Text("Automatically starts MacAura and restores your active live wallpaper when macOS boots.")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                        HStack(alignment: .top, spacing: 12) {
+                            Toggle(isOn: $settings.launchAtLogin) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Launch MacAura on System Startup / Login")
+                                        .font(.body)
+                                    Text("Automatically starts MacAura and restores your active live wallpaper when macOS boots.")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
+                            
+                            // Status badge
+                            let statusColor: Color = {
+                                switch settings.launchAtLoginStatus {
+                                case "Active": return .green
+                                case "Requires Approval": return .orange
+                                case _ where settings.launchAtLoginStatus.contains("Not Found"): return .red
+                                default: return .secondary
+                                }
+                            }()
+                            Text(settings.launchAtLoginStatus)
+                                .font(.caption2)
+                                .bold()
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(statusColor.opacity(0.18))
+                                .foregroundColor(statusColor)
+                                .cornerRadius(6)
+                                .fixedSize()
+                        }
+                        
+                        // Guidance if status requires action
+                        if settings.launchAtLoginStatus.contains("Requires Approval") {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.orange)
+                                    .font(.caption)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Approval Required")
+                                        .font(.caption)
+                                        .bold()
+                                        .foregroundColor(.orange)
+                                    Text("Open System Settings › General › Login Items & Extensions and allow MacAura.")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Button("Open System Settings") {
+                                    if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+                                        NSWorkspace.shared.open(url)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .font(.caption)
+                            }
+                            .padding(10)
+                            .background(Color.orange.opacity(0.1))
+                            .cornerRadius(10)
+                        } else if settings.launchAtLoginStatus.contains("Not Found") {
+                            HStack(spacing: 8) {
+                                Image(systemName: "folder.badge.questionmark")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Move App to Applications Folder")
+                                        .font(.caption)
+                                        .bold()
+                                        .foregroundColor(.red)
+                                    Text("SMAppService requires MacAura to be located in /Applications. Move the app there and try again.")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(10)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(10)
+                        }
+                        
+                        if let error = settings.launchAtLoginError {
+                            Text("⚠️ \(error)")
+                                .font(.caption2)
+                                .foregroundColor(.red)
                         }
                     }
                     .padding(18)
@@ -48,6 +123,7 @@ public struct SettingsView: View {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color.white.opacity(0.1), lineWidth: 1)
                     )
+
                     
                     // Wallpaper Placement & Scaling Options Card
                     VStack(alignment: .leading, spacing: 14) {
