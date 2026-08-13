@@ -124,8 +124,8 @@ MacAuraLive/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/wallpapermacs.git
-cd wallpapermacs
+git clone https://github.com/ASKHOPE/MacAuraLive.git
+cd MacAuraLive
 
 # 2. Build the signed .app bundle
 ./Scripts/build_app.sh
