@@ -37,6 +37,10 @@ public class WallpaperStorageManager: ObservableObject {
         return docsURL.appendingPathComponent("MacAuraLiveApp", isDirectory: true)
     }
     
+    public var documentsDirectory: URL {
+        return userDocumentsRootURL ?? appSupportDirectory
+    }
+    
     public func targetDirectory(for type: WallpaperType) -> URL {
         let root = userDocumentsRootURL ?? appSupportDirectory
         let subfolder: String

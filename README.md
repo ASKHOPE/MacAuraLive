@@ -12,7 +12,15 @@
   <img src="https://img.shields.io/badge/Status-Active-purple?style=flat-square" />
 </p>
 
+<p align="center">
+  <a href="https://github.com/ASKHOPE/MacAuraLive/releases/latest">
+    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.5.0%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
+  </a>
+</p>
+
 > **MacAuraLive** is an open-source, hardware-accelerated live wallpaper engine for macOS — built entirely in Swift and SwiftUI, with zero external dependencies.
+> 
+> 📦 **[Download Direct DMG Installer (v1.5.0 Apple Silicon)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.5.0_Installer_AppleSilicon.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
 ---
 
@@ -68,19 +76,45 @@
 - Full-screen app detection pauses rendering to give 100% GPU to active apps
 - Performance tiers: Full (60fps), Balanced (30fps), Low Power (15fps), Paused
 
-### 🎛️ Menu Bar App & Window Controls
+### 💾 Inbuilt Storage & Resource Analytics Dashboard
+- **Real-Time Storage Breakdown** — Live analytics dashboard built directly into Settings tracking disk allocation across all components:
+  - **App Binary & Metal Engine**: ~7.5 MB (Compiled ARM64 native Mach-O executable)
+  - **Built-in Shaders & Video Resources**: ~15.0 MB (4K WebGL/Canvas shaders & video loops)
+  - **User Static Wallpapers**: ~0.4 MB (`~/Documents/MacAuraLiveApp/staticwallpaper/`)
+  - **Animated GIFs & AI Code**: ~0.2 MB (`~/Documents/MacAuraLiveApp/animatedcode/`)
+  - **Temporary Cache & Manifests**: ~0.1 MB
+  - **Total Application Footprint**: ~23.2 MB (Ultra-lightweight footprint)
+- **Interactive Multi-Color Storage Bar** — Visual segmented gauge matching macOS System Settings design language.
+- **One-Click Cache Management** — Instant cache cleanup and Finder reveal actions.
+
+### 🎛️ Menu Bar App, Sidebar Controls & Speed Slider
 - Runs silently in background with status bar menu bar icon
+- **Real-Time Playback Speed Slider** — Dynamically adjust playback speed from `0.25x` to `3.0x` across both Video loops and WebGL/Canvas shaders
 - Quick pause/resume, mute/unmute, volume control, and Launch at Login toggles
 - **Reliable Dashboard Window Launcher** — Quick "Open Dashboard" menu action surfacing the window regardless of Dock visibility or window state
 
-### 🤖 AI Wallpaper Generator *(Early Access)*
+### 🤖 AI Wallpaper Workshop & Key Management
 - Generate custom HTML5/WebGL live wallpapers using natural language prompts
-- Supports OpenAI GPT-4, Claude 3, Gemini 1.5 Flash, OpenRouter
-- All API keys stored securely in macOS **Keychain** — never on disk
+- Supports Google Gemini 2.0/1.5 Flash, OpenRouter (DeepSeek R1, Llama 3.3, Qwen 2.5), and local offline LLMs (Ollama / LMStudio)
+- **API Key Action Trio** — Dedicated **Save Key**, **Test Key** (live API server validation ping), and **Clear Key** buttons
+- All API keys stored securely in macOS **Keychain** hardware enclave via `Security.framework`
 
 ### 📁 Document Library
-- Auto-creates `~/Documents/MacauraApp/` folder structure on first launch
+- Auto-creates `~/Documents/MacAuraLiveApp/` folder structure on first launch (`livewallpaper/`, `staticwallpaper/`, `gif/`, `animatedcode/`)
 - Import custom `.mp4`, `.mov`, `.m4v`, `.gif`, `.html`, `.jpg`, `.png` wallpapers via drag & drop or file scanner
+
+---
+
+## 📊 Storage Usage & Resource Allocation Estimates
+
+| Component | Storage Type | Typical Size | % of Total | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **App Executable (Mach-O)** | Binary | ~7.5 MB | ~32% | Compiled Swift & Metal rendering engine |
+| **Built-in Live Shaders** | Resources | ~15.0 MB | ~64% | Bundled 60fps Aurora, Matrix, Cyberpunk, ParticleWave |
+| **Static Wallpapers** | User Data | ~0.4 MB | ~2% | User-imported 4K/8K static desktop backdrops |
+| **AI Generations & Code** | User Data | ~0.2 MB | ~1% | Custom generated HTML5/Canvas shader source files |
+| **Cache & Settings** | Cache | ~0.1 MB | <1% | Temporary previews, JSON metadata & manifests |
+| **Total Footprint** | Combined | **~23.2 MB** | **100%** | Ultra-efficient footprint on Apple Silicon |
 
 ---
 
@@ -90,7 +124,9 @@
 MacAuraLive/
 ├── Package.swift                      # Swift Package Manifest (macOS 13.0+)
 ├── Scripts/
-│   └── build_app.sh                  # Release build + .app bundle packager
+│   ├── build_app.sh                  # Release build + .app bundle packager
+│   ├── create_installer_dmg.sh       # Apple Silicon DMG installer packager + Checksum generator
+│   └── verify_environment.sh         # Pre-build audit & version sync verifier
 └── Sources/MacAuraLive/
     ├── MacAuraLiveApp.swift               # @main entry, NSStatusItem, Dock & Launch at Login toggles
     ├── Models/
@@ -98,24 +134,26 @@ MacAuraLive/
     │   ├── AppSettings.swift          # UserDefaults + Keychain settings & LaunchAtLogin status
     │   └── DisplayInfo.swift          # Display/monitor state
     ├── Core/
-    │   ├── WallpaperEngine.swift      # Multi-monitor window orchestrator & playback position state
+    │   ├── WallpaperEngine.swift      # Multi-monitor window orchestrator & playback speed delegation
+    │   ├── StorageAnalyticsManager.swift # Live storage footprint calculator & resource analytics
     │   ├── WallpaperWindow.swift      # Below-desktop-icons NSWindow
-    │   ├── VideoWallpaperView.swift   # AVPlayerLooper 4K video renderer + seek & time observer
+    │   ├── VideoWallpaperView.swift   # AVPlayerLooper 4K video renderer + seek & speed controls
     │   ├── WebWallpaperView.swift     # WKWebView HTML5/WebGL renderer + MacAuraLive SDK
-    │   ├── WallpaperStorageManager.swift # Library persistence & file import
+    │   ├── WallpaperStorageManager.swift # Library persistence & file import (~/Documents/MacAuraLiveApp/)
     │   ├── SlideshowManager.swift     # Interval slideshow timer & time-of-day scheduled rules
-    │   ├── AIGenerationManager.swift  # Multi-provider AI wallpaper generation
-    │   ├── KeychainManager.swift      # Secure API key storage
+    │   ├── AIGenerationManager.swift  # Multi-provider AI wallpaper generation & key testing
+    │   ├── KeychainManager.swift      # Hardware Keychain AES-256 key storage
     │   ├── LockScreenManager.swift    # Lock screen static wallpaper application
     │   ├── PerformanceManager.swift   # Battery, thermal, FPS management
     │   └── DisplayManager.swift       # NSScreen multi-monitor manager
     ├── Views/
-    │   ├── MainWindowView.swift       # SwiftUI dashboard, sidebar navigation & video seek bar widget
-    │   ├── GalleryView.swift          # Wallpaper grid, importer, preview cards
+    │   ├── MainWindowView.swift       # SwiftUI dashboard, sidebar navigation & speed slider widget
+    │   ├── GalleryView.swift          # Wallpaper grid, importer, preview cards with teardown
     │   ├── SlideshowView.swift        # Interval rotation & time-of-day schedule manager UI
-    │   ├── SettingsView.swift         # Preferences, Launch at Login status badge, About, TOS, Privacy
-    │   ├── AIConfigurationView.swift  # AI provider setup + prompt playground
+    │   ├── SettingsView.swift         # Preferences, Storage Analytics, Changelog Modal, Legal Suite
+    │   ├── AIConfigurationView.swift  # AI provider setup, Save/Test/Clear Key actions
     │   ├── DisplayManagerView.swift   # Per-display wallpaper assignment
+    │   ├── UserGuideView.swift        # Searchable User Guide with responsive wrapping FlowLayout
     │   ├── LockScreenView.swift       # Lock screen wallpaper picker & live preview
     │   └── AdminGateView.swift        # Early-access passcode gate (hashed)
     └── Resources/
@@ -124,10 +162,8 @@ MacAuraLive/
         │   ├── AppIcon.icns           # macOS bundle App icon
         │   └── StatusBarIcon.png      # Menu bar icon (18×18 @1x)
         └── Wallpapers/
-            ├── Aurora/                # Aurora Borealis WebGL shader
-            ├── Matrix/                # Matrix digital rain shader
-            ├── Cyberpunk/             # Synthwave/cyberpunk shader
-            └── ParticleWave/          # 3D particle wave shader
+            ├── Live/                  # Aurora, Matrix, Cyberpunk, ParticleWave
+            └── Static/                # Bundled default high-res static images
 ```
 
 ---

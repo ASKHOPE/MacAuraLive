@@ -191,30 +191,6 @@ public struct MainWindowView: View {
                                 )
                                 .controlSize(.small)
                                 .tint(.cyan)
-
-                                // Playback Speed Control Row
-                                HStack {
-                                    Image(systemName: "gauge.with.dots.needle.bottom.50percent")
-                                        .font(.caption2)
-                                        .foregroundColor(.orange)
-                                    Text("Speed:")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                    Spacer()
-                                    Picker("", selection: $settings.playbackRate) {
-                                        Text("0.25x").tag(Float(0.25))
-                                        Text("0.5x").tag(Float(0.5))
-                                        Text("0.75x").tag(Float(0.75))
-                                        Text("1.0x").tag(Float(1.0))
-                                        Text("1.25x").tag(Float(1.25))
-                                        Text("1.5x").tag(Float(1.5))
-                                        Text("2.0x").tag(Float(2.0))
-                                    }
-                                    .pickerStyle(.menu)
-                                    .controlSize(.mini)
-                                    .frame(width: 80)
-                                }
-                                .padding(.top, 2)
                             }
                         }
                         
@@ -222,8 +198,39 @@ public struct MainWindowView: View {
                             .padding(.vertical, 2)
                     }
                     
-                    // Audio Volume & Mute / Unmute Buttons (ALWAYS visible in sidebar bottom)
+                    // Playback Speed & Audio Volume Controls (ALWAYS visible in sidebar bottom)
                     VStack(alignment: .leading, spacing: 8) {
+                        // Playback Speed Slider Widget
+                        VStack(alignment: .leading, spacing: 3) {
+                            HStack {
+                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                                Text("Speed:")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Text(String(format: "%.2fx", settings.playbackRate))
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.orange)
+                            }
+                            
+                            Slider(
+                                value: Binding(
+                                    get: { Double(settings.playbackRate) },
+                                    set: { newVal in
+                                        let rate = Float(newVal)
+                                        settings.playbackRate = rate
+                                        engine.updatePlaybackRate(rate)
+                                    }
+                                ),
+                                in: 0.25...3.0,
+                                step: 0.25
+                            )
+                            .controlSize(.mini)
+                            .tint(.orange)
+                        }
+                        
                         HStack {
                             Button(action: {
                                 settings.isMuted.toggle()

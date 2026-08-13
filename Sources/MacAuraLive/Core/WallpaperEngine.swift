@@ -217,6 +217,8 @@ public class WallpaperEngine: ObservableObject {
         for win in windowMap.values {
             if let vidView = win.contentView as? VideoWallpaperView {
                 vidView.setPlaybackRate(rate)
+            } else if let webView = win.contentView as? WebWallpaperView {
+                webView.setPlaybackRate(rate)
             }
         }
     }

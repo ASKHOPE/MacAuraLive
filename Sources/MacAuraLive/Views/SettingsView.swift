@@ -5,11 +5,13 @@ public struct SettingsView: View {
     @ObservedObject var engine = WallpaperEngine.shared
     @ObservedObject var storage = WallpaperStorageManager.shared
     @ObservedObject var updater = UpdateManager.shared
+    @ObservedObject var storageAnalytics = StorageAnalyticsManager.shared
     
     @State private var syncStatusMessage: String? = nil
     @State private var showTOSModal: Bool = false
     @State private var showLicenseModal: Bool = false
     @State private var showDisclaimerModal: Bool = false
+    @State private var showChangelogModal: Bool = false
     @State private var showOnboardingWizard: Bool = false
 
     public init() {}
@@ -118,6 +120,7 @@ public struct SettingsView: View {
                                 .foregroundColor(.red)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -190,6 +193,7 @@ public struct SettingsView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -234,6 +238,7 @@ public struct SettingsView: View {
                             .padding(.top, 4)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -258,6 +263,7 @@ public struct SettingsView: View {
             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -558,6 +564,84 @@ public struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(18)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                    
+                    // In-Built App Storage & Resource Footprint Card
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "internaldrive.fill")
+                                .font(.title3)
+                                .foregroundColor(.indigo)
+                            Text("Inbuilt Storage & Resource Breakdown")
+                                .font(.title3)
+                                .bold()
+                            Spacer()
+                            
+                            Text(storageAnalytics.formattedTotalSize)
+                                .font(.subheadline)
+                                .bold()
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Color.indigo.opacity(0.2))
+                                .foregroundColor(.indigo)
+                                .cornerRadius(8)
+                                
+                            Button(action: { storageAnalytics.refresh() }) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.caption)
+                            }
+                            .buttonStyle(.bordered)
+                            .help("Recalculate storage breakdown")
+                        }
+                        
+                        Text("Live analytics of disk space occupied by compiled Metal code, built-in shaders, user wallpapers, and runtime cache.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        // Multi-color macOS segmented Storage Bar
+                        StorageSegmentBarView(
+                            categories: storageAnalytics.categories,
+                            totalBytes: storageAnalytics.totalSizeBytes
+                        )
+                        .frame(height: 12)
+                        
+                        // Category Breakdown Grid
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            ForEach(storageAnalytics.categories) { item in
+                                StorageCategoryPillView(
+                                    item: item,
+                                    percentage: storageAnalytics.percentage(for: item)
+                                )
+                            }
+                        }
+                        
+                        HStack {
+                            Button(action: {
+                                NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: WallpaperStorageManager.shared.documentsDirectory.path)
+                            }) {
+                                Label("Open Documents Folder", systemImage: "folder.fill")
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption)
+                            
+                            Spacer()
+                            
+                            Button(action: { storageAnalytics.clearCache() }) {
+                                Label("Clear Temporary Cache", systemImage: "trash")
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -597,10 +681,18 @@ public struct SettingsView: View {
                         switch updater.status {
                         case .idle:
                             HStack {
-                                Text("Current Version: v1.4.0 (Build 100)")
+                                Text("Current Version: v1.5.0 (Build 100)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Spacer()
+                                Button(action: { showChangelogModal = true }) {
+                                    Label("What's New in v1.5.0 (Changelog)", systemImage: "sparkles")
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.cyan)
+                                
                                 if let lastDate = updater.lastCheckedDate {
                                     Text("Last checked: \(lastDate.formatted(date: .omitted, time: .shortened))")
                                         .font(.caption2)
@@ -662,6 +754,7 @@ public struct SettingsView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -694,7 +787,7 @@ public struct SettingsView: View {
                                 Text("MacAuraLive Live Wallpaper Engine")
                                     .font(.title2)
                                     .bold()
-                                Text("v1.4.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
+                                Text("v1.5.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
                                     .font(.caption)
                                     .foregroundColor(.cyan)
                                     .fontWeight(.medium)
@@ -714,7 +807,7 @@ public struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("App Version:").bold().font(.caption)
-                                Text("1.4.0 (Build 100)").font(.caption).foregroundColor(.secondary)
+                                Text("1.5.0 (Build 100)").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
                                 Text("Architecture:").bold().font(.caption)
@@ -750,6 +843,12 @@ public struct SettingsView: View {
                             }
                             .buttonStyle(.bordered)
                             
+                            Button(action: { showChangelogModal = true }) {
+                                Label("Changelog", systemImage: "doc.plaintext.fill")
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.purple)
+                            
                             Spacer()
                             
                             Text("© 2026 MacAuraLive")
@@ -758,6 +857,7 @@ public struct SettingsView: View {
                         }
                         .padding(.top, 4)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
                     .background(Color.white.opacity(0.06))
                     .cornerRadius(14)
@@ -890,6 +990,9 @@ public struct SettingsView: View {
             .padding()
             .frame(width: 540, height: 480)
         }
+        .sheet(isPresented: $showChangelogModal) {
+            ChangelogModalView(isPresented: $showChangelogModal)
+        }
         .sheet(isPresented: $showOnboardingWizard) {
             OnboardingView(isPresented: $showOnboardingWizard)
         }
@@ -905,6 +1008,18 @@ public struct SettingsView: View {
             let count = WallpaperStorageManager.shared.importFolderWallpapers(folderURL: folderURL)
             engine.reloadEngine()
             syncStatusMessage = "Monitored folder set. Imported \(count) file(s)."
+        }
+    }
+    
+    private func colorForStorageItem(_ name: String) -> Color {
+        switch name {
+        case "blue": return .blue
+        case "pink": return .pink
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "cyan": return .cyan
+        default: return .secondary
         }
     }
 }
@@ -1059,6 +1174,200 @@ struct APIKeyCardRow: View {
         }
         .onChange(of: key) { newKey in
             tempKey = newKey
+        }
+    }
+}
+
+// MARK: - Changelog / What's New Release Notes Modal Component
+struct ChangelogModalView: View {
+    @Binding var isPresented: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.title2)
+                        .foregroundColor(.purple)
+                    Text("MacAuraLive Release Notes & Changelog")
+                        .font(.title2)
+                        .bold()
+                }
+                Spacer()
+                Button("Done") { isPresented = false }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+            }
+            
+            Divider()
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    // Version 1.5.0
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Version 1.5.0 (Current Release)")
+                                .font(.headline)
+                                .bold()
+                            Spacer()
+                            Text("2026-08-14")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.purple.opacity(0.25))
+                                .foregroundColor(.purple)
+                                .cornerRadius(6)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("• Live Wallpaper Acceleration: Removed background preview WebViews from gallery cards, restoring 60 FPS performance to desktop shaders like Matrix Digital Rain.")
+                            Text("• Always-Visible Sidebar Speed Control: Moved Playback Speed control into the sidebar footer alongside Mute and Volume controls.")
+                            Text("• Full Viewport Image Placement & Scaling: Viewport sizing fix so static wallpapers and GIFs fit 100% full screen cleanly without alignment offsets.")
+                            Text("• Responsive User Guide Layout: Category filter pills auto-wrap dynamically across window resize.")
+                            Text("• API Key Validation & Live Testing: Test Key, Save Key, and Clear Key action controls across all AI Workshop providers.")
+                            Text("• UI Layout Synchronization: Equal full-width settings cards with modern liquid glass styling.")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    }
+                    .padding(14)
+                    .background(Color.purple.opacity(0.1))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+                    )
+                    
+                    // Version 1.2.0
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Version 1.2.0")
+                                .font(.headline)
+                                .bold()
+                            Spacer()
+                            Text("2026-08-11")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("• Dynamic User Guide & Documentation viewer built directly into app.")
+                            Text("• Web Wallpaper Engine Polyfill SDK for Javascript interoperability.")
+                            Text("• Local sandbox document directory routing (~/Documents/MacAuraLiveApp/).")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    }
+                    .padding(14)
+                    .background(Color.white.opacity(0.04))
+                    .cornerRadius(12)
+                    
+                    // Version 1.0.0
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Version 1.0.0 (Initial Release)")
+                                .font(.headline)
+                                .bold()
+                            Spacer()
+                            Text("2026-08-01")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("• Official release of MacAuraLive Wallpaper Engine for Apple Silicon.")
+                            Text("• Video (mp4), Web/HTML5 shaders, Static Images (jpg/png), and GIFs.")
+                            Text("• Custom Playlist / Slideshow Scheduler & Multi-Monitor support.")
+                        }
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    }
+                    .padding(14)
+                    .background(Color.white.opacity(0.04))
+                    .cornerRadius(12)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .padding(24)
+        .frame(width: 580, height: 500)
+    }
+}
+
+// MARK: - Storage Breakdown UI Components
+struct StorageSegmentBarView: View {
+    let categories: [StorageCategoryItem]
+    let totalBytes: Int64
+    
+    var body: some View {
+        GeometryReader { geo in
+            HStack(spacing: 2) {
+                ForEach(categories) { item in
+                    let pct = totalBytes > 0 ? Double(item.sizeBytes) / Double(totalBytes) : 0
+                    if pct > 0.005 {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(colorForStorageItem(item.colorName))
+                            .frame(width: max(4.0, geo.size.width * CGFloat(pct)))
+                    }
+                }
+            }
+        }
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(6)
+    }
+    
+    private func colorForStorageItem(_ name: String) -> Color {
+        switch name {
+        case "blue": return .blue
+        case "pink": return .pink
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "cyan": return .cyan
+        default: return .secondary
+        }
+    }
+}
+
+struct StorageCategoryPillView: View {
+    let item: StorageCategoryItem
+    let percentage: Double
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(colorForStorageItem(item.colorName))
+                .frame(width: 10, height: 10)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text(item.name)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    Spacer()
+                    Text(item.formattedSize)
+                        .font(.caption)
+                        .bold()
+                        .monospacedDigit()
+                }
+                
+                Text(String(format: "%.1f%% of total", percentage))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(10)
+        .background(Color.white.opacity(0.03))
+        .cornerRadius(8)
+    }
+    
+    private func colorForStorageItem(_ name: String) -> Color {
+        switch name {
+        case "blue": return .blue
+        case "pink": return .pink
+        case "green": return .green
+        case "orange": return .orange
+        case "purple": return .purple
+        case "cyan": return .cyan
+        default: return .secondary
         }
     }
 }

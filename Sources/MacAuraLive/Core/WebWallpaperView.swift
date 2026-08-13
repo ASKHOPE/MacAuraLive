@@ -75,31 +75,49 @@ public class WebWallpaperView: NSView, WKNavigationDelegate {
     public func setPlacement(_ placement: String, zoom: Double = 1.0) {
         let js = """
         (function() {
-            const canvas = document.getElementById('c') || document.querySelector('canvas') || document.querySelector('img') || document.querySelector('video');
-            if (!canvas) return;
+            document.documentElement.style.margin = '0';
+            document.documentElement.style.padding = '0';
+            document.documentElement.style.width = '100vw';
+            document.documentElement.style.height = '100vh';
+            document.documentElement.style.overflow = 'hidden';
+            
+            document.body.style.margin = '0';
+            document.body.style.padding = '0';
+            document.body.style.width = '100vw';
+            document.body.style.height = '100vh';
+            document.body.style.overflow = 'hidden';
+            document.body.style.display = 'flex';
+            document.body.style.justifyContent = 'center';
+            document.body.style.alignItems = 'center';
 
-            canvas.style.transition = 'transform 0.2s ease, object-fit 0.2s ease';
+            const element = document.getElementById('c') || document.querySelector('canvas') || document.querySelector('img') || document.querySelector('video');
+            if (!element) return;
+
+            element.style.position = 'absolute';
+            element.style.top = '0';
+            element.style.left = '0';
+            element.style.width = '100vw';
+            element.style.height = '100vh';
+            element.style.margin = '0';
+            element.style.padding = '0';
+            element.style.transition = 'transform 0.2s ease, object-fit 0.2s ease';
+            element.style.transformOrigin = 'center center';
+
             if ("\(placement)" === "fit") {
-                canvas.style.objectFit = 'contain';
-                canvas.style.transform = 'scale(1)';
-                canvas.style.transformOrigin = 'center center';
+                element.style.objectFit = 'contain';
+                element.style.transform = 'scale(\(zoom))';
             } else if ("\(placement)" === "stretch") {
-                canvas.style.objectFit = 'fill';
-                canvas.style.width = '100vw';
-                canvas.style.height = '100vh';
-                canvas.style.transform = 'scale(1)';
+                element.style.objectFit = 'fill';
+                element.style.transform = 'scale(\(zoom))';
             } else if ("\(placement)" === "center") {
-                canvas.style.objectFit = 'none';
-                canvas.style.transform = 'scale(1)';
-                canvas.style.transformOrigin = 'center center';
+                element.style.objectFit = 'none';
+                element.style.transform = 'scale(\(zoom))';
             } else if ("\(placement)" === "zoom") {
-                canvas.style.objectFit = 'cover';
-                canvas.style.transform = 'scale(\(zoom))';
-                canvas.style.transformOrigin = 'center center';
-            } else { // "fill" (cover)
-                canvas.style.objectFit = 'cover';
-                canvas.style.transform = 'scale(1)';
-                canvas.style.transformOrigin = 'center center';
+                element.style.objectFit = 'cover';
+                element.style.transform = 'scale(\(zoom))';
+            } else { // "fill" (stretch to fill screen / cover)
+                element.style.objectFit = 'cover';
+                element.style.transform = 'scale(\(zoom))';
             }
         })();
         """
@@ -175,6 +193,29 @@ public class WebWallpaperView: NSView, WKNavigationDelegate {
     
     public func reload() {
         webView?.reload()
+    }
+    
+    public func setPlaybackRate(_ rate: Float) {
+        let js = """
+        (function() {
+            window.playbackRate = \(rate);
+            window.playbackSpeed = \(rate);
+            if (window.macAura) {
+                window.macAura.playbackRate = \(rate);
+                window.macAura.playbackSpeed = \(rate);
+                if (typeof window.macAura._triggerUpdate === 'function' && window.macAura.state) {
+                    window.macAura.state.playbackRate = \(rate);
+                    window.macAura._triggerUpdate(window.macAura.state);
+                }
+            }
+            document.querySelectorAll('video, audio').forEach(el => {
+                el.playbackRate = \(rate);
+            });
+            if (typeof setPlaybackRate === 'function') { setPlaybackRate(\(rate)); }
+            if (typeof setSpeed === 'function') { setSpeed(\(rate)); }
+        })();
+        """
+        webView?.evaluateJavaScript(js, completionHandler: nil)
     }
     
     // MARK: - WKNavigationDelegate

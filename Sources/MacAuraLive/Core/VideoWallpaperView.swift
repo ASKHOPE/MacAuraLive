@@ -79,23 +79,23 @@ public class VideoWallpaperView: NSView {
         guard let layer = playerLayer else { return }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
+        let scale = CGFloat(zoom)
         switch placement {
         case "fit":
             layer.videoGravity = .resizeAspect
-            layer.transform = CATransform3DIdentity
+            layer.transform = CATransform3DMakeScale(scale, scale, 1.0)
         case "stretch":
             layer.videoGravity = .resize
-            layer.transform = CATransform3DIdentity
+            layer.transform = CATransform3DMakeScale(scale, scale, 1.0)
         case "center":
             layer.videoGravity = .resizeAspect
-            layer.transform = CATransform3DMakeScale(1.0, 1.0, 1.0)
+            layer.transform = CATransform3DMakeScale(scale, scale, 1.0)
         case "zoom":
             layer.videoGravity = .resizeAspectFill
-            let scale = CGFloat(zoom)
             layer.transform = CATransform3DMakeScale(scale, scale, 1.0)
         default: // "fill"
             layer.videoGravity = .resizeAspectFill
-            layer.transform = CATransform3DIdentity
+            layer.transform = CATransform3DMakeScale(scale, scale, 1.0)
         }
         CATransaction.commit()
     }

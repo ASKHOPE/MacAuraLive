@@ -667,6 +667,12 @@ struct MiniWebPreviewView: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: WKWebView, context: Context) {}
+    
+    static func dismantleNSView(_ nsView: WKWebView, coordinator: ()) {
+        nsView.stopLoading()
+        nsView.navigationDelegate = nil
+        nsView.removeFromSuperview()
+    }
 }
 
 // Live Wallpaper Card Component with Crisp Still Poster Image & Play-On-Hover
@@ -851,19 +857,15 @@ struct WallpaperCardView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if (wallpaper.type == .builtInWeb || wallpaper.type == .webUrl),
-                      let url = WallpaperStorageManager.shared.resolveURL(for: wallpaper) {
-                MiniWebPreviewView(url: url)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .disabled(true)
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: wallpaper.thumbnailIcon)
                         .font(.system(size: 38))
-                        .foregroundColor(isActive ? .white : .secondary)
+                        .foregroundColor(isActive ? .cyan : .white.opacity(0.8))
                     Text(wallpaper.title)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white.opacity(0.7))
                 }
             }
         }

@@ -1,12 +1,17 @@
 # MacAuraLive Changelog
 
-## [1.4.0] - 2026-08-14
+## [1.5.0] - 2026-08-14
 
-### Fixed
-- **Slideshow Clear Selection**: Clearing the slideshow playlist selection no longer incorrectly falls back to playing all wallpapers. The UI accurately reflects 0 items selected when the list is cleared.
-- **Permission Prompts on Downloads**: Addressed repeated permission prompts by bypassing the `AVAssetReader` check on application startup. Now, custom downloaded wallpapers reside in `~/Documents/MacAuraLiveApp/` and the audio verification is only triggered when importing new wallpapers.
-- **User Guide UI Overflow**: Converted the User Guide topic filters to use a wrapping `FlowLayout`. The filters now properly wrap and fit across multiple lines instead of being pushed offscreen or hidden behind window edges.
-- **Wallpaper Scaling & Placement Syncing**: Implemented `WKNavigationDelegate`'s `webView(_:didFinish:)` handler in `WebWallpaperView`. Wallpapers transitioned via the Slideshow Manager (like GenAI, HTML or GIF wallpapers) will now wait until the DOM is fully loaded to apply the global Zoom/Placement user settings.
+### Added
+- **In-Built Storage & Resource Breakdown**: A dedicated analytics dashboard in Settings displaying real-time disk space usage broken down by App Binary & Metal Engine (~7.5 MB), Live Shaders & Video Loops (~15.0 MB), Static 4K/8K Wallpapers (~0.4 MB), Animated GIFs, AI Generations, and Runtime Cache. Includes a macOS-style multi-color storage bar, percentage breakdown pills, and quick "Clear Cache" and "Open Documents" actions.
+- **Sidebar Playback Speed Slider**: Added a dedicated real-time Playback Speed slider (0.25x to 3.0x) in the sidebar footer that works dynamically across both Video and Web/GenAI procedural canvas shaders.
+- **API Key Action Trio (Save, Test, Clear)**: Added dedicated "Save Key", "Test Key", and "Clear Key" buttons across all AI Workshop providers (Google Gemini & OpenRouter) with live server validation.
+- **Settings Release Notes & Changelog Viewer**: Embedded an interactive "What's New in v1.5.0" Changelog modal directly into Settings and Update cards.
+
+### Fixed & Enhanced
+- **Live Wallpaper Slowdown & WebKit Resource Thrashing**: Resolved an issue where live HTML wallpapers (such as Matrix Digital Rain) ran slowly when selected from the Gallery view by eliminating background preview WebViews and implementing explicit `dismantleNSView` teardown.
+- **Full Viewport Static Wallpaper Placement**: Fixed top-center alignment and sizing offsets for static images and GIFs in `WebWallpaperView`, ensuring 100% full-screen fitting across all display modes (`fill`, `fit`, `stretch`, `center`, `zoom`).
+- **Liquid Glass Layout Synchronization**: Standardized all Settings cards to full equal width (`maxWidth: .infinity`) with consistent macOS glassmorphism styling.
 
 ## [1.2.0] - 2026-08-11
 ### Added

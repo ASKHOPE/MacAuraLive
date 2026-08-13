@@ -263,16 +263,37 @@ public struct AIConfigurationView: View {
                     .font(.caption)
                     .bold()
                 
-                HStack {
+                HStack(spacing: 8) {
                     SecureField("AIzaSy...", text: $geminiApiKey)
                         .textFieldStyle(.roundedBorder)
                     
-                    Button("Save Key") {
+                    Button(action: {
                         KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey")
-                        validateKey(provider: "Google Gemini")
+                        validationFeedback["Google Gemini"] = (true, "Key saved securely to macOS Keychain.")
+                    }) {
+                        Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
+                    
+                    Button("Test Key") {
+                        KeychainManager.shared.saveKey(geminiApiKey, forAccount: "geminiApiKey")
+                        validateKey(provider: "Google Gemini")
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.green)
+                    .disabled(geminiApiKey.isEmpty || validatingProvider != nil)
+                    
+                    Button(action: {
+                        geminiApiKey = ""
+                        KeychainManager.shared.saveKey("", forAccount: "geminiApiKey")
+                        validationFeedback.removeValue(forKey: "Google Gemini")
+                    }) {
+                        Label("Clear Key", systemImage: "trash.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.red)
+                    .disabled(geminiApiKey.isEmpty)
                 }
                 
                 Text("API keys are hardware-encrypted at rest inside your macOS system Keychain via Security.framework.")
@@ -362,29 +383,34 @@ public struct AIConfigurationView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                HStack {
+                HStack(spacing: 8) {
                     SecureField("sk-or-v1-...", text: $settings.openRouterApiKey)
                         .textFieldStyle(.roundedBorder)
                     
-                    Button(action: { validateKey(provider: "OpenRouter") }) {
-                        HStack(spacing: 6) {
-                            if validatingProvider == "OpenRouter" {
-                                ProgressView().controlSize(.small)
-                            } else {
-                                Image(systemName: "checkmark.seal.fill")
-                            }
-                            Text("Save & Validate")
-                        }
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.purple)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                    Button(action: {
+                        validationFeedback["OpenRouter"] = (true, "Key saved to Preferences.")
+                    }) {
+                        Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
-                    .buttonStyle(.plain)
-                    .disabled(validatingProvider != nil)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    
+                    Button("Test Key") {
+                        validateKey(provider: "OpenRouter")
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.green)
+                    .disabled(settings.openRouterApiKey.isEmpty || validatingProvider != nil)
+                    
+                    Button(action: {
+                        settings.openRouterApiKey = ""
+                        validationFeedback.removeValue(forKey: "OpenRouter")
+                    }) {
+                        Label("Clear Key", systemImage: "trash.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.red)
+                    .disabled(settings.openRouterApiKey.isEmpty)
                 }
                 
                 if let fb = validationFeedback["OpenRouter"] {
