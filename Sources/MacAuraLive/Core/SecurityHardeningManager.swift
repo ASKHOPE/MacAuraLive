@@ -4,6 +4,9 @@ import WebKit
 public class SecurityHardeningManager {
     public static let shared = SecurityHardeningManager()
     
+    private var lastGenerationTime: Date?
+    private var generationTimestamps: [Date] = []
+    
     private init() {}
     
     /// Sanitizes local file path inputs to prevent path traversal attacks (e.g. "../../../etc/passwd")
@@ -16,8 +19,30 @@ public class SecurityHardeningManager {
         return normalized
     }
     
+    /// Rate Limiting Engine: Prevents API exhaustion & denial-of-service spam attacks
+    public func checkRateLimit() throws {
+        let now = Date()
+        
+        // 1. Minimum 3-second cooldown between requests
+        if let last = lastGenerationTime, now.timeIntervalSince(last) < 3.0 {
+            let waitSec = Int(3.0 - now.timeIntervalSince(last)) + 1
+            throw NSError(domain: "SecurityHardening", code: 429, userInfo: [NSLocalizedDescriptionKey: "Rate limit: Please wait \(waitSec) second(s) before launching another AI generation."])
+        }
+        
+        // 2. Max 5 generations per rolling 60-second window
+        generationTimestamps = generationTimestamps.filter { now.timeIntervalSince($0) < 60.0 }
+        if generationTimestamps.count >= 5 {
+            throw NSError(domain: "SecurityHardening", code: 429, userInfo: [NSLocalizedDescriptionKey: "Rate limit: Maximum 5 AI generations per minute exceeded. Please try again in a moment."])
+        }
+        
+        lastGenerationTime = now
+        generationTimestamps.append(now)
+    }
+    
     /// Strict Prompt Injection & Scope Validation Engine for AI Workshop
     public func validateAndSanitizeWallpaperPrompt(_ text: String) throws -> String {
+        try checkRateLimit()
+        
         var clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !clean.isEmpty else {
@@ -41,6 +66,20 @@ public class SecurityHardeningManager {
             }
         }
         
+        // 2. Strict NSFW & Inappropriate Content Moderation Filter
+        let nsfwPatterns = [
+            "nsfw", "nude", "nudity", "porn", "porno", "erotic", "sex", "sexy", "hentai",
+            "blood", "gore", "violence", "violent", "kill", "murder", "suicide", "self-harm",
+            "weapon", "drug", "cocaine", "heroine", "meth", "hate speech", "racist", "slur"
+        ]
+        
+        for pattern in nsfwPatterns {
+            if lower.contains(pattern) {
+                print("[SecurityHardening] Blocked NSFW / Inappropriate AI prompt attempt: '\(pattern)'")
+                throw NSError(domain: "SecurityHardening", code: 403, userInfo: [NSLocalizedDescriptionKey: "Safety Policy Violation: Prompt contains NSFW, explicit, or non-family-friendly keywords ('\(pattern)'). MacAuraLive only generates safe, high-aesthetic wallpapers."])
+            }
+        }
+        
         // 2. Strip harmful HTML/Script tag injections
         clean = clean.replacingOccurrences(of: "<script>", with: "", options: .caseInsensitive)
         clean = clean.replacingOccurrences(of: "</script>", with: "", options: .caseInsensitive)
@@ -55,11 +94,11 @@ public class SecurityHardeningManager {
         return "\(clean) (desktop wallpaper aesthetic 60fps WebGL visual shader effect)"
     }
     
-    /// Post-Generation Security Sanitizer for LLM Generated HTML/JS Code
+    /// Post-Generation Security Sanitizer & Content Security Policy (CSP) Injector
     public func sanitizeGeneratedHTML(_ html: String) -> String {
         var sanitized = html
         
-        // Block dangerous JavaScript execution APIs in generated wallpaper code
+        // 1. Block dangerous JavaScript execution APIs in generated wallpaper code
         sanitized = sanitized.replacingOccurrences(of: "eval(", with: "// eval_blocked(")
         sanitized = sanitized.replacingOccurrences(of: "Function(", with: "// Function_blocked(")
         sanitized = sanitized.replacingOccurrences(of: "fetch(", with: "// fetch_blocked(")
@@ -67,6 +106,19 @@ public class SecurityHardeningManager {
         sanitized = sanitized.replacingOccurrences(of: "WebSocket", with: "BlockedWebSocket")
         sanitized = sanitized.replacingOccurrences(of: "document.cookie", with: "/* cookie_blocked */")
         sanitized = sanitized.replacingOccurrences(of: "localStorage", with: "/* storage_blocked */")
+        
+        // 2. Inject Strict Content-Security-Policy (CSP) meta tag into <head>
+        let cspMetaTag = """
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data: blob:; media-src 'self' data: blob:;">
+        """
+        
+        if sanitized.contains("<head>") {
+            sanitized = sanitized.replacingOccurrences(of: "<head>", with: "<head>\n\(cspMetaTag)")
+        } else if sanitized.contains("<html>") {
+            sanitized = sanitized.replacingOccurrences(of: "<html>", with: "<html>\n<head>\n\(cspMetaTag)\n</head>")
+        } else {
+            sanitized = "<!DOCTYPE html>\n<html>\n<head>\n\(cspMetaTag)\n</head>\n<body>\n\(sanitized)\n</body>\n</html>"
+        }
         
         return sanitized
     }
