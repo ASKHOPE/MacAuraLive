@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura - Cyberpunk Neon Grid 4K</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #080214; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height, dpr;
+        function resize() {
+            dpr = window.devicePixelRatio || 1;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let gridOffset = 0;
+
+        function drawBackground() {
+            // Gradient Sky
+            const grad = ctx.createLinearGradient(0, 0, 0, height * 0.65);
+            grad.addColorStop(0, '#060112');
+            grad.addColorStop(0.5, '#1e053b');
+            grad.addColorStop(1, '#ff0055');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height * 0.65);
+
+            // Synthwave Sun
+            const sunY = height * 0.45;
+            const sunRadius = Math.min(width, height) * 0.18;
+            
+            const sunGrad = ctx.createLinearGradient(0, sunY - sunRadius, 0, sunY + sunRadius);
+            sunGrad.addColorStop(0, '#ffea00');
+            sunGrad.addColorStop(0.5, '#ff0055');
+            sunGrad.addColorStop(1, '#7900ff');
+
+            ctx.save();
+            ctx.fillStyle = sunGrad;
+            ctx.shadowColor = '#ff0055';
+            ctx.shadowBlur = 40;
+            ctx.beginPath();
+            ctx.arc(width / 2, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // Sun Horizontal Cut Lines
+            ctx.fillStyle = '#1e053b';
+            for (let i = 0; i < 6; i++) {
+                const lineY = sunY + (i * 12) + 10;
+                const lineHeight = 2 + (i * 1.5);
+                ctx.fillRect(width / 2 - sunRadius - 10, lineY, (sunRadius + 10) * 2, lineHeight);
+            }
+        }
+
+        function drawGrid() {
+            const horizonY = height * 0.65;
+            
+            // Ground background
+            const groundGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+            groundGrad.addColorStop(0, '#0d0124');
+            groundGrad.addColorStop(1, '#020008');
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, horizonY, width, height - horizonY);
+
+            ctx.save();
+            ctx.strokeStyle = '#00f0ff';
+            ctx.shadowColor = '#00f0ff';
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = 1.5;
+
+            // Perspective Grid Lines (Verticals converging to horizon center)
+            const numVLines = 36;
+            const centerX = width / 2;
+            for (let i = -numVLines; i <= numVLines; i++) {
+                const targetX = centerX + (i * (width / numVLines) * 2.5);
+                ctx.beginPath();
+                ctx.moveTo(centerX + (i * 2), horizonY);
+                ctx.lineTo(targetX, height);
+                ctx.stroke();
+            }
+
+            // Moving Horizontal Grid Lines
+            gridOffset = (gridOffset + 1.2) % 35;
+            for (let y = 0; y < height - horizonY; y += 35) {
+                const currentY = horizonY + Math.pow((y + gridOffset) / (height - horizonY), 1.8) * (height - horizonY);
+                ctx.beginPath();
+                ctx.moveTo(0, currentY);
+                ctx.lineTo(width, currentY);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            drawBackground();
+            drawGrid();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

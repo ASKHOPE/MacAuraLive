@@ -107,6 +107,23 @@ public class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(selectedAIProvider, forKey: "selectedAIProvider") }
     }
     
+    // Marketplace & Content Provider API Keys (Secured via macOS Keychain)
+    @Published public var unsplashApiKey: String {
+        didSet { KeychainManager.shared.saveKey(unsplashApiKey, forAccount: "unsplashApiKey") }
+    }
+    
+    @Published public var pixabayApiKey: String {
+        didSet { KeychainManager.shared.saveKey(pixabayApiKey, forAccount: "pixabayApiKey") }
+    }
+    
+    @Published public var pexelsApiKey: String {
+        didSet { KeychainManager.shared.saveKey(pexelsApiKey, forAccount: "pexelsApiKey") }
+    }
+    
+    @Published public var enableMarketplacePlugins: Bool {
+        didSet { UserDefaults.standard.set(enableMarketplacePlugins, forKey: "enableMarketplacePlugins") }
+    }
+    
     private init() {
         let defaults = UserDefaults.standard
         if #available(macOS 13.0, *) {
@@ -138,6 +155,12 @@ public class AppSettings: ObservableObject {
         self.openRouterModel = defaults.string(forKey: "openRouterModel") ?? "google/gemma-2-9b-it:free"
         self.localApiEndpoint = defaults.string(forKey: "localApiEndpoint") ?? "http://localhost:11434/v1"
         self.selectedAIProvider = defaults.string(forKey: "selectedAIProvider") ?? "OpenRouter"
+        
+        // Marketplace Credentials from Keychain
+        self.unsplashApiKey = KeychainManager.shared.getKey(forAccount: "unsplashApiKey")
+        self.pixabayApiKey = KeychainManager.shared.getKey(forAccount: "pixabayApiKey")
+        self.pexelsApiKey = KeychainManager.shared.getKey(forAccount: "pexelsApiKey")
+        self.enableMarketplacePlugins = defaults.object(forKey: "enableMarketplacePlugins") as? Bool ?? true
         
         // Populate status immediately after all properties are set
         DispatchQueue.main.async { self.refreshLaunchAtLoginStatus() }

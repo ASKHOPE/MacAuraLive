@@ -3,6 +3,7 @@ import SwiftUI
 public enum NavigationTab: String, CaseIterable, Identifiable {
     case liveWallpapers = "Live Wallpapers"
     case staticWallpapers = "Static Wallpapers"
+    case marketplace = "Marketplace"
     case slideshow = "Slideshow & Schedule"
     case displays = "Displays"
     case lockScreen = "Lock Screen"
@@ -16,6 +17,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
         switch self {
         case .liveWallpapers: return "play.rectangle.fill"
         case .staticWallpapers: return "photo.fill"
+        case .marketplace: return "globe.americas.fill"
         case .slideshow: return "clock.arrow.2.circlepath"
         case .displays: return "desktopcomputer"
         case .lockScreen: return "lock.rectangle.on.rectangle.fill"
@@ -245,6 +247,8 @@ public struct MainWindowView: View {
                     GalleryView(filterType: .liveOnly)
                 case .staticWallpapers:
                     GalleryView(filterType: .staticOnly)
+                case .marketplace:
+                    MarketplaceView()
                 case .slideshow:
                     SlideshowView()
                 case .displays:

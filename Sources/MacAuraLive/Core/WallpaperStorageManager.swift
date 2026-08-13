@@ -143,7 +143,7 @@ public class WallpaperStorageManager: ObservableObject {
                 category: "GenAI",
                 resolutionTag: "4K UHD",
                 type: .builtInWeb,
-                pathOrUrl: "Aurora/index.html",
+                pathOrUrl: "Live/Aurora/index.html",
                 thumbnailIcon: "sparkles",
                 hasAudio: false,
                 author: "GenAI Engine",
@@ -155,7 +155,7 @@ public class WallpaperStorageManager: ObservableObject {
                 category: "GenAI",
                 resolutionTag: "4K UHD",
                 type: .builtInWeb,
-                pathOrUrl: "Matrix/index.html",
+                pathOrUrl: "Live/Matrix/index.html",
                 thumbnailIcon: "terminal.fill",
                 hasAudio: false,
                 author: "GenAI Engine",
@@ -167,7 +167,7 @@ public class WallpaperStorageManager: ObservableObject {
                 category: "GenAI",
                 resolutionTag: "4K UHD",
                 type: .builtInWeb,
-                pathOrUrl: "Cyberpunk/index.html",
+                pathOrUrl: "Live/Cyberpunk/index.html",
                 thumbnailIcon: "sun.max.fill",
                 hasAudio: false,
                 author: "GenAI Engine",
@@ -179,11 +179,59 @@ public class WallpaperStorageManager: ObservableObject {
                 category: "GenAI",
                 resolutionTag: "4K UHD",
                 type: .builtInWeb,
-                pathOrUrl: "ParticleWave/index.html",
+                pathOrUrl: "Live/ParticleWave/index.html",
                 thumbnailIcon: "waveform.path",
                 hasAudio: false,
                 author: "GenAI Engine",
                 description: "Flowing 3D particle sine wave grid."
+            ),
+            WallpaperItem(
+                id: "turbulent_ocean",
+                title: "Turbulent Ocean Water",
+                category: "Nature",
+                resolutionTag: "4K UHD",
+                type: .image,
+                pathOrUrl: "Static/TurbulentOcean/wallpaper.jpg",
+                thumbnailIcon: "water.waves",
+                hasAudio: false,
+                author: "Kristaps Ungurs (Unsplash)",
+                description: "Turbulent ocean water swirls and crashes beautifully in 4K resolution. Photo by Kristaps Ungurs on Unsplash."
+            ),
+            WallpaperItem(
+                id: "mountain_ridges",
+                title: "Abstract Mountain Ridges",
+                category: "Abstract",
+                resolutionTag: "4K UHD",
+                type: .image,
+                pathOrUrl: "Static/MountainRidges/wallpaper.jpg",
+                thumbnailIcon: "waveform",
+                hasAudio: false,
+                author: "Oxana Golubets (Unsplash)",
+                description: "Abstract waves resemble mountain ridges in blue tones. Photo by Oxana Golubets on Unsplash."
+            ),
+            WallpaperItem(
+                id: "blue_curves",
+                title: "Abstract Blue Curves",
+                category: "Abstract",
+                resolutionTag: "4K UHD",
+                type: .image,
+                pathOrUrl: "Static/BlueCurves/wallpaper.jpg",
+                thumbnailIcon: "sparkles",
+                hasAudio: false,
+                author: "Hassaan Here (Unsplash)",
+                description: "Close-up of elegant blue layered abstract paper curves. Photo by Hassaan Here on Unsplash."
+            ),
+            WallpaperItem(
+                id: "shivaay_waves",
+                title: "Abstract Blue Waves Motion",
+                category: "MP4 Video",
+                resolutionTag: "4K UHD",
+                type: .video,
+                pathOrUrl: "Video/ShivaayWaves/wallpaper.mp4",
+                thumbnailIcon: "play.rectangle.fill",
+                hasAudio: true,
+                author: "Shivaay Singh (Pixabay)",
+                description: "Close-up abstract motion video of blue and black waves with audio. Video by Shivaay Singh on Pixabay."
             )
         ]
     }
@@ -858,7 +906,7 @@ public class WallpaperStorageManager: ObservableObject {
         saveCustomWallpapers()
     }
     
-    private func saveCustomWallpapers() {
+    public func saveCustomWallpapers() {
         let customOnly = wallpapers.filter { item in
             !getBuiltInWallpapers().contains(where: { $0.id == item.id })
         }

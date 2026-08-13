@@ -19,10 +19,20 @@ MacAuraLive enables users to import custom video loops (`.mp4`, `.mov`, `.m4v`),
 - **Copyright Compliance:** You represent and warrant that you hold all necessary rights, licenses, or permissions for any media or shaders you import into MacAuraLive.
 - **Third-Party Rights:** MacAuraLive does not host, distribute, or claim ownership over third-party media imported by users. You are solely responsible for ensuring your use of imported media complies with applicable copyright, trademark, and intellectual property laws.
 
-### B. AI Generation API Keys
+### B. Marketplace & Online Content Plugins (Unsplash, Pixabay, Pexels)
+MacAuraLive provides built-in plugin adapters for searching, discovering, and downloading wallpapers from third-party platforms:
+- **Direct Client-to-API Communication:** When browsing or downloading media through Marketplace plugins, your device connects directly to the official endpoints of **Unsplash**, **Pixabay**, or **Pexels** over encrypted HTTPS. MacAuraLive does not operate an intermediary proxy or relay server.
+- **Compliance with Provider Terms:** Your use of third-party media is subject to the respective terms and licenses of each provider:
+  - **Unsplash:** Subject to the [Unsplash Terms of Service](https://unsplash.com/terms) and [Unsplash License](https://unsplash.com/license). Photographer attribution and direct links are preserved.
+  - **Pixabay:** Subject to the [Pixabay Terms of Service](https://pixabay.com/service/terms/) and [Pixabay Content License](https://pixabay.com/service/license-summary/).
+  - **Pexels:** Subject to the [Pexels Terms of Service](https://www.pexels.com/terms/) and [Pexels License](https://www.pexels.com/license/).
+- **Local Storage & Offline Functionality:** Downloaded wallpapers and video loops are saved permanently on your local disk under `~/Library/Application Support/MacAuraLive/Wallpapers/Downloads/`. Once downloaded, assets run locally on your device without recurring network traffic.
+- **User-Configured API Keys:** If you provide custom API keys for Unsplash, Pixabay, or Pexels, they are stored exclusively in your local macOS **Keychain** (`Security.framework`) and protected by the hardware Secure Enclave.
+
+### C. AI Generation API Keys
 MacAuraLive includes an optional AI Wallpaper Generator feature allowing integration with third-party Large Language Model (LLM) provider APIs (such as OpenAI, Anthropic Claude, Google Gemini, or OpenRouter).
 - You are solely responsible for managing your own API keys and complying with the respective API Terms of Service of each provider.
-- All API keys are stored exclusively in your local macOS **Keychain** (`Security.framework`). MacAuraLive never transmits your API keys to any third-party server other than the official provider API endpoint configured by you.
+- All API keys are stored exclusively in your local macOS Keychain. MacAuraLive never transmits your API keys to any third-party server other than the official provider API endpoint configured by you.
 
 ---
 
@@ -47,7 +57,8 @@ IN NO EVENT SHALL THE AUTHORS, COPYRIGHT HOLDERS, OR CONTRIBUTORS BE LIABLE FOR 
 ## 5. Trademark Notices
 
 - **Apple, macOS, Metal, AVFoundation, SwiftUI, and AppKit** are registered trademarks of **Apple Inc.**
-- MacAuraLive is an independent open-source software project and is **not** affiliated with, endorsed by, sponsored by, or associated with Apple Inc. or any third-party media rights holder.
+- **Unsplash, Pixabay, and Pexels** are trademarks or registered trademarks of their respective owners.
+- MacAuraLive is an independent open-source software project and is **not** affiliated with, endorsed by, sponsored by, or associated with Apple Inc., Unsplash Inc., Canva Pty Ltd (Pixabay/Pexels), or any third-party media rights holder.
 
 ---
 

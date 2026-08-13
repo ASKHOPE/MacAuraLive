@@ -853,6 +853,9 @@ struct WallpaperCardView: View {
     }
     
     private func getBuiltInURL(path: String) -> URL? {
+        if let resourceURL = Bundle.module.url(forResource: path, withExtension: nil, subdirectory: "Resources/Wallpapers") {
+            return resourceURL
+        }
         guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
         let fullPath = appSupport.appendingPathComponent("MacAuraLive/Wallpapers/\(path)")
         if FileManager.default.fileExists(atPath: fullPath.path) {
@@ -862,7 +865,10 @@ struct WallpaperCardView: View {
     }
     
     private func generateVideoFrame() {
-        let asset = AVAsset(url: URL(fileURLWithPath: wallpaper.pathOrUrl))
+        let videoPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+            ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+            ?? wallpaper.pathOrUrl
+        let asset = AVAsset(url: URL(fileURLWithPath: videoPath))
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         let time = CMTime(seconds: 1.0, preferredTimescale: 60)

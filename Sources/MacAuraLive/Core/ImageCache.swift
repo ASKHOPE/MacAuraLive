@@ -26,6 +26,19 @@ public class ImageCache {
             return img
         }
 
+        let filename = (path as NSString).lastPathComponent
+        let folder = (path as NSString).deletingLastPathComponent
+        let resourcePath = Bundle.module.path(forResource: path, ofType: nil, inDirectory: "Resources/Wallpapers")
+            ?? Bundle.module.path(forResource: filename, ofType: nil, inDirectory: "Resources/Wallpapers/\(folder)")
+            ?? Bundle.module.path(forResource: filename, ofType: nil, inDirectory: "Resources/Wallpapers")
+        
+        if let resourcePath = resourcePath,
+           let img = NSImage(contentsOfFile: resourcePath) {
+            let cost = Int(img.size.width * img.size.height * 4)
+            cache.setObject(img, forKey: key, cost: cost)
+            return img
+        }
+
         return nil
     }
 

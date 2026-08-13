@@ -255,9 +255,10 @@ public class WallpaperEngine: ObservableObject {
         
         switch wallpaper.type {
         case .builtInWeb:
-            guard let resourcePath = Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers") ?? getLocalResourcePath(relative: wallpaper.pathOrUrl) else {
-                return nil
-            }
+            let resolvedPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+                ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+                ?? getLocalResourcePath(relative: wallpaper.pathOrUrl)
+            guard let resourcePath = resolvedPath else { return nil }
             let url = URL(fileURLWithPath: resourcePath)
             let webView = WebWallpaperView(url: url)
             webView.setVolume(settings.audioVolume, isMuted: settings.isMuted)
@@ -270,11 +271,20 @@ public class WallpaperEngine: ObservableObject {
             view = webView
             
         case .video:
-            let url = URL(fileURLWithPath: wallpaper.pathOrUrl)
+            let resolvedPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+                ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+                ?? getLocalResourcePath(relative: wallpaper.pathOrUrl)
+                ?? wallpaper.pathOrUrl
+            let url = URL(fileURLWithPath: resolvedPath)
             return VideoWallpaperView(videoURL: url, volume: settings.audioVolume, isMuted: settings.isMuted)
             
         case .gif, .image:
-            let url = URL(fileURLWithPath: wallpaper.pathOrUrl)
+            let resolvedPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+                ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+                ?? Bundle.module.path(forResource: (wallpaper.pathOrUrl as NSString).lastPathComponent, ofType: nil, inDirectory: "Resources/Wallpapers/\((wallpaper.pathOrUrl as NSString).deletingLastPathComponent)")
+                ?? getLocalResourcePath(relative: wallpaper.pathOrUrl)
+                ?? wallpaper.pathOrUrl
+            let url = URL(fileURLWithPath: resolvedPath)
             let webView = WebWallpaperView(url: url)
             webView.setVolume(settings.audioVolume, isMuted: settings.isMuted)
             view = webView

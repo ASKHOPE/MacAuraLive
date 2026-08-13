@@ -425,6 +425,97 @@ public struct SettingsView: View {
                         }
                     }
                     
+                    // Marketplace & Content Provider API Plugins
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Image(systemName: "globe.americas.fill")
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                            Text("Marketplace & Content Plugins")
+                                .font(.title3)
+                                .bold()
+                            Spacer()
+                        }
+                        
+                        Text("Connect Unsplash, Pixabay, and Pexels plugins to discover and download 4K wallpapers and video loops directly to your Mac.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        VStack(spacing: 12) {
+                            // Unsplash
+                            HStack {
+                                Image(systemName: "camera.fill")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 20)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Unsplash API Key")
+                                        .font(.body)
+                                    Text("Free 4K Photography Assets")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                SecureField("Unsplash Access Key", text: $settings.unsplashApiKey)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 220)
+                            }
+                            
+                            // Pixabay
+                            HStack {
+                                Image(systemName: "photo.stack.fill")
+                                    .foregroundColor(.green)
+                                    .frame(width: 20)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Pixabay API Key")
+                                        .font(.body)
+                                    Text("HD/4K Video Loops & Audio Wallpapers")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                SecureField("Pixabay API Key", text: $settings.pixabayApiKey)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 220)
+                            }
+                            
+                            // Pexels
+                            HStack {
+                                Image(systemName: "film.stack.fill")
+                                    .foregroundColor(.teal)
+                                    .frame(width: 20)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Pexels API Key")
+                                        .font(.body)
+                                    Text("Curated 4K Photos & Motion Loops")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                SecureField("Pexels API Key", text: $settings.pexelsApiKey)
+                                    .textFieldStyle(.roundedBorder)
+                                    .frame(width: 220)
+                            }
+                        }
+                        .padding(14)
+                        .background(Color.white.opacity(0.04))
+                        .cornerRadius(10)
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "lock.shield.fill")
+                                .foregroundColor(.green)
+                            Text("Stored securely in macOS Keychain (Hardware Enclave). Downloaded wallpapers are saved permanently to your Mac.")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(18)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(14)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                    
                     // Software Updates & Releases Card
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
