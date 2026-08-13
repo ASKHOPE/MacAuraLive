@@ -42,6 +42,10 @@ public class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(spanAcrossDisplays, forKey: "spanAcrossDisplays") }
     }
     
+    @Published public var playbackRate: Float {
+        didSet { UserDefaults.standard.set(playbackRate, forKey: "playbackRate") }
+    }
+    
     @Published public var audioVolume: Double {
         didSet { UserDefaults.standard.set(audioVolume, forKey: "audioVolume") }
     }
@@ -116,6 +120,7 @@ public class AppSettings: ObservableObject {
         self.lockScreenWallpaperId = defaults.string(forKey: "lockScreenWallpaperId") ?? "aurora"
         self.lockScreenImagePath = defaults.string(forKey: "lockScreenImagePath") ?? ""
         self.spanAcrossDisplays = defaults.object(forKey: "spanAcrossDisplays") as? Bool ?? false
+        self.playbackRate = defaults.object(forKey: "playbackRate") as? Float ?? 1.0
         self.audioVolume = defaults.object(forKey: "audioVolume") as? Double ?? 0.8
         self.isMuted = defaults.object(forKey: "isMuted") as? Bool ?? true
         self.defaultAspectFill = defaults.object(forKey: "defaultAspectFill") as? Bool ?? true

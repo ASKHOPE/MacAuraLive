@@ -49,6 +49,7 @@ public class VideoWallpaperView: NSView {
         queuePlayer.volume = isMuted ? 0.0 : Float(volume)
         queuePlayer.isMuted = isMuted
         queuePlayer.play()
+        queuePlayer.rate = AppSettings.shared.playbackRate
         
         // Add periodic time observer for playback progress UI
         let interval = CMTime(seconds: 0.25, preferredTimescale: 600)
@@ -110,6 +111,13 @@ public class VideoWallpaperView: NSView {
     
     public func play() {
         player?.play()
+        player?.rate = AppSettings.shared.playbackRate
+    }
+
+    public func setPlaybackRate(_ rate: Float) {
+        if player?.rate != 0 {
+            player?.rate = rate
+        }
     }
     
     public func setVolume(_ volume: Double, isMuted: Bool) {

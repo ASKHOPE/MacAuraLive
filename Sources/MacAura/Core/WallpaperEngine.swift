@@ -66,6 +66,15 @@ public class WallpaperEngine: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        // Observe Playback Speed Rate
+        AppSettings.shared.$playbackRate
+            .sink { [weak self] rate in
+                DispatchQueue.main.async {
+                    self?.updatePlaybackRate(rate)
+                }
+            }
+            .store(in: &cancellables)
             
         // Observe Lock Screen settings
         Publishers.CombineLatest(AppSettings.shared.$enableLockScreenWallpaper, AppSettings.shared.$lockScreenWallpaperId)
@@ -200,6 +209,14 @@ public class WallpaperEngine: ObservableObject {
         for win in windowMap.values {
             if let vidView = win.contentView as? VideoWallpaperView {
                 vidView.seek(to: seconds)
+            }
+        }
+    }
+    
+    public func updatePlaybackRate(_ rate: Float) {
+        for win in windowMap.values {
+            if let vidView = win.contentView as? VideoWallpaperView {
+                vidView.setPlaybackRate(rate)
             }
         }
     }

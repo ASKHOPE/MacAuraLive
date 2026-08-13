@@ -25,6 +25,7 @@ public class WebWallpaperView: NSView, WKNavigationDelegate {
         let config = WKWebViewConfiguration()
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         config.mediaTypesRequiringUserActionForPlayback = []
+        SecurityHardeningManager.shared.configureSecureWebView(config)
         
         // Inject the MacAura SDK Polyfill
         let sdkScriptSource = """

@@ -6,6 +6,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
     case slideshow = "Slideshow & Schedule"
     case displays = "Displays"
     case lockScreen = "Lock Screen"
+    case userGuide = "User Guide"
     case aiConfig = "AI Configuration"
     case settings = "Settings"
     
@@ -18,6 +19,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
         case .slideshow: return "clock.arrow.2.circlepath"
         case .displays: return "desktopcomputer"
         case .lockScreen: return "lock.rectangle.on.rectangle.fill"
+        case .userGuide: return "book.closed.fill"
         case .aiConfig: return "sparkles.tv"
         case .settings: return "gearshape.fill"
         }
@@ -156,6 +158,30 @@ public struct MainWindowView: View {
                                 )
                                 .controlSize(.small)
                                 .tint(.cyan)
+
+                                // Playback Speed Control Row
+                                HStack {
+                                    Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                    Text("Speed:")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Picker("", selection: $settings.playbackRate) {
+                                        Text("0.25x").tag(Float(0.25))
+                                        Text("0.5x").tag(Float(0.5))
+                                        Text("0.75x").tag(Float(0.75))
+                                        Text("1.0x").tag(Float(1.0))
+                                        Text("1.25x").tag(Float(1.25))
+                                        Text("1.5x").tag(Float(1.5))
+                                        Text("2.0x").tag(Float(2.0))
+                                    }
+                                    .pickerStyle(.menu)
+                                    .controlSize(.mini)
+                                    .frame(width: 80)
+                                }
+                                .padding(.top, 2)
                             }
                         }
                         
@@ -225,6 +251,8 @@ public struct MainWindowView: View {
                     DisplayManagerView()
                 case .lockScreen:
                     LockScreenView()
+                case .userGuide:
+                    UserGuideView()
                 case .aiConfig:
                     AdminGateView(featureTitle: "AI Planner & LLM Configuration") {
                         AIConfigurationView()

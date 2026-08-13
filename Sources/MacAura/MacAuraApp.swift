@@ -4,12 +4,20 @@ import AppKit
 @main
 struct MacAuraApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @State private var showOnboardingSheet: Bool = false
     
     var body: some Scene {
         WindowGroup("MacAura Live Wallpaper Dashboard") {
             MainWindowView()
                 .onAppear {
                     NSWindow.allowsAutomaticWindowTabbing = false
+                    if !hasCompletedOnboarding {
+                        showOnboardingSheet = true
+                    }
+                }
+                .sheet(isPresented: $showOnboardingSheet) {
+                    OnboardingView(isPresented: $showOnboardingSheet)
                 }
         }
         .windowStyle(.titleBar)
@@ -27,6 +35,28 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var isDockVisible: Bool {
         get { UserDefaults.standard.object(forKey: "isDockVisible") as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: "isDockVisible") }
+    }
+
+    public func applicationWillFinishLaunching(_ notification: Notification) {
+        enforceSingleInstance()
+    }
+    
+    private func enforceSingleInstance() {
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.macaura.app"
+        
+        // Find other running instances by bundle ID or process name
+        let runningApps = NSWorkspace.shared.runningApplications
+        let otherInstances = runningApps.filter { app in
+            app.processIdentifier != currentPID &&
+            (app.bundleIdentifier == bundleID || app.localizedName == "MacAura")
+        }
+        
+        if let existingApp = otherInstances.first {
+            print("[MacAura] Existing instance detected (PID \(existingApp.processIdentifier)). Activating existing app and exiting.")
+            existingApp.activate(options: [.activateIgnoringOtherApps])
+            exit(0)
+        }
     }
     
     public func applicationDidFinishLaunching(_ notification: Notification) {

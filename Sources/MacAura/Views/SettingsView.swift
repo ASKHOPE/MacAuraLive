@@ -9,6 +9,7 @@ public struct SettingsView: View {
     @State private var showTOSModal: Bool = false
     @State private var showLicenseModal: Bool = false
     @State private var showDisclaimerModal: Bool = false
+    @State private var showOnboardingWizard: Bool = false
 
     public init() {}
 
@@ -444,29 +445,41 @@ public struct SettingsView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("MacAura Live Wallpaper")
+                                Text("MacAura Live Wallpaper Engine")
                                     .font(.title2)
                                     .bold()
-                                Text("Version 1.0.0 (Build 1) • Apple Silicon Native")
+                                Text("v1.2.0 (Build 100) • Production Release • Apple Silicon (ARM64)")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.cyan)
+                                    .fontWeight(.medium)
                             }
                             Spacer()
+                            
+                            Button {
+                                showOnboardingWizard = true
+                            } label: {
+                                Label("Setup Wizard", systemImage: "wand.and.stars")
+                            }
+                            .buttonStyle(.bordered)
                         }
                         
                         Divider()
                         
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
-                                Text("Developer & Author:").bold().font(.caption)
-                                Text("MacAura Team & Open Source Contributors").font(.caption).foregroundColor(.secondary)
+                                Text("App Version:").bold().font(.caption)
+                                Text("1.2.0 (Build 100)").font(.caption).foregroundColor(.secondary)
+                            }
+                            HStack {
+                                Text("Architecture:").bold().font(.caption)
+                                Text("Apple Silicon Native (ARM64)").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
                                 Text("macOS Compatibility:").bold().font(.caption)
                                 Text("macOS 13.0 (Ventura) or later").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
-                                Text("Rendering Engines:").bold().font(.caption)
+                                Text("Rendering Engine:").bold().font(.caption)
                                 Text("Metal 3, WebGL 2.0, AVFoundation, WebKit JS").font(.caption).foregroundColor(.secondary)
                             }
                             HStack {
@@ -481,12 +494,12 @@ public struct SettingsView: View {
                             }
                             .buttonStyle(.bordered)
                             
-                            Button("Licenses & EULA") {
+                            Button("MIT License") {
                                 showLicenseModal = true
                             }
                             .buttonStyle(.bordered)
                             
-                            Button("Legal Disclaimers") {
+                            Button("Disclaimer") {
                                 showDisclaimerModal = true
                             }
                             .buttonStyle(.bordered)
@@ -630,6 +643,9 @@ public struct SettingsView: View {
             }
             .padding()
             .frame(width: 540, height: 480)
+        }
+        .sheet(isPresented: $showOnboardingWizard) {
+            OnboardingView(isPresented: $showOnboardingWizard)
         }
     }
     

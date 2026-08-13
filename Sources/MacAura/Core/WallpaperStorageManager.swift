@@ -19,7 +19,7 @@ public class WallpaperStorageManager: ObservableObject {
     
     private init() {
         let fileManager = FileManager.default
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
         self.appSupportDirectory = appSupport.appendingPathComponent("MacAura", isDirectory: true)
         self.wallpapersDirectory = appSupportDirectory.appendingPathComponent("Wallpapers", isDirectory: true)
         self.metaFileURL = appSupportDirectory.appendingPathComponent("wallpapers.json")
