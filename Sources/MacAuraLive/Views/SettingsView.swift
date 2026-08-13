@@ -205,7 +205,7 @@ public struct SettingsView: View {
                                 .font(.title3)
                                 .bold()
                             Spacer()
-                            Text("Documents/MacauraApp")
+                            Text("Documents/MacAuraLiveApp")
                                 .font(.caption2)
                                 .bold()
                                 .padding(.horizontal, 8)
@@ -222,7 +222,7 @@ public struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
                                 Image(systemName: "folder.fill").foregroundColor(.blue)
-                                Text("~/Documents/MacauraApp/").bold().font(.subheadline)
+                                Text("~/Documents/MacAuraLiveApp/").bold().font(.subheadline)
                             }
                             
                             VStack(alignment: .leading, spacing: 6) {
@@ -262,9 +262,9 @@ public struct SettingsView: View {
                         
                         HStack {
                             Spacer()
-                            Button("Open MacauraApp in Finder") {
+                            Button("Open MacAuraLiveApp in Finder") {
                                 if let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                                    let path = docs.appendingPathComponent("MacauraApp")
+                                    let path = docs.appendingPathComponent("MacAuraLiveApp")
                                     NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path.path)
                                 }
                             }

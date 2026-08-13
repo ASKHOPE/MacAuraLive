@@ -34,7 +34,7 @@ public class WallpaperStorageManager: ObservableObject {
     private func setupDefaultDocumentDirectories() {
         let fm = FileManager.default
         guard let docsURL = fm.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-        let macauraRoot = docsURL.appendingPathComponent("MacauraApp")
+        let macauraRoot = docsURL.appendingPathComponent("MacAuraLiveApp")
         
         let subfolders = ["livewallpaper", "staticwallpaper", "gif", "animatedcode"]
         for sub in subfolders {

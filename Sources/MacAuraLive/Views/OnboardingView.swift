@@ -73,6 +73,9 @@ public struct OnboardingView: View {
         .onAppear {
             checkPermissions()
         }
+        .onReceive(Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()) { _ in
+            checkPermissions()
+        }
     }
     
     // MARK: - Steps
@@ -150,12 +153,15 @@ public struct OnboardingView: View {
                     
                     Spacer()
                     
-                    Button(hasScreenRecordingPermission ? "Granted" : "Grant") {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
-                            NSWorkspace.shared.open(url)
+                    Button(hasScreenRecordingPermission ? "✓ Granted" : "Grant Permission") {
+                        if !hasScreenRecordingPermission {
+                            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+                                NSWorkspace.shared.open(url)
+                            }
                         }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
+                    .tint(hasScreenRecordingPermission ? .green : .orange)
                     .font(.caption)
                     .disabled(hasScreenRecordingPermission)
                 }
