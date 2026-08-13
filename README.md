@@ -132,7 +132,14 @@ cd MacAuraLive
 
 # 3. Launch MacAuraLive
 open build/MacAuraLive.app
+
+# 4. Verify Installer Integrity (SHA-256)
+shasum -a 256 build/MacAuraLive_v1.2.0_Installer_AppleSilicon.dmg
 ```
+
+### 🔑 Cryptographic Checksums (v1.2.0)
+- **SHA-256**: `c6c1f3ad32fc97a8c3a3a541bc2acb0d4844c1a45243500a43e518e238bb9e49`
+- **MD5**: `c95fe056281d938710f2f6662854df32`
 
 ### First Launch
 On first launch, MacAuraLive will:
