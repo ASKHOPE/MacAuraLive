@@ -82,12 +82,45 @@ public struct MainWindowView: View {
                 Divider()
                     .padding(.vertical, 4)
                 
-                // Sidebar Navigation List
-                List(NavigationTab.allCases, selection: $selectedTab) { tab in
-                    NavigationLink(value: tab) {
-                        Label(tab.rawValue, systemImage: tab.iconName)
-                            .font(.system(size: 14, weight: .medium))
-                            .padding(.vertical, 6)
+                // Sidebar Navigation List (Grouped by Nature)
+                List(selection: $selectedTab) {
+                    Section("Library & Discover") {
+                        NavigationLink(value: NavigationTab.liveWallpapers) {
+                            Label(NavigationTab.liveWallpapers.rawValue, systemImage: NavigationTab.liveWallpapers.iconName)
+                        }
+                        NavigationLink(value: NavigationTab.staticWallpapers) {
+                            Label(NavigationTab.staticWallpapers.rawValue, systemImage: NavigationTab.staticWallpapers.iconName)
+                        }
+                        NavigationLink(value: NavigationTab.marketplace) {
+                            Label(NavigationTab.marketplace.rawValue, systemImage: NavigationTab.marketplace.iconName)
+                        }
+                    }
+                    
+                    Section("Displays & Scheduling") {
+                        NavigationLink(value: NavigationTab.slideshow) {
+                            Label(NavigationTab.slideshow.rawValue, systemImage: NavigationTab.slideshow.iconName)
+                        }
+                        NavigationLink(value: NavigationTab.displays) {
+                            Label(NavigationTab.displays.rawValue, systemImage: NavigationTab.displays.iconName)
+                        }
+                        NavigationLink(value: NavigationTab.lockScreen) {
+                            Label(NavigationTab.lockScreen.rawValue, systemImage: NavigationTab.lockScreen.iconName)
+                        }
+                    }
+                    
+                    Section("Creative Studio") {
+                        NavigationLink(value: NavigationTab.aiConfig) {
+                            Label(NavigationTab.aiConfig.rawValue, systemImage: NavigationTab.aiConfig.iconName)
+                        }
+                    }
+                    
+                    Section("System & Support") {
+                        NavigationLink(value: NavigationTab.userGuide) {
+                            Label(NavigationTab.userGuide.rawValue, systemImage: NavigationTab.userGuide.iconName)
+                        }
+                        NavigationLink(value: NavigationTab.settings) {
+                            Label(NavigationTab.settings.rawValue, systemImage: NavigationTab.settings.iconName)
+                        }
                     }
                 }
                 .listStyle(.sidebar)
@@ -97,30 +130,31 @@ public struct MainWindowView: View {
                 let activeItem = storage.getActiveWallpaper()
                 let isStatic = activeItem == nil || activeItem?.type == .image || activeItem?.category == "Static"
                 let isVideo = activeItem?.type == .video
-                let isVideoWithAudio = isVideo == true && activeItem?.hasAudio == true
                 
-                // Active Engine & Audio Controls Widget Container (ONLY shown if a Live Wallpaper is active)
-                if !isStatic, let item = activeItem {
-                    VStack(alignment: .leading, spacing: 12) {
-                        // Playback Status Widget
-                        VStack(alignment: .leading, spacing: 8) {
+                // Sidebar Footer: Active Status + Always Visible Mute / Unmute Controls
+                VStack(alignment: .leading, spacing: 10) {
+                    if let item = activeItem {
+                        // Active Wallpaper Header
+                        VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Circle()
-                                    .fill(engine.isPaused ? Color.orange : Color.green)
-                                    .frame(width: 10, height: 10)
-                                Text(engine.isPaused ? "Engine Paused" : "Engine Playing")
-                                    .font(.caption)
+                                    .fill(!isStatic && engine.isPaused ? Color.orange : (isStatic ? Color.blue : Color.green))
+                                    .frame(width: 8, height: 8)
+                                Text(isStatic ? "Active (Static)" : (engine.isPaused ? "Engine Paused" : "Engine Playing"))
+                                    .font(.caption2)
                                     .bold()
-                                    .foregroundColor(engine.isPaused ? .orange : .green)
+                                    .foregroundColor(!isStatic && engine.isPaused ? .orange : (isStatic ? .blue : .green))
                                 Spacer()
-                                Button(action: { engine.togglePlayPause() }) {
-                                    Image(systemName: engine.isPaused ? "play.fill" : "pause.fill")
-                                        .font(.caption)
-                                        .padding(8)
-                                        .background(Color.white.opacity(0.12))
-                                        .clipShape(Circle())
+                                if !isStatic {
+                                    Button(action: { engine.togglePlayPause() }) {
+                                        Image(systemName: engine.isPaused ? "play.fill" : "pause.fill")
+                                            .font(.caption2)
+                                            .padding(6)
+                                            .background(Color.white.opacity(0.12))
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                             
                             Text(item.title)
@@ -132,9 +166,6 @@ public struct MainWindowView: View {
                         
                         // Interactive Video Playback Slider Widget
                         if isVideo, engine.playbackDuration > 0 {
-                            Divider()
-                                .padding(.vertical, 2)
-                            
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Image(systemName: "film")
@@ -187,57 +218,61 @@ public struct MainWindowView: View {
                             }
                         }
                         
-                        // Audio Volume & Mute Widget (ONLY visible for Videos with audio)
-                        if isVideoWithAudio {
-                            Divider()
-                                .padding(.vertical, 2)
-                            
-                            VStack(alignment: .leading, spacing: 6) {
-                                HStack {
-                                    Button(action: {
-                                        settings.isMuted.toggle()
-                                        engine.updateAudioSettings(volume: settings.audioVolume, isMuted: settings.isMuted)
-                                    }) {
-                                        Image(systemName: settings.isMuted ? "speaker.slash.fill" : (settings.audioVolume > 0.5 ? "speaker.wave.3.fill" : "speaker.wave.1.fill"))
-                                            .font(.caption)
-                                            .foregroundColor(settings.isMuted ? .red : .blue)
-                                    }
-                                    .buttonStyle(.plain)
-                                    
-                                    Text("Volume:")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text(settings.isMuted ? "Muted" : "\(Int(settings.audioVolume * 100))%")
+                        Divider()
+                            .padding(.vertical, 2)
+                    }
+                    
+                    // Audio Volume & Mute / Unmute Buttons (ALWAYS visible in sidebar bottom)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Button(action: {
+                                settings.isMuted.toggle()
+                                engine.updateAudioSettings(volume: settings.audioVolume, isMuted: settings.isMuted)
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: settings.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                        .font(.caption)
+                                    Text(settings.isMuted ? "Unmute" : "Mute")
                                         .font(.caption2)
                                         .bold()
-                                        .foregroundColor(settings.isMuted ? .red : .white)
-                                    
-                                    Spacer()
                                 }
-                                
-                                Slider(value: Binding(
-                                    get: { settings.audioVolume },
-                                    set: { newValue in
-                                        settings.audioVolume = newValue
-                                        engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
-                                    }
-                                ), in: 0.0...1.0)
-                                .controlSize(.small)
-                                .disabled(settings.isMuted)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(settings.isMuted ? Color.red.opacity(0.25) : Color.blue.opacity(0.25))
+                                .foregroundColor(settings.isMuted ? .red : .cyan)
+                                .cornerRadius(8)
                             }
+                            .buttonStyle(.plain)
+                            
+                            Spacer()
+                            
+                            Text(settings.isMuted ? "MUTED" : "\(Int(settings.audioVolume * 100))%")
+                                .font(.caption2)
+                                .bold()
+                                .foregroundColor(settings.isMuted ? .red : .white)
                         }
+                        
+                        Slider(value: Binding(
+                            get: { settings.audioVolume },
+                            set: { newValue in
+                                settings.audioVolume = newValue
+                                engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
+                            }
+                        ), in: 0.0...1.0)
+                        .controlSize(.small)
+                        .tint(.blue)
+                        .disabled(settings.isMuted)
                     }
-                    .padding(14)
-                    .background(Color.black.opacity(0.4))
-                    .cornerRadius(14)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                    )
-                    .padding(.horizontal, 14)
-                    .padding(.bottom, 14)
                 }
+                .padding(12)
+                .background(Color.black.opacity(0.4))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
             }
             .frame(minWidth: 230)
         } detail: {

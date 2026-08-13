@@ -1,136 +1,558 @@
 import SwiftUI
 
 public struct UserGuideView: View {
+    @State private var searchQuery: String = ""
+    @State private var selectedCategory: GuideCategory = .all
+    @State private var expandedTopicId: String? = "quickstart"
+    
     public init() {}
     
-    public var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            // Header
-            VStack(alignment: .leading, spacing: 6) {
-                Text("User Guide & Documentation")
-                    .font(.system(size: 28, weight: .bold))
-                Text("Complete manual for managing live wallpapers, lock screen, schedules, and permissions.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    
-                    // Guide Section 1: Quick Start
-                    GuideCard(
-                        icon: "play.circle.fill",
-                        color: .blue,
-                        title: "1. Quick Start & Applying Wallpapers",
-                        description: "How to activate live video, WebGL shaders, or static wallpapers.",
-                        content: """
-                        • Browse the 'Live Wallpapers' or 'Static Wallpapers' tab in the left sidebar.
-                        • Hover over any wallpaper card and click 'Apply Wallpaper'.
-                        • The live engine will immediately render the wallpaper on your desktop underneath your Finder desktop icons.
-                        • Adjust audio volume, mute status, or playback speed (0.25x - 2.0x) from the sidebar controls widget.
-                        """
-                    )
-                    
-                    // Guide Section 2: Lock Screen Wallpaper
-                    GuideCard(
-                        icon: "lock.rectangle.on.rectangle.fill",
-                        color: .purple,
-                        title: "2. Lock Screen Wallpaper Setup",
-                        description: "Set an independent static image for your macOS Lock Screen.",
-                        content: """
-                        • Open the 'Lock Screen' tab.
-                        • Click 'Browse Image…' to select any photo from your Mac, or select a static image from your MacAuraLive library.
-                        • Click 'Set as Lock Screen Wallpaper'.
-                        • macOS lock screen mirrors your desktop wallpaper — your static image will display on lock screen, while keeping your live wallpaper active on desktop!
-                        """
-                    )
-                    
-                    // Guide Section 3: Slideshow & Timed Schedules
-                    GuideCard(
-                        icon: "clock.arrow.2.circlepath",
-                        color: .cyan,
-                        title: "3. Slideshow & Scheduled Rotation",
-                        description: "Automate wallpaper rotation on timers or specific times of day.",
-                        content: """
-                        • Interval Slideshow: Toggle 'Interval Slideshow Engine' ON, set your rotation frequency (5 min, 15 min, 1 hour, etc.), and optional Shuffle mode.
-                        • Custom Playlist: Use the 'Slideshow Playlist Selection' image picker with Search and Zoom Slider to select which wallpapers rotate.
-                        • Time-of-Day Schedules: Click 'Add Time Rule' to set specific wallpapers for exact times (e.g., Morning Sunrise at 08:00, Night Cosmos at 22:00).
-                        """
-                    )
-                    
-                    // Guide Section 4: Multi-Monitor Displays
-                    GuideCard(
-                        icon: "desktopcomputer",
-                        color: .green,
-                        title: "4. Multi-Monitor & Display Spanning",
-                        description: "Configure wallpaper behavior across multiple screens.",
-                        content: """
-                        • Per-Display Assignment: Open the 'Displays' tab to assign different live wallpapers to individual monitors.
-                        • Ultra-Wide Spanning: Enable 'Span Live Wallpaper Across All Connected Displays' in Settings to stretch a single live wallpaper continuously across all connected screens.
-                        """
-                    )
-                    
-                    // Guide Section 5: Troubleshooting & Permissions
-                    GuideCard(
-                        icon: "exclamationmark.shield.fill",
-                        color: .orange,
-                        title: "5. Troubleshooting & Permissions",
-                        description: "Permissions guidance and performance tips.",
-                        content: """
-                        • Screen Recording Permission: Required for full-screen application detection so MacAuraLive can pause and give 100% GPU to games or video editors.
-                        • Launch at Login: Enable in Settings to launch MacAuraLive silently in your menu bar on system boot.
-                        • Menu Bar Icon: Click the MacAuraLive icon in your macOS status bar for quick play/pause, volume control, or 'Open Dashboard'.
-                        """
-                    )
-                }
-                .padding(.bottom, 20)
+    enum GuideCategory: String, CaseIterable, Identifiable {
+        case all = "All Topics"
+        case quickStart = "Quick Start"
+        case marketplace = "Marketplace & APIs"
+        case lockScreen = "Lock Screen"
+        case slideshow = "Slideshow & Schedules"
+        case displays = "Multi-Monitor"
+        case aiWorkshop = "AI Workshop & WebGL"
+        case performance = "Performance & Battery"
+        case audio = "Sound & Audio"
+        case troubleshoot = "Troubleshooting & FAQ"
+        
+        var id: String { rawValue }
+        
+        var iconName: String {
+            switch self {
+            case .all: return "sparkles"
+            case .quickStart: return "play.circle.fill"
+            case .marketplace: return "globe.americas.fill"
+            case .lockScreen: return "lock.rectangle.on.rectangle.fill"
+            case .slideshow: return "clock.arrow.2.circlepath"
+            case .displays: return "desktopcomputer"
+            case .aiWorkshop: return "sparkles.tv"
+            case .performance: return "bolt.fill"
+            case .audio: return "speaker.wave.2.fill"
+            case .troubleshoot: return "questionmark.circle.fill"
             }
         }
     }
-}
-
-private struct GuideCard: View {
-    let icon: String
-    let color: Color
-    let title: String
-    let description: String
-    let content: String
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: icon)
-                        .font(.system(size: 18))
-                        .foregroundColor(color)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.title3)
-                        .bold()
-                    Text(description)
-                        .font(.caption)
+    struct GuideTopic: Identifiable {
+        let id: String
+        let category: GuideCategory
+        let title: String
+        let summary: String
+        let badge: String
+        let badgeColor: Color
+        let steps: [String]
+        let tips: [String]
+        let shortcutsOrPaths: [(label: String, value: String)]
+    }
+    
+    private var allTopics: [GuideTopic] {
+        [
+            // 1. Quick Start
+            GuideTopic(
+                id: "quickstart",
+                category: .quickStart,
+                title: "Quick Start: Applying Wallpapers & Scale Modes",
+                summary: "Learn how to preview, activate, scale, and adjust live and static wallpapers.",
+                badge: "ESSENTIAL",
+                badgeColor: .blue,
+                steps: [
+                    "1. Open the left sidebar and select either 'Live Wallpapers' (video loops & WebGL shaders) or 'Static Wallpapers' (4K/8K images).",
+                    "2. Hover over any wallpaper card to see its live dynamic preview or click the eye icon (Quick Look) for full resolution inspection.",
+                    "3. Click anywhere on the card or click 'Apply Wallpaper' to set it on your desktop immediately.",
+                    "4. Choose your preferred Scaling Placement in Settings > Live Wallpaper Placement (Default is 'Stretch to Fill Screen', or select 'Fill Aspect Ratio', 'Fit (Contain)', 'Center', or 'Custom Zoom 0.5x - 2.5x').",
+                    "5. Control playback speed (0.25x to 2.0x) or pause/resume rendering using the sidebar footer status widget."
+                ],
+                tips: [
+                    "MacAuraLive renders underneath your Finder desktop icons, so all your desktop files, folders, and widgets remain fully interactive.",
+                    "The Dynamic Desktop Icon Contrast engine computes wallpaper luminance in real-time and adjusts Finder icon text shadows for maximum legibility."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Quick Mute/Unmute", value: "Click the Mute button in the sidebar footer or menu bar"),
+                    (label: "Default Placement", value: "Stretch to Fill Screen (Active on App Launch)")
+                ]
+            ),
+            
+            // 2. Marketplace & Content Plugins
+            GuideTopic(
+                id: "marketplace",
+                category: .marketplace,
+                title: "Online Marketplace: Connecting Unsplash, Pixabay & Pexels",
+                summary: "Discover millions of 4K wallpapers and video loops with secure API plugins.",
+                badge: "MARKETPLACE",
+                badgeColor: .cyan,
+                steps: [
+                    "1. Open the 'Marketplace' tab from the sidebar to browse curated online wallpaper feeds.",
+                    "2. Filter by provider (Unsplash, Pixabay, Pexels), media type (Videos, Photos), or discovery tags (Nature, Ocean, Cyberpunk, Space, Dark).",
+                    "3. Click 'Configure API Keys' or visit Settings > Marketplace & Content Plugins to add your free developer keys for high-rate quota access.",
+                    "4. Enter your API key in the dedicated card row, click 'Save Key' (stored securely in macOS Keychain), or click 'Clear' to remove it anytime.",
+                    "5. Click 'Download & Set' on any wallpaper to download the full 4K asset directly to your Mac and apply it instantly."
+                ],
+                tips: [
+                    "All downloads are saved locally to your Mac at ~/Documents/MacAuraLiveApp/ so you can enjoy them forever offline without repeated downloads.",
+                    "Obtaining API keys is 100% free: click 'Get Free Key ↗' next to each provider to generate your personal key in 30 seconds."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Videos Storage Path", value: "~/Documents/MacAuraLiveApp/livewallpaper/"),
+                    (label: "Photos Storage Path", value: "~/Documents/MacAuraLiveApp/staticwallpaper/"),
+                    (label: "Key Security", value: "macOS Keychain Hardware Enclave (AES-256 GCM)")
+                ]
+            ),
+            
+            // 3. Lock Screen Wallpaper
+            GuideTopic(
+                id: "lockscreen",
+                category: .lockScreen,
+                title: "Lock Screen Wallpaper: Independent macOS Lock Screen Setup",
+                summary: "Configure an independent static photo on your lock screen while keeping live wallpapers on desktop.",
+                badge: "CUSTOMIZATION",
+                badgeColor: .purple,
+                steps: [
+                    "1. Open the 'Lock Screen' tab from the sidebar.",
+                    "2. Select a high-resolution photo from your MacAuraLive library, or click 'Browse Image…' to choose any photo (JPEG, PNG, HEIC, TIFF, WebP) from your Mac.",
+                    "3. Click 'Set as Lock Screen Wallpaper'.",
+                    "4. MacAuraLive will configure macOS lock screen image cache with zero delay.",
+                    "5. Press Control + Command + Q or close your MacBook lid to test your new lock screen!"
+                ],
+                tips: [
+                    "macOS lock screen displays static images natively, while MacAuraLive keeps high-performance live motion loops playing seamlessly on your unlocked desktop."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Test Lock Screen", value: "Press ^ + ⌘ + Q (Control + Command + Q)"),
+                    (label: "Supported Formats", value: "JPEG, PNG, HEIC, TIFF, WebP, GIF")
+                ]
+            ),
+            
+            // 4. Slideshow & Scheduled Rotation
+            GuideTopic(
+                id: "slideshow",
+                category: .slideshow,
+                title: "Slideshow & Timed Scheduling: Automated Wallpaper Rotation",
+                summary: "Automatically rotate wallpapers on interval timers or scheduled times of day.",
+                badge: "AUTOMATION",
+                badgeColor: .green,
+                steps: [
+                    "1. Open 'Slideshow & Schedule' from the sidebar.",
+                    "2. Toggle 'Interval Slideshow Engine' ON to rotate wallpapers automatically.",
+                    "3. Set your preferred frequency: 5 min, 15 min, 30 min, 1 hour, 2 hours, 6 hours, 12 hours, or 24 hours.",
+                    "4. Enable 'Shuffle Mode' for randomized selection across your library.",
+                    "5. Build a custom playlist in the visual selector: click checkmarks on specific wallpapers to include only your favorites.",
+                    "6. Configure Time-of-Day Rules: Click 'Add Time Rule' to schedule specific wallpapers at exact times (e.g. Sunrise at 07:00, Cyberpunk at 21:00)."
+                ],
+                tips: [
+                    "Timed rules take priority over interval rotations, ensuring your desktop always matches your time of day.",
+                    "The slideshow engine runs smoothly in the background with zero CPU consumption between transition cycles."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Frequencies", value: "5m, 15m, 30m, 1h, 2h, 6h, 12h, 24h"),
+                    (label: "Transition", value: "Smooth cross-fade GPU shader transition")
+                ]
+            ),
+            
+            // 5. Multi-Monitor Displays
+            GuideTopic(
+                id: "displays",
+                category: .displays,
+                title: "Multi-Monitor Configuration & Ultra-Wide Display Spanning",
+                summary: "Configure per-screen wallpapers or span a single 32:9 wallpaper across all monitors.",
+                badge: "DISPLAYS",
+                badgeColor: .orange,
+                steps: [
+                    "1. Open the 'Displays' tab from the sidebar to inspect all currently connected monitors.",
+                    "2. Per-Display Mode: Click on any screen in the preview canvas and choose an independent wallpaper for that specific display.",
+                    "3. Ultra-Wide Spanning Mode: In Settings > Default Display & Multi-Monitor Settings, toggle 'Span Live Wallpaper Across All Connected Displays' ON.",
+                    "4. When Spanning is active, a single high-resolution wallpaper (e.g. 5120x1440 or 7680x2160) will stretch continuously across all your displays seamlessly."
+                ],
+                tips: [
+                    "MacAuraLive automatically detects monitor connection and disconnection events (DisplayConfigChanged) and recalibrates screen coordinates without needing a restart."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Display Spanning", value: "Settings > Span Live Wallpaper Across All Connected Displays"),
+                    (label: "Hot-Plug Detection", value: "Automatic native CoreGraphics reconfiguration")
+                ]
+            ),
+            
+            // 6. Sound & Audio Settings
+            GuideTopic(
+                id: "audio",
+                category: .audio,
+                title: "Sound & Audio Controls: Volume, Muting & VU Meters",
+                summary: "Full audio management for video wallpapers with background sound tracks.",
+                badge: "AUDIO",
+                badgeColor: .indigo,
+                steps: [
+                    "1. Wallpapers with audio tracks are marked with an 'Audio' badge and an animated VU meter in the gallery.",
+                    "2. Use the persistent sidebar footer audio widget to instantly Mute or Unmute audio with 1 click.",
+                    "3. Adjust the Volume Slider from 0% to 100% to set your preferred ambiance level.",
+                    "4. In Settings > Wallpaper Sound & Audio Settings, toggle 'Mute audio automatically when app loses focus' if you only want wallpaper audio when viewing your desktop."
+                ],
+                tips: [
+                    "MacAuraLive uses Apple AVFoundation audio mixing so wallpaper audio harmoniously blends with your Apple Music, Spotify, or video calls without clipping."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Sidebar Audio Widget", value: "Always visible at the bottom of the left sidebar"),
+                    (label: "Audio Formats", value: "AAC, ALAC, MP3, Linear PCM embedded in MP4/MOV")
+                ]
+            ),
+            
+            // 7. AI Workshop & WebGL Shaders
+            GuideTopic(
+                id: "aiworkshop",
+                category: .aiWorkshop,
+                title: "AI Workshop & Interactive WebGL Shader Generation",
+                summary: "Generate 60fps interactive generative shaders with Google Gemini, OpenRouter, or Ollama.",
+                badge: "AI STUDIO",
+                badgeColor: .pink,
+                steps: [
+                    "1. Open 'AI Workshop' from the sidebar.",
+                    "2. Select your AI provider: OpenRouter (DeepSeek R1, Llama 3, Claude), Google Gemini (Gemini 2.0 Flash / Pro), or Local Ollama (100% offline).",
+                    "3. Enter your AI API key in the dedicated settings card and click 'Save Key'.",
+                    "4. Type a natural language prompt describing the shader you want (e.g. 'Cyberpunk neon rain ripples on dark asphalt with glowing reflections').",
+                    "5. Click 'Generate Live Shader Wallpaper' to generate complete, executable WebGL/HTML5 code with live terminal logs.",
+                    "6. The generated shader is automatically saved to ~/Documents/MacAuraLiveApp/animatedcode/ and applied to your desktop!"
+                ],
+                tips: [
+                    "Generated shaders are 100% standalone standard WebGL/HTML5 files that run locally at 60fps on Apple Silicon GPUs without continuous internet connection."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Code Storage Path", value: "~/Documents/MacAuraLiveApp/animatedcode/"),
+                    (label: "Frame Rate", value: "Smooth 60fps Metal WebKit Canvas")
+                ]
+            ),
+            
+            // 8. Performance & Battery Saver
+            GuideTopic(
+                id: "performance",
+                category: .performance,
+                title: "Smart Performance & Battery Saver: Zero Resource Overhead",
+                summary: "Optimizing GPU and CPU usage for maximum MacBook battery life.",
+                badge: "PERFORMANCE",
+                badgeColor: .yellow,
+                steps: [
+                    "1. Open Settings > Smart Performance & Battery Saver.",
+                    "2. Enable 'Pause live wallpaper when on battery power': When unplugging your MacBook, the wallpaper automatically pauses rendering to preserve 100% battery life.",
+                    "3. Enable 'Pause when full-screen applications/games are focused': When you play games or edit 4K video full-screen, the engine pauses to yield 100% GPU/CPU power to your game.",
+                    "4. Grant Screen Recording permission when prompted so MacAuraLive can detect active full-screen windows (no screen data is ever recorded or transmitted)."
+                ],
+                tips: [
+                    "MacAuraLive uses native Apple Silicon Metal acceleration and AVPlayerLayer hardware decoders, typically consuming less than 1-2% CPU when active."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Battery Saver", value: "Settings > Pause on Battery Power"),
+                    (label: "Gaming Mode", value: "Settings > Pause on Full-Screen Apps")
+                ]
+            ),
+            
+            // 9. Troubleshooting & System Permissions
+            GuideTopic(
+                id: "troubleshoot",
+                category: .troubleshoot,
+                title: "Troubleshooting, Permissions & Local Storage Directory Guide",
+                summary: "Common questions, file permissions, local storage paths, and reset instructions.",
+                badge: "HELP & FAQ",
+                badgeColor: .red,
+                steps: [
+                    "1. Where are my wallpapers stored? All user files and marketplace downloads are stored in ~/Documents/MacAuraLiveApp/ divided into livewallpaper/, staticwallpaper/, gif/, and animatedcode/.",
+                    "2. How do I add my own video loops or images? Simply copy your MP4, MOV, GIF, or JPEG files into the respective subfolder in ~/Documents/MacAuraLiveApp/, then click 'Sync Now' in Settings > Monitored Local Folder.",
+                    "3. Screen Recording Permission: Required exclusively for full-screen application detection so the engine can pause during gaming. If needed, toggle it in System Settings > Privacy & Security > Screen Recording.",
+                    "4. Launch at Login: In Settings > General Settings & Startup, enable 'Launch MacAuraLive at System Startup' to run silently in the menu bar on boot.",
+                    "5. Resetting Settings: In Settings > About & Software Information, click 'Reset All Settings to Defaults' to restore default configurations."
+                ],
+                tips: [
+                    "If you ever need to clear API keys, use the 'Clear' button next to each key in Settings > Marketplace & Content Plugins or delete the app support cache."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Root Folder", value: "~/Documents/MacAuraLiveApp/"),
+                    (label: "Video Loops", value: "~/Documents/MacAuraLiveApp/livewallpaper/"),
+                    (label: "Static 4K", value: "~/Documents/MacAuraLiveApp/staticwallpaper/"),
+                    (label: "GIF Animations", value: "~/Documents/MacAuraLiveApp/gif/"),
+                    (label: "Code Shaders", value: "~/Documents/MacAuraLiveApp/animatedcode/")
+                ]
+            )
+        ]
+    }
+    
+    private var filteredTopics: [GuideTopic] {
+        allTopics.filter { topic in
+            let matchesCategory = selectedCategory == .all || topic.category == selectedCategory
+            let matchesSearch = searchQuery.isEmpty ||
+                topic.title.localizedCaseInsensitiveContains(searchQuery) ||
+                topic.summary.localizedCaseInsensitiveContains(searchQuery) ||
+                topic.steps.contains { $0.localizedCaseInsensitiveContains(searchQuery) } ||
+                topic.tips.contains { $0.localizedCaseInsensitiveContains(searchQuery) }
+            return matchesCategory && matchesSearch
+        }
+    }
+    
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            // Header Bar
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "book.pages.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.blue)
+                        Text("User Guide & Documentation")
+                            .font(.system(size: 26, weight: .bold))
+                    }
+                    Text("Complete step-by-step manuals, feature how-tos, keyboard shortcuts, and architecture references.")
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
+                
+                Spacer()
+                
+                // Search Input
+                HStack(spacing: 8) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField("Search guides, features, shortcuts...", text: $searchQuery)
+                        .textFieldStyle(.plain)
+                        .frame(width: 220)
+                    if !searchQuery.isEmpty {
+                        Button(action: { searchQuery = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color.white.opacity(0.06))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+            }
+            
+            // Category Filter Pills
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(GuideCategory.allCases) { category in
+                        Button(action: { selectedCategory = category }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: category.iconName)
+                                    .font(.system(size: 11))
+                                Text(category.rawValue)
+                                    .font(.caption)
+                                    .fontWeight(selectedCategory == category ? .bold : .medium)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(selectedCategory == category ? Color.blue : Color.white.opacity(0.06))
+                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                            .cornerRadius(10)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 2)
             }
             
             Divider()
             
-            Text(content)
-                .font(.system(size: 13, weight: .regular))
-                .foregroundColor(.white.opacity(0.9))
-                .lineSpacing(6)
+            // Guide Topics List
+            if filteredTopics.isEmpty {
+                VStack(spacing: 14) {
+                    Spacer()
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 38))
+                        .foregroundColor(.secondary)
+                    Text("No matching documentation found")
+                        .font(.headline)
+                    Text("Try searching for terms like 'API Key', 'Lock Screen', 'Stretch', 'Mute', or 'Storage Path'.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Button("Clear Search") {
+                        searchQuery = ""
+                        selectedCategory = .all
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(filteredTopics) { topic in
+                            InteractiveGuideCard(
+                                topic: topic,
+                                isExpanded: expandedTopicId == topic.id,
+                                onToggle: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        if expandedTopicId == topic.id {
+                                            expandedTopicId = nil
+                                        } else {
+                                            expandedTopicId = topic.id
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    .padding(.bottom, 24)
+                }
+            }
         }
-        .padding(20)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
+        .padding(24)
+    }
+}
+
+// MARK: - Interactive Expandable Guide Card Component
+
+private struct InteractiveGuideCard: View {
+    let topic: UserGuideView.GuideTopic
+    let isExpanded: Bool
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Card Header (Always Visible)
+            Button(action: onToggle) {
+                HStack(alignment: .center, spacing: 14) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(topic.badgeColor.opacity(0.15))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: topic.category.iconName)
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(topic.badgeColor)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 8) {
+                            Text(topic.title)
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(.primary)
+                            
+                            Text(topic.badge)
+                                .font(.system(size: 9, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(topic.badgeColor.opacity(0.85))
+                                .foregroundColor(.white)
+                                .cornerRadius(4)
+                        }
+                        
+                        Text(topic.summary)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(isExpanded ? nil : 1)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: isExpanded ? "chevron.up.circle.fill" : "chevron.down.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(isExpanded ? topic.badgeColor : .secondary)
+                }
+                .padding(16)
+            }
+            .buttonStyle(.plain)
+            
+            // Expanded Detailed Content
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 16) {
+                    Divider()
+                        .padding(.horizontal, 16)
+                    
+                    // Step-by-Step Instructions
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("STEP-BY-STEP INSTRUCTIONS")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(topic.steps, id: \.self) { step in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Text("•")
+                                        .font(.headline)
+                                        .foregroundColor(topic.badgeColor)
+                                    Text(step)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.92))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    
+                    // Pro Tips Box
+                    if !topic.tips.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "lightbulb.fill")
+                                    .foregroundColor(.yellow)
+                                    .font(.caption)
+                                Text("PRO TIP")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.yellow)
+                            }
+                            
+                            ForEach(topic.tips, id: \.self) { tip in
+                                Text(tip)
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.85))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .padding(12)
+                        .background(Color.yellow.opacity(0.08))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.yellow.opacity(0.2), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 16)
+                    }
+                    
+                    // Key Shortcuts or File Paths Table
+                    if !topic.shortcutsOrPaths.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("REFERENCE & SHORTCUTS")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.secondary)
+                            
+                            VStack(spacing: 6) {
+                                ForEach(topic.shortcutsOrPaths, id: \.label) { item in
+                                    HStack {
+                                        Text(item.label)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                        Spacer()
+                                        Text(item.value)
+                                            .font(.system(size: 11, design: .monospaced))
+                                            .fontWeight(.semibold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 3)
+                                            .background(Color.black.opacity(0.35))
+                                            .cornerRadius(6)
+                                            .foregroundColor(.cyan)
+                                    }
+                                }
+                            }
+                            .padding(12)
+                            .background(Color.white.opacity(0.03))
+                            .cornerRadius(8)
+                        }
+                        .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.bottom, 16)
+            }
+        }
+        .background(Color.white.opacity(isExpanded ? 0.07 : 0.04))
+        .cornerRadius(14)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(isExpanded ? topic.badgeColor.opacity(0.4) : Color.white.opacity(0.08), lineWidth: isExpanded ? 1.5 : 1)
         )
     }
 }

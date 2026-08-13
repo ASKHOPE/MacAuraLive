@@ -7,6 +7,7 @@ public struct MarketplaceView: View {
     
     @State private var showApiKeyModal: Bool = false
     @State private var showTermsModal: Bool = false
+    @State private var previewItem: OnlineWallpaperItem? = nil
     @State private var testingProvider: WallpaperSourceProvider? = nil
     @State private var testResults: [WallpaperSourceProvider: (success: Bool, message: String)] = [:]
     
@@ -65,6 +66,9 @@ public struct MarketplaceView: View {
         }
         .sheet(isPresented: $showTermsModal) {
             termsAndLicensingModal
+        }
+        .sheet(item: $previewItem) { item in
+            OnlineWallpaperPreviewModal(item: item)
         }
         .overlay(alignment: .bottom) {
             if let toast = marketplace.statusToast {
@@ -281,7 +285,12 @@ public struct MarketplaceView: View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 280, maximum: 340), spacing: 20)], spacing: 20) {
                 ForEach(marketplace.wallpapers) { item in
-                    MarketplaceCardView(item: item)
+                    MarketplaceCardView(
+                        item: item,
+                        onPreview: {
+                            previewItem = item
+                        }
+                    )
                 }
             }
             .padding(.vertical, 6)
@@ -535,6 +544,7 @@ public struct MarketplaceView: View {
 
 private struct MarketplaceCardView: View {
     let item: OnlineWallpaperItem
+    let onPreview: () -> Void
     @ObservedObject var marketplace = OnlineMarketplaceManager.shared
     @State private var isHovering: Bool = false
     
@@ -554,28 +564,30 @@ private struct MarketplaceCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Thumbnail Preview Container
             ZStack(alignment: .topTrailing) {
-                AsyncImage(url: URL(string: item.previewUrl)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(16/10, contentMode: .fill)
-                    case .failure:
-                        ZStack {
-                            Color.black.opacity(0.4)
-                            Image(systemName: "photo.badge.exclamationmark")
-                                .foregroundColor(.secondary)
+                ZStack {
+                    Color.black.opacity(0.4)
+                    AsyncImage(url: URL(string: item.previewUrl)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        case .failure:
+                            ZStack {
+                                Color.black.opacity(0.4)
+                                Image(systemName: "photo.badge.exclamationmark")
+                                    .foregroundColor(.secondary)
+                            }
+                        case .empty:
+                            ZStack {
+                                Color.black.opacity(0.3)
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        @unknown default:
+                            EmptyView()
                         }
-                        .aspectRatio(16/10, contentMode: .fill)
-                    case .empty:
-                        ZStack {
-                            Color.black.opacity(0.3)
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
-                        .aspectRatio(16/10, contentMode: .fill)
-                    @unknown default:
-                        EmptyView()
                     }
                 }
                 .frame(height: 160)
@@ -616,6 +628,21 @@ private struct MarketplaceCardView: View {
                         .background(Color.purple.opacity(0.85))
                         .foregroundColor(.white)
                         .cornerRadius(6)
+                    
+                    Spacer()
+                    
+                    if isHovering {
+                        Button(action: onPreview) {
+                            Image(systemName: "eye.fill")
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                                .padding(6)
+                                .background(Color.blue.opacity(0.85))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Quick Look / Full Preview")
+                    }
                 }
                 .padding(8)
             }
@@ -716,5 +743,102 @@ private struct MarketplaceCardView: View {
                 isHovering = hover
             }
         }
+    }
+}
+
+// MARK: - Online Wallpaper Preview Modal
+private struct OnlineWallpaperPreviewModal: View {
+    let item: OnlineWallpaperItem
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var marketplace = OnlineMarketplaceManager.shared
+    
+    var isDownloading: Bool {
+        marketplace.downloadingItemIds.contains(item.id)
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.title)
+                        .font(.title2)
+                        .bold()
+                    Text("Source: \(item.provider.rawValue) • \(item.resolutionTag) • \(item.licenseNotice)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
+            // Full Preview Image Canvas
+            ZStack {
+                Color.black.opacity(0.8)
+                
+                AsyncImage(url: URL(string: item.previewUrl)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    case .failure:
+                        VStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.system(size: 32))
+                                .foregroundColor(.orange)
+                            Text("Preview unavailable")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    case .empty:
+                        ProgressView()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            )
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Author: \(item.authorName)")
+                        .font(.caption)
+                        .foregroundColor(.primary)
+                    if let authorUrl = item.authorUrl, let url = URL(string: authorUrl) {
+                        Link("View Creator Profile ↗", destination: url)
+                            .font(.caption2)
+                            .foregroundColor(.blue)
+                    }
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    Task {
+                        _ = await marketplace.downloadAndInstallWallpaper(item, applyImmediately: true)
+                        dismiss()
+                    }
+                }) {
+                    if isDownloading {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Label("Download & Set as Wallpaper", systemImage: "arrow.down.circle.fill")
+                            .fontWeight(.semibold)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 720, minHeight: 520)
     }
 }

@@ -19,6 +19,7 @@ public struct GalleryView: View {
     @State private var selectedCategory: String = "All"
     @State private var showGenAIModal: Bool = false
     @State private var showWebImporter: Bool = false
+    @State private var previewWallpaper: WallpaperItem? = nil
     
     @State private var aiPromptInput: String = "Cyberpunk neon city with glowing rain reflections and particle vortex"
     @State private var aiStyleInput: String = "Neon Cyberpunk"
@@ -198,6 +199,9 @@ public struct GalleryView: View {
                                     WallpaperStorageManager.shared.setActiveWallpaper(wallpaper)
                                     engine.reloadEngine()
                                 },
+                                onPreview: {
+                                    previewWallpaper = wallpaper
+                                },
                                 onDelete: {
                                     WallpaperStorageManager.shared.deleteWallpaper(wallpaper)
                                     engine.reloadEngine()
@@ -254,6 +258,9 @@ public struct GalleryView: View {
         }
         .sheet(isPresented: $showWebImporter) {
             webImporterModal
+        }
+        .sheet(item: $previewWallpaper) { item in
+            FullWallpaperPreviewModal(wallpaper: item)
         }
     }
     
@@ -667,6 +674,7 @@ struct WallpaperCardView: View {
     let wallpaper: WallpaperItem
     let isActive: Bool
     let onSelect: () -> Void
+    let onPreview: () -> Void
     let onDelete: () -> Void
     
     @State private var isHovering = false
@@ -675,13 +683,9 @@ struct WallpaperCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                // Card Visual Preview Layer (Shows Crisp Still Poster Image by Default, Plays Live ONLY on Hover)
+                // Card Visual Preview Layer (Full Aspect Fit with Sleek Backdrop)
                 ZStack {
-                    LinearGradient(
-                        colors: isActive ? [Color.purple.opacity(0.6), Color.blue.opacity(0.8)] : [Color.white.opacity(0.08), Color.white.opacity(0.03)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    Color.black.opacity(0.4)
                     
                     if isHovering {
                         cardVisualPreview
@@ -741,16 +745,33 @@ struct WallpaperCardView: View {
                     .padding(8)
                 }
                 
-                // Hover Overlay Delete Button
-                if isHovering && wallpaper.type != .builtInWeb {
-                    Button(action: onDelete) {
-                        Image(systemName: "trash.fill")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.red.opacity(0.85))
-                            .clipShape(Circle())
+                // Hover Action Buttons: Full Preview & Delete
+                if isHovering {
+                    HStack(spacing: 6) {
+                        Button(action: onPreview) {
+                            Image(systemName: "eye.fill")
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                                .padding(7)
+                                .background(Color.blue.opacity(0.85))
+                                .clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Quick Look / Full Preview")
+                        
+                        if wallpaper.type != .builtInWeb {
+                            Button(action: onDelete) {
+                                Image(systemName: "trash.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(7)
+                                    .background(Color.red.opacity(0.85))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .help("Delete Wallpaper")
+                        }
                     }
-                    .buttonStyle(.plain)
                     .padding(8)
                 }
             }
@@ -791,6 +812,7 @@ struct WallpaperCardView: View {
         if wallpaper.type == .builtInWeb {
             if let url = getBuiltInURL(path: wallpaper.pathOrUrl) {
                 MiniWebPreviewView(url: url)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .disabled(true)
             } else {
                 staticPosterImage
@@ -798,6 +820,7 @@ struct WallpaperCardView: View {
         } else if wallpaper.pathOrUrl.hasSuffix(".html") || wallpaper.type == .webUrl {
             if let url = URL(string: wallpaper.pathOrUrl) ?? URL(fileURLWithPath: wallpaper.pathOrUrl) as URL? {
                 MiniWebPreviewView(url: url)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .disabled(true)
             } else {
                 staticPosterImage
@@ -806,7 +829,8 @@ struct WallpaperCardView: View {
             if let image = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
                 Image(nsImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 staticPosterImage
             }
@@ -814,7 +838,8 @@ struct WallpaperCardView: View {
             if let img = videoThumbnail {
                 Image(nsImage: img)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 staticPosterImage
                     .onAppear { generateVideoFrame() }
@@ -829,11 +854,13 @@ struct WallpaperCardView: View {
             if let img = videoThumbnail {
                 Image(nsImage: img)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
                 Image(nsImage: img)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: wallpaper.thumbnailIcon)
@@ -875,6 +902,136 @@ struct WallpaperCardView: View {
         generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, _, _ in
             if let image = image {
                 let nsImg = NSImage(cgImage: image, size: NSSize(width: 320, height: 180))
+                DispatchQueue.main.async {
+                    self.videoThumbnail = nsImg
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Full Wallpaper Preview Modal
+struct FullWallpaperPreviewModal: View {
+    let wallpaper: WallpaperItem
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var storage = WallpaperStorageManager.shared
+    @ObservedObject var engine = WallpaperEngine.shared
+    @State private var videoThumbnail: NSImage? = nil
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(wallpaper.title)
+                        .font(.title2)
+                        .bold()
+                    Text("\(wallpaper.category) • \(wallpaper.resolutionTag)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            
+            // Large Full Preview Stage
+            ZStack {
+                Color.black.opacity(0.8)
+                
+                if wallpaper.type == .builtInWeb, let url = getBuiltInURL(path: wallpaper.pathOrUrl) {
+                    MiniWebPreviewView(url: url)
+                } else if wallpaper.pathOrUrl.hasSuffix(".html") || wallpaper.type == .webUrl,
+                          let url = URL(string: wallpaper.pathOrUrl) ?? URL(fileURLWithPath: wallpaper.pathOrUrl) as URL? {
+                    MiniWebPreviewView(url: url)
+                } else if wallpaper.type == .image || wallpaper.type == .gif,
+                          let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                } else if wallpaper.type == .video {
+                    if let img = videoThumbnail {
+                        Image(nsImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+                        Image(nsImage: img)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    } else {
+                        ProgressView()
+                    }
+                } else if let img = NSImage(contentsOfFile: wallpaper.pathOrUrl) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            )
+            .onAppear {
+                generateVideoFrame()
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    if !wallpaper.author.isEmpty {
+                        Text("Author / Source: \(wallpaper.author)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Text(wallpaper.description)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    storage.setActiveWallpaper(wallpaper)
+                    engine.reloadEngine()
+                    dismiss()
+                }) {
+                    Label("Apply as Desktop Wallpaper", systemImage: "checkmark.circle.fill")
+                        .fontWeight(.semibold)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 720, minHeight: 520)
+    }
+    
+    private func getBuiltInURL(path: String) -> URL? {
+        if let resourceURL = Bundle.module.url(forResource: path, withExtension: nil, subdirectory: "Resources/Wallpapers") {
+            return resourceURL
+        }
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
+        let fullPath = appSupport.appendingPathComponent("MacAuraLive/Wallpapers/\(path)")
+        if FileManager.default.fileExists(atPath: fullPath.path) {
+            return fullPath
+        }
+        return nil
+    }
+    
+    private func generateVideoFrame() {
+        let videoPath = (FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) ? wallpaper.pathOrUrl : nil)
+            ?? Bundle.module.path(forResource: wallpaper.pathOrUrl, ofType: nil, inDirectory: "Resources/Wallpapers")
+            ?? wallpaper.pathOrUrl
+        let asset = AVAsset(url: URL(fileURLWithPath: videoPath))
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        let time = CMTime(seconds: 1.0, preferredTimescale: 60)
+        generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, _, _ in
+            if let image = image {
+                let nsImg = NSImage(cgImage: image, size: NSSize(width: 640, height: 360))
                 DispatchQueue.main.async {
                     self.videoThumbnail = nsImg
                 }

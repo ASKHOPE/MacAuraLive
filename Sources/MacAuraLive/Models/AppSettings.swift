@@ -70,6 +70,22 @@ public class AppSettings: ObservableObject {
         didSet { UserDefaults.standard.set(isAdminUnlocked, forKey: "isAdminUnlocked") }
     }
     
+    // Theme & Appearance Settings (macOS Native Following, Transparency & Day/Night Theming)
+    @Published public var appTheme: String { // "system", "dark", "light"
+        didSet {
+            UserDefaults.standard.set(appTheme, forKey: "appTheme")
+            applyAppearanceTheme()
+        }
+    }
+    
+    @Published public var enableTransparency: Bool {
+        didSet { UserDefaults.standard.set(enableTransparency, forKey: "enableTransparency") }
+    }
+    
+    @Published public var autoDayNightWallpapers: Bool {
+        didSet { UserDefaults.standard.set(autoDayNightWallpapers, forKey: "autoDayNightWallpapers") }
+    }
+    
     // AI API Keys & Configurations (Secured via macOS Keychain)
     @Published public var claudeApiKey: String {
         didSet { KeychainManager.shared.saveKey(claudeApiKey, forAccount: "claudeApiKey") }
@@ -141,9 +157,14 @@ public class AppSettings: ObservableObject {
         self.audioVolume = defaults.object(forKey: "audioVolume") as? Double ?? 0.8
         self.isMuted = defaults.object(forKey: "isMuted") as? Bool ?? true
         self.defaultAspectFill = defaults.object(forKey: "defaultAspectFill") as? Bool ?? true
-        self.wallpaperPlacement = defaults.string(forKey: "wallpaperPlacement") ?? "fill"
+        self.wallpaperPlacement = defaults.string(forKey: "wallpaperPlacement") ?? "stretch"
         self.wallpaperZoom = defaults.object(forKey: "wallpaperZoom") as? Double ?? 1.0
         self.isAdminUnlocked = defaults.bool(forKey: "isAdminUnlocked")
+        
+        // Theme & Appearance
+        self.appTheme = defaults.string(forKey: "appTheme") ?? "system"
+        self.enableTransparency = defaults.object(forKey: "enableTransparency") as? Bool ?? true
+        self.autoDayNightWallpapers = defaults.object(forKey: "autoDayNightWallpapers") as? Bool ?? true
         
         // Retrieve credentials securely from macOS Keychain
         self.claudeApiKey = KeychainManager.shared.getKey(forAccount: "claudeApiKey")
@@ -162,8 +183,42 @@ public class AppSettings: ObservableObject {
         self.pexelsApiKey = KeychainManager.shared.getKey(forAccount: "pexelsApiKey")
         self.enableMarketplacePlugins = defaults.object(forKey: "enableMarketplacePlugins") as? Bool ?? true
         
-        // Populate status immediately after all properties are set
-        DispatchQueue.main.async { self.refreshLaunchAtLoginStatus() }
+        // Populate status and apply theme immediately
+        DispatchQueue.main.async {
+            self.refreshLaunchAtLoginStatus()
+            self.applyAppearanceTheme()
+            self.setupSystemAppearanceListener()
+        }
+    }
+    
+    public func applyAppearanceTheme() {
+        DispatchQueue.main.async {
+            switch self.appTheme {
+            case "dark":
+                NSApp.appearance = NSAppearance(named: .darkAqua)
+            case "light":
+                NSApp.appearance = NSAppearance(named: .aqua)
+            default:
+                NSApp.appearance = nil // Follow macOS native
+            }
+        }
+    }
+    
+    private func setupSystemAppearanceListener() {
+        DistributedNotificationCenter.default().addObserver(
+            forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleSystemAppearanceChange()
+        }
+    }
+    
+    private func handleSystemAppearanceChange() {
+        guard autoDayNightWallpapers else { return }
+        let isDarkMode = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        print("[AppSettings] macOS Appearance changed. Dark mode active: \(isDarkMode)")
+        WallpaperStorageManager.shared.adaptWallpaperForDayNight(isDarkMode: isDarkMode)
     }
     
     private func updateLaunchAtLogin(enabled: Bool) {

@@ -138,9 +138,9 @@ public struct SettingsView: View {
                             .foregroundColor(.secondary)
                         
                         Picker("Placement Mode", selection: $settings.wallpaperPlacement) {
+                            Text("Stretch to Fill Screen (Default)").tag("stretch")
                             Text("Fill Screen (Aspect Cover)").tag("fill")
                             Text("Fit to Screen (Aspect Contain)").tag("fit")
-                            Text("Stretch to Fill Screen").tag("stretch")
                             Text("Center (Original Size)").tag("center")
                             Text("Custom Zoom Level").tag("zoom")
                         }
@@ -441,64 +441,43 @@ public struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        VStack(spacing: 12) {
+                        VStack(spacing: 14) {
                             // Unsplash
-                            HStack {
-                                Image(systemName: "camera.fill")
-                                    .foregroundColor(.blue)
-                                    .frame(width: 20)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Unsplash API Key")
-                                        .font(.body)
-                                    Text("Free 4K Photography Assets")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                SecureField("Unsplash Access Key", text: $settings.unsplashApiKey)
-                                    .textFieldStyle(.roundedBorder)
-                                    .frame(width: 220)
-                            }
+                            APIKeyCardRow(
+                                title: "Unsplash API Key",
+                                subtitle: "Free 4K curated photography & ultra-HD static wallpapers",
+                                iconName: "camera.fill",
+                                iconColor: .blue,
+                                placeholder: "Enter Unsplash Access Key",
+                                key: $settings.unsplashApiKey,
+                                helpUrl: "https://unsplash.com/developers"
+                            )
                             
                             // Pixabay
-                            HStack {
-                                Image(systemName: "photo.stack.fill")
-                                    .foregroundColor(.green)
-                                    .frame(width: 20)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Pixabay API Key")
-                                        .font(.body)
-                                    Text("HD/4K Video Loops & Audio Wallpapers")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                SecureField("Pixabay API Key", text: $settings.pixabayApiKey)
-                                    .textFieldStyle(.roundedBorder)
-                                    .frame(width: 220)
-                            }
+                            APIKeyCardRow(
+                                title: "Pixabay API Key",
+                                subtitle: "Royalty-free HD/4K video motion loops & audio wallpapers",
+                                iconName: "photo.stack.fill",
+                                iconColor: .green,
+                                placeholder: "Enter Pixabay API Key",
+                                key: $settings.pixabayApiKey,
+                                helpUrl: "https://pixabay.com/api/docs/"
+                            )
                             
                             // Pexels
-                            HStack {
-                                Image(systemName: "film.stack.fill")
-                                    .foregroundColor(.teal)
-                                    .frame(width: 20)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Pexels API Key")
-                                        .font(.body)
-                                    Text("Curated 4K Photos & Motion Loops")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                SecureField("Pexels API Key", text: $settings.pexelsApiKey)
-                                    .textFieldStyle(.roundedBorder)
-                                    .frame(width: 220)
-                            }
+                            APIKeyCardRow(
+                                title: "Pexels API Key",
+                                subtitle: "Trending 4K photos & cinematic video wallpaper loops",
+                                iconName: "film.stack.fill",
+                                iconColor: .teal,
+                                placeholder: "Enter Pexels API Key",
+                                key: $settings.pexelsApiKey,
+                                helpUrl: "https://www.pexels.com/api/"
+                            )
                         }
                         .padding(14)
-                        .background(Color.white.opacity(0.04))
-                        .cornerRadius(10)
+                        .background(Color.white.opacity(0.03))
+                        .cornerRadius(12)
                         
                         HStack(spacing: 8) {
                             Image(systemName: "lock.shield.fill")
@@ -855,6 +834,160 @@ public struct SettingsView: View {
             let count = WallpaperStorageManager.shared.importFolderWallpapers(folderURL: folderURL)
             engine.reloadEngine()
             syncStatusMessage = "Monitored folder set. Imported \(count) file(s)."
+        }
+    }
+}
+
+// MARK: - Dedicated Secure API Key Card Row Component
+struct APIKeyCardRow: View {
+    let title: String
+    let subtitle: String
+    let iconName: String
+    let iconColor: Color
+    let placeholder: String
+    @Binding var key: String
+    let helpUrl: String?
+    
+    @State private var isRevealed: Bool = false
+    @State private var tempKey: String = ""
+    @State private var showSavedBanner: Bool = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Header Info & Status Badge
+            HStack(alignment: .center, spacing: 10) {
+                Image(systemName: iconName)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(iconColor)
+                    .frame(width: 28, height: 28)
+                    .background(iconColor.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) {
+                        Text(title)
+                            .font(.system(size: 13, weight: .semibold))
+                        
+                        if !key.isEmpty {
+                            HStack(spacing: 3) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 8))
+                                Text("CONFIGURED")
+                            }
+                            .font(.system(size: 9, weight: .bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.85))
+                            .foregroundColor(.white)
+                            .cornerRadius(4)
+                        } else {
+                            Text("OPTIONAL / UNSET")
+                                .font(.system(size: 9, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.white.opacity(0.1))
+                                .foregroundColor(.secondary)
+                                .cornerRadius(4)
+                        }
+                    }
+                    
+                    Text(subtitle)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                if let urlString = helpUrl, let url = URL(string: urlString) {
+                    Link("Get Key ↗", destination: url)
+                        .font(.caption2)
+                        .foregroundColor(.blue)
+                }
+            }
+            
+            // Input Field & Action Buttons (Save Key & Clear Key)
+            HStack(spacing: 8) {
+                // Key Input Field with Show/Hide Eye Toggle
+                HStack {
+                    if isRevealed {
+                        TextField(placeholder, text: $tempKey)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 12, design: .monospaced))
+                    } else {
+                        SecureField(placeholder, text: $tempKey)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 12, design: .monospaced))
+                    }
+                    
+                    Button(action: { isRevealed.toggle() }) {
+                        Image(systemName: isRevealed ? "eye.slash.fill" : "eye.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help(isRevealed ? "Hide Secret Key" : "Reveal Secret Key")
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color.black.opacity(0.25))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+                
+                // Save Key Button
+                Button(action: {
+                    key = tempKey
+                    withAnimation {
+                        showSavedBanner = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        withAnimation {
+                            showSavedBanner = false
+                        }
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: showSavedBanner ? "checkmark" : "square.and.arrow.down.fill")
+                        Text(showSavedBanner ? "Saved!" : "Save Key")
+                    }
+                    .font(.caption)
+                    .fontWeight(.medium)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(showSavedBanner ? .green : .blue)
+                .controlSize(.regular)
+                .disabled(tempKey == key && !key.isEmpty)
+                
+                // Clear Key Button
+                Button(action: {
+                    tempKey = ""
+                    key = ""
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "trash.fill")
+                        Text("Clear")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
+                .disabled(key.isEmpty && tempKey.isEmpty)
+            }
+        }
+        .padding(12)
+        .background(Color.white.opacity(0.04))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .onAppear {
+            tempKey = key
+        }
+        .onChange(of: key) { newKey in
+            tempKey = newKey
         }
     }
 }
