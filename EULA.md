@@ -1,26 +1,26 @@
-# MacAuraLive End User License Agreement (EULA)
+# MacAuraLive End User License & Usage Agreement
 
-**Last Updated: August 14, 2026**
+**Last Updated: August 17, 2026**
 
-IMPORTANT: PLEASE READ THIS END USER LICENSE AGREEMENT ("EULA") CAREFULLY BEFORE DOWNLOADING, INSTALLING, OR USING MACAURA LIVE WALLPAPER ENGINE FOR MACOS ("SOFTWARE"). BY INSTALLING OR USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE, DO NOT INSTALL OR USE THE SOFTWARE.
+IMPORTANT: PLEASE READ THIS USER AGREEMENT ("AGREEMENT") BEFORE DOWNLOADING, COMPILING, INSTALLING, OR USING MACAURA LIVE WALLPAPER ENGINE FOR MACOS ("SOFTWARE"). BY INSTALLING OR USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS AGREEMENT.
 
 ---
 
-## 1. Grant of License
+## 1. Open Source License Grant
 
-Subject to the terms of this EULA and the MIT License, the developers of MacAuraLive grant you a revocable, non-exclusive, non-transferable, limited right to install and use the Software on Apple-branded hardware devices running macOS 13.0 or later that you own or control.
+MacAuraLive's source code and compiled binaries are released under the terms of the **MIT License** (set forth in the [LICENSE](LICENSE) file). You are free to use, study, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software in accordance with the MIT License.
 
 ---
 
 ## 2. Online Features, Internet Connectivity & Third-Party Services
 
-1. **Internet Access Requirements:** While MacAuraLive's core engine, built-in wallpapers, and local playback function 100% offline, an active internet connection is required to search, preview, and download assets from online Marketplace plugins (Unsplash, Pixabay, Pexels) and to execute AI Wallpaper Generation queries.
+1. **Offline & Online Modes:** While MacAuraLive's core engine, built-in wallpapers, and local media playback function 100% offline, an active internet connection is required to search, preview, and download assets from online Marketplace plugins (Unsplash, Pixabay, Pexels) and to execute AI Wallpaper Generation queries.
 2. **Third-Party Service Availability:** The Software connects directly to third-party APIs. MacAuraLive makes no guarantee regarding the uptime, uninterrupted availability, content accuracy, or rate limits imposed by third-party platforms.
 3. **Local Storage of Downloaded Content:** Downloaded media items are stored directly on your local disk in your user documents folder (`~/Documents/MacAuraLiveApp/`). You are responsible for managing available storage capacity on your device.
 
 ---
 
-## 3. Restrictions on Use
+## 3. Acceptable Use & User Responsibilities
 
 You agree that you will NOT:
 1. Use the Software for any illegal purpose or in violation of any local, state, national, or international law.
@@ -32,9 +32,9 @@ You agree that you will NOT:
 
 ## 4. Intellectual Property Rights
 
-- **The Software:** The structure, organization, code, UI design, and visual branding of MacAuraLive are the intellectual property of the MacAuraLive open-source contributors.
+- **The Software Codebase:** Licensed under the MIT License.
 - **User Content:** You retain all ownership rights to any custom video loops, graphics, GIFs, static images, or HTML5 shaders you import into the Software. You are solely responsible for obtaining necessary licenses or permissions for any content you display using the Software.
-- **Marketplace Content:** Content fetched or downloaded through Unsplash, Pixabay, or Pexels plugins is licensed under the respective provider licenses (Unsplash License, Pixabay Content License, Pexels License).
+- **Third-Party & Marketplace Content:** Content fetched or downloaded through Unsplash, Pixabay, or Pexels plugins is licensed under the respective provider licenses (Unsplash License, Pixabay Content License, Pexels License). See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for details.
 
 ---
 
@@ -60,12 +60,6 @@ You represent and warrant that:
 
 ---
 
-## 8. Termination
+## 8. Entire Agreement & Severability
 
-This EULA is effective until terminated. Your rights under this license will terminate automatically without notice if you fail to comply with any term(s) of this EULA. Upon termination, you must cease all use of the Software and destroy all copies in your possession.
-
----
-
-## 9. Entire Agreement & Severability
-
-This EULA, together with the [MIT License](LICENSE), [Terms of Service](TERMS_OF_SERVICE.md), and [Privacy Policy](PRIVACY_POLICY.md), constitutes the entire agreement between you and the developers regarding the Software. If any provision of this EULA is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect.
+This Agreement, together with the [MIT License](LICENSE), [Terms of Service](TERMS_OF_SERVICE.md), [Privacy Policy](PRIVACY_POLICY.md), and [Third-Party Licenses](THIRD_PARTY_LICENSES.md), constitutes the entire agreement between you and the developers regarding the Software. If any provision is held to be invalid or unenforceable, the remaining provisions shall remain in full force and effect.

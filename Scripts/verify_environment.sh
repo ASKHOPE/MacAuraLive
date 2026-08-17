@@ -29,6 +29,7 @@ REQUIRED_FILES=(
     "Sources/MacAuraLive/MacAuraLiveApp.swift"
     "Sources/MacAuraLive/Resources/Assets/AppIcon.png"
     "Sources/MacAuraLive/Resources/Assets/StatusBarIcon.png"
+    "Sources/MacAuraLive/Resources/PrivacyInfo.xcprivacy"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -39,7 +40,7 @@ for file in "${REQUIRED_FILES[@]}"; do
 done
 
 if [ $ERRORS -eq 0 ]; then
-    echo "  ✅ All core source files & branding assets verified."
+    echo "  ✅ All core source files, branding assets & Apple Privacy Manifest verified."
 fi
 
 # 3. Legal & Open Source Compliance Check
@@ -51,6 +52,7 @@ LEGAL_DOCS=(
     "PRIVACY_POLICY.md"
     "SECURITY.md"
     "DMCA.md"
+    "THIRD_PARTY_LICENSES.md"
     "README.md"
 )
 
@@ -62,7 +64,7 @@ for doc in "${LEGAL_DOCS[@]}"; do
 done
 
 if [ $ERRORS -eq 0 ]; then
-    echo "  ✅ Complete 6-part legal compliance suite verified."
+    echo "  ✅ Complete 7-part legal compliance & third-party licensing suite verified."
 fi
 
 # 4. Version & Naming Synchronization Audit

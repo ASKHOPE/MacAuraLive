@@ -19,7 +19,7 @@ mkdir -p "$BUILD_DIR/Resources"
 cp ".build/release/MacAuraLive" "$BUILD_DIR/MacOS/MacAuraLive"
 chmod +x "$BUILD_DIR/MacOS/MacAuraLive"
 
-# Copy Resources
+# Copy Resources (including PrivacyInfo.xcprivacy, Assets, Runtime, Wallpapers)
 if [ -d "Sources/MacAuraLive/Resources" ]; then
     cp -R "Sources/MacAuraLive/Resources/" "$BUILD_DIR/Resources/"
 fi
@@ -66,6 +66,8 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
     <true/>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>MacAuraLive checks real-time window occlusion to automatically pause live wallpapers during full-screen apps and games, preserving GPU energy.</string>
 </dict>
 </plist>
 EOF

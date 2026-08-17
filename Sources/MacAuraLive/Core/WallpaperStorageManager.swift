@@ -82,7 +82,6 @@ public class WallpaperStorageManager: ObservableObject {
         
         let staticDir = root.appendingPathComponent("staticwallpaper", isDirectory: true)
         let liveDir = root.appendingPathComponent("livewallpaper", isDirectory: true)
-        let codeDir = root.appendingPathComponent("animatedcode", isDirectory: true)
         
         // Bundle copy helper
         func copyResource(subpath: String, to destinationURL: URL) {
@@ -176,7 +175,7 @@ public class WallpaperStorageManager: ObservableObject {
            let data = try? Data(contentsOf: metaFileURL),
            let saved = try? JSONDecoder().decode([WallpaperItem].self, from: data) {
             let builtInIds = Set(items.map { $0.id })
-            var customItems = saved.filter { !builtInIds.contains($0.id) }
+            let customItems = saved.filter { !builtInIds.contains($0.id) }
             
             // Removed expensive audio re-verification that triggered repeated permission prompts
             

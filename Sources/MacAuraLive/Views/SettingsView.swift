@@ -940,21 +940,21 @@ public struct SettingsView: View {
                 Divider()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("End User License Agreement (EULA)")
+                        Text("Open-Source License Grant (MIT)")
                             .font(.headline)
-                        Text("MacAuraLive Live Wallpaper is licensed, not sold. Subject to your compliance with this Agreement, you are granted a non-exclusive, non-transferable, revocable license to install and execute the Software on compatible macOS devices owned or controlled by you.")
+                        Text("MacAuraLive source code and binaries are released under the MIT License. You are granted a free, worldwide, royalty-free license to use, study, modify, merge, publish, distribute, sublicense, and sell copies of the software, subject to the conditions set forth in the LICENSE file.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Text("Open-Source & Platform Framework Acknowledgments")
+                        Text("Third-Party Media & Content Platform Licenses")
                             .font(.headline)
-                        Text("MacAuraLive incorporates native macOS and open-source rendering technologies:\n• Apple Accelerate Framework (vDSP FFT real-time DSP processing)\n• Apple ScreenCaptureKit & AVFoundation (Native macOS Media Subsystems)\n• WebGL 2.0 & Three.js Canvas Shader Runtimes (MIT License)")
+                        Text("Bundled video loops and static wallpapers are credited and used under their respective creator licenses (Pixabay Content License, Unsplash License, NASA Public Domain). See THIRD_PARTY_LICENSES.md for full author credits and attribution links.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        Text("Restrictions")
+                        Text("Native Apple Frameworks")
                             .font(.headline)
-                        Text("You may not reverse-engineer, decompile, disassemble, rent, lease, distribute, or create derivative commercial works based upon MacAuraLive except as expressly permitted under open-source license components.")
+                        Text("MacAuraLive is built using native Apple macOS subsystems including SwiftUI, AppKit, AVFoundation, WebKit, CryptoKit, and Security.framework.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

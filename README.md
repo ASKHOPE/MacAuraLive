@@ -257,9 +257,10 @@ window.macAura.onUpdate(function(state) {
 | Document | Description |
 | :--- | :--- |
 | **[LICENSE](LICENSE)** | Open-Source MIT License Grant |
-| **[EULA.md](EULA.md)** | End User License Agreement & Software Grant |
+| **[EULA.md](EULA.md)** | End User License & Usage Agreement |
 | **[TERMS_OF_SERVICE.md](TERMS_OF_SERVICE.md)** | Terms of Service, User Responsibilities & Media Copyright Rules |
 | **[PRIVACY_POLICY.md](PRIVACY_POLICY.md)** | 100% On-Device Privacy Policy & Permission Usage |
+| **[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)** | Third-Party Media, Platform APIs & Framework Licenses |
 | **[SECURITY.md](SECURITY.md)** | Security Architecture, Vulnerability Reporting & Keychain Protection |
 | **[DMCA.md](DMCA.md)** | DMCA Copyright Policy & Takedown Notice Procedures |
 

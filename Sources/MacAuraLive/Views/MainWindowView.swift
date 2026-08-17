@@ -300,9 +300,7 @@ public struct MainWindowView: View {
                 case .userGuide:
                     UserGuideView()
                 case .aiConfig:
-                    AdminGateView(featureTitle: "AI Workshop & Generation Playground") {
-                        AIConfigurationView()
-                    }
+                    AIConfigurationView()
                 case .settings:
                     SettingsView()
                 }
