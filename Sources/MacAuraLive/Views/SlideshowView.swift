@@ -130,6 +130,9 @@ public struct SlideshowView: View {
                             }
                         }
                     }
+                    .padding(20)
+                    .macaCardStyle(cornerRadius: 16)
+
                     // ── Card 2: Slideshow Playlist Image Picker ──────────────────────
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
@@ -178,8 +181,7 @@ public struct SlideshowView: View {
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(Color.white.opacity(0.06))
-                            .cornerRadius(8)
+                            .macaSubcardStyle(cornerRadius: 8)
                             .frame(maxWidth: 280)
 
                             Spacer()
@@ -220,14 +222,9 @@ public struct SlideshowView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
+                    .macaCardStyle(cornerRadius: 16)
 
-                    // ── Card 2: Time-Based Scheduled Rules ────────────────────
+                    // ── Card 3: Time-Based Scheduled Rules ────────────────────
                     VStack(alignment: .leading, spacing: 18) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
@@ -266,12 +263,7 @@ public struct SlideshowView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
+                    .macaCardStyle(cornerRadius: 16)
                 }
             }
         }
@@ -440,12 +432,7 @@ private struct ScheduleRuleRow: View {
             .buttonStyle(.plain)
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
+        .macaSubcardStyle(cornerRadius: 12)
     }
 }
 

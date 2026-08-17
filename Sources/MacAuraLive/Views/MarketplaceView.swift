@@ -136,12 +136,7 @@ public struct MarketplaceView: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.white.opacity(0.06))
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
+                .macaSubcardStyle(cornerRadius: 8)
                 
                 Button { showApiKeyModal = true } label: {
                     Label("API Keys", systemImage: "key.fill")
@@ -179,12 +174,12 @@ public struct MarketplaceView: View {
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedProvider == prov ? Color.accentColor : Color.white.opacity(0.06))
+                            .background(marketplace.selectedProvider == prov ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                             .foregroundColor(marketplace.selectedProvider == prov ? .white : .primary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedProvider == prov ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(marketplace.selectedProvider == prov ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
@@ -205,12 +200,12 @@ public struct MarketplaceView: View {
                             .fontWeight(marketplace.selectedMediaTypeFilter == nil ? .bold : .medium)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == nil ? Color.accentColor : Color.white.opacity(0.06))
+                            .background(marketplace.selectedMediaTypeFilter == nil ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                             .foregroundColor(marketplace.selectedMediaTypeFilter == nil ? .white : .primary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == nil ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(marketplace.selectedMediaTypeFilter == nil ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -224,12 +219,12 @@ public struct MarketplaceView: View {
                             .fontWeight(marketplace.selectedMediaTypeFilter == .image ? .bold : .medium)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .image ? Color.accentColor : Color.white.opacity(0.06))
+                            .background(marketplace.selectedMediaTypeFilter == .image ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                             .foregroundColor(marketplace.selectedMediaTypeFilter == .image ? .white : .primary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == .image ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(marketplace.selectedMediaTypeFilter == .image ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -243,12 +238,12 @@ public struct MarketplaceView: View {
                             .fontWeight(marketplace.selectedMediaTypeFilter == .video ? .bold : .medium)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .video ? Color.accentColor : Color.white.opacity(0.06))
+                            .background(marketplace.selectedMediaTypeFilter == .video ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                             .foregroundColor(marketplace.selectedMediaTypeFilter == .video ? .white : .primary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == .video ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(marketplace.selectedMediaTypeFilter == .video ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -269,9 +264,13 @@ public struct MarketplaceView: View {
                                 .fontWeight(marketplace.activeTag == tag ? .bold : .medium)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .background(marketplace.activeTag == tag ? Color.white.opacity(0.2) : Color.white.opacity(0.04))
-                                .foregroundColor(marketplace.activeTag == tag ? .white : .secondary)
+                                .background(marketplace.activeTag == tag ? Color.accentColor : Color(NSColor.controlBackgroundColor))
+                                .foregroundColor(marketplace.activeTag == tag ? .white : .primary)
                                 .cornerRadius(6)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(marketplace.activeTag == tag ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                )
                         }
                         .buttonStyle(.plain)
                     }
@@ -280,8 +279,7 @@ public struct MarketplaceView: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
-        .cornerRadius(14)
+        .macaSubcardStyle(cornerRadius: 14)
     }
     
     // MARK: - Wallpapers Grid
@@ -508,13 +506,12 @@ public struct MarketplaceView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("5. Local Machine Storage & Offline Persistence")
                             .font(.headline)
-                        Text("All downloaded wallpapers are saved directly on your local device under '~/Documents/MacAuraLiveApp/' in their respective 'livewallpaper', 'staticwallpaper', and 'gif' folders. Once downloaded, wallpapers function 100% offline without recurring network requests.")
+                        Text("All downloaded wallpapers are saved directly on your local device under '~/Library/Application Support/MacAuraLive/Media/' in their respective 'livewallpaper', 'staticwallpaper', and 'gif' folders. Once downloaded, wallpapers function 100% offline without recurring network requests.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     .padding(14)
-                    .background(Color.white.opacity(0.04))
-                    .cornerRadius(10)
+                    .macaSubcardStyle(cornerRadius: 10)
                 }
             }
         }
@@ -735,14 +732,8 @@ private struct MarketplaceCardView: View {
                     }
                 }
             }
-            .padding(12)
         }
-        .background(Color.white.opacity(isHovering ? 0.1 : 0.05))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(isHovering ? 0.25 : 0.08), lineWidth: 1)
-        )
+        .macaCardStyle(cornerRadius: 12)
         .onHover { hover in
             withAnimation(.easeInOut(duration: 0.15)) {
                 isHovering = hover

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# MacAuraLive DMG Installer Builder Script (Apple Silicon Native)
+# MacAuraLive DMG Installer Builder Script (Universal 2: Apple Silicon & Intel)
 set -e
 
-echo "🚀 Packaging MacAuraLive DMG Installer for Apple Silicon..."
+echo "🚀 Packaging MacAuraLive Universal 2 DMG Installer (Apple Silicon & Intel)..."
 
-# Ensure release build exists
+# Ensure universal release build exists
 bash Scripts/build_app.sh
 
-DMG_OUTPUT="build/MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg"
+DMG_OUTPUT="build/MacAuraLive_v1.8.0_Universal_Installer.dmg"
 DMG_STAGING="build/dmg_staging"
 DMG_VOLUME_NAME="MacAuraLive Installer"
 SOURCE_APP="build/MacAuraLive.app"
@@ -38,16 +38,17 @@ rm -rf "$DMG_STAGING"
 
 # Generate cryptographic checksums
 echo "🔑 Generating SHA-256 and MD5 checksum files..."
-DMG_FILENAME="MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg"
+DMG_FILENAME="MacAuraLive_v1.8.0_Universal_Installer.dmg"
 cd build
 shasum -a 256 "$DMG_FILENAME" > "${DMG_FILENAME}.sha256"
 md5 -r "$DMG_FILENAME" > "${DMG_FILENAME}.md5"
 
 cat << EOF > CHECKSUMS.txt
 ===================================================================
- MacAuraLive v1.6.0 Official Release Checksums
+ MacAuraLive v1.8.0 Official Universal Release Checksums
 ===================================================================
 File: $DMG_FILENAME
+Architecture: Universal 2 (Apple Silicon ARM64 + Intel x86_64)
 
 SHA-256:
 $(cat "${DMG_FILENAME}.sha256")
@@ -59,5 +60,5 @@ EOF
 
 cd ..
 
-echo "✅ DMG Installer created successfully at: $DMG_OUTPUT"
+echo "✅ Universal DMG Installer created successfully at: $DMG_OUTPUT"
 echo "✅ Checksum files generated: ${DMG_OUTPUT}.sha256, ${DMG_OUTPUT}.md5, build/CHECKSUMS.txt"

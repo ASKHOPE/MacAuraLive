@@ -32,12 +32,7 @@ public struct DisplayManagerView: View {
                     .toggleStyle(.switch)
             }
             .padding(18)
-            .background(Color.white.opacity(0.06))
-            .cornerRadius(14)
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-            )
+            .macaCardStyle(cornerRadius: 14)
             
             Text("Active Monitors (\(engine.displays.count))")
                 .font(.title3)
@@ -139,11 +134,6 @@ public struct DisplayCardView: View {
             Spacer()
         }
         .padding(20)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-        )
+        .macaCardStyle(cornerRadius: 16)
     }
 }

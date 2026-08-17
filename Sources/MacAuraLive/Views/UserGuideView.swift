@@ -92,12 +92,12 @@ public struct UserGuideView: View {
                     "5. Click 'Download & Set' on any wallpaper to download the full 4K asset directly to your Mac and apply it instantly."
                 ],
                 tips: [
-                    "All downloads are saved locally to your Mac at ~/Documents/MacAuraLiveApp/ so you can enjoy them forever offline without repeated downloads.",
+                    "All downloads are saved locally to your Mac at ~/Library/Application Support/MacAuraLive/Media/ so you can enjoy them forever offline without repeated downloads.",
                     "Obtaining API keys is 100% free: click 'Get Free Key ↗' next to each provider to generate your personal key in 30 seconds."
                 ],
                 shortcutsOrPaths: [
-                    (label: "Videos Storage Path", value: "~/Documents/MacAuraLiveApp/livewallpaper/"),
-                    (label: "Photos Storage Path", value: "~/Documents/MacAuraLiveApp/staticwallpaper/"),
+                    (label: "Videos Storage Path", value: "~/Library/Application Support/MacAuraLive/Media/livewallpaper/"),
+                    (label: "Photos Storage Path", value: "~/Library/Application Support/MacAuraLive/Media/staticwallpaper/"),
                     (label: "Key Security", value: "macOS Keychain Hardware Enclave (AES-256 GCM)")
                 ]
             ),
@@ -247,29 +247,82 @@ public struct UserGuideView: View {
             ),
             
             // 9. Troubleshooting & System Permissions
+            // Multi-Selection & Batch Management
             GuideTopic(
-                id: "troubleshoot",
+                id: "multiselect",
+                category: .quickStart,
+                title: "Multi-Selection & Batch Media Operations",
+                summary: "Select multiple wallpapers simultaneously to delete, clear, or manage your library in bulk.",
+                badge: "NEW v1.8.0",
+                badgeColor: .blue,
+                steps: [
+                    "1. Open either the 'Live Wallpapers' or 'Static Wallpapers' tab.",
+                    "2. Click the 'Select Items' button located in the top header action bar.",
+                    "3. Click on any wallpaper cards to toggle their selection, or click 'Select All' to highlight all custom items at once.",
+                    "4. The header action bar displays your selection count (e.g. '3 of 12 selected').",
+                    "5. Click 'Clear Selected (X)' to permanently batch remove the chosen wallpapers and their local disk files, or click 'Done' to exit selection mode."
+                ],
+                tips: [
+                    "Built-in default wallpapers cannot be deleted to ensure your app always has a stable fallback wallpaper.",
+                    "Card footers dynamically display both the resolution tag and exact file size (e.g., '4K UHD • 12.4 MB')."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Multi-Select Toggle", value: "Header 'Select Items' Button"),
+                    (label: "Batch Delete Action", value: "Header 'Clear Selected (X)' Button")
+                ]
+            ),
+            
+            // Duplicate Scanner, Backup & Granular Reset
+            GuideTopic(
+                id: "datamanagement",
+                category: .performance,
+                title: "Duplicate Media Scanner, Settings Backup & Targeted Reset",
+                summary: "Find and remove duplicate files, export/import JSON configurations, or perform granular resets.",
+                badge: "NEW v1.8.0",
+                badgeColor: .purple,
+                steps: [
+                    "1. Open Settings > Duplicate Media Scanner & Cleaner and click 'Scan for Duplicates'.",
+                    "2. The SHA-256 byte scanner detects duplicate video, image, or GIF files and calculates the total wasted storage space.",
+                    "3. Click 'Clean All Duplicates' to reclaim disk space in 1 click (keeps the primary original copy).",
+                    "4. In Settings > Settings Backup & Migration, click 'Export Settings (JSON)...' to save a portable backup of all preferences and display assignments.",
+                    "5. To restore your setup on any Mac, click 'Import Settings (JSON)...' and choose your backup file.",
+                    "6. In Settings > Data Management & Reset, use 'Reset Only Media' to wipe custom wallpapers without touching settings, 'Reset Only Preferences' to reset options without losing media, or 'Full Factory Reset' for a complete wipe."
+                ],
+                tips: [
+                    "Reset Only Media clears ~/Library/Application Support/MacAuraLive/Media/ and re-extracts the bundled high-resolution wallpaper pack without wiping API keys or preferences.",
+                    "Exported JSON backups are lightweight (<100 KB) and human-readable."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Duplicate Scanner", value: "Settings > Duplicate Media Scanner & Cleaner"),
+                    (label: "Settings Backup", value: "Settings > Settings Backup & Migration"),
+                    (label: "Media Reset", value: "Settings > Reset Only Media")
+                ]
+            ),
+            
+            // 9. Help, Permissions & FAQ
+            GuideTopic(
+                id: "faq",
                 category: .troubleshoot,
                 title: "Troubleshooting, Permissions & Local Storage Directory Guide",
                 summary: "Common questions, file permissions, local storage paths, and reset instructions.",
                 badge: "HELP & FAQ",
                 badgeColor: .red,
                 steps: [
-                    "1. Where are my wallpapers stored? All user files and marketplace downloads are stored in ~/Documents/MacAuraLiveApp/ divided into livewallpaper/, staticwallpaper/, gif/, and animatedcode/.",
-                    "2. How do I add my own video loops or images? Simply copy your MP4, MOV, GIF, or JPEG files into the respective subfolder in ~/Documents/MacAuraLiveApp/, then click 'Sync Now' in Settings > Monitored Local Folder.",
+                    "1. Where are my wallpapers stored? All user files and marketplace downloads are stored in ~/Library/Application Support/MacAuraLive/Media/ divided into livewallpaper/, staticwallpaper/, gif/, and animatedcode/.",
+                    "2. How do I add my own video loops or images? Simply copy your MP4, MOV, GIF, or JPEG files into the respective subfolder in ~/Library/Application Support/MacAuraLive/Media/, then click 'Sync Now' in Settings > Monitored Local Folder.",
                     "3. Screen Recording Permission: Required exclusively for full-screen application detection so the engine can pause during gaming. If needed, toggle it in System Settings > Privacy & Security > Screen Recording.",
                     "4. Launch at Login: In Settings > General Settings & Startup, enable 'Launch MacAuraLive at System Startup' to run silently in the menu bar on boot.",
-                    "5. Resetting Settings: In Settings > About & Software Information, click 'Reset All Settings to Defaults' to restore default configurations."
+                    "5. Resetting Settings: In Settings > Data Management & Reset, choose 'Reset Only Media', 'Reset Only Preferences', or 'Full Factory Reset'."
                 ],
                 tips: [
                     "If you ever need to clear API keys, use the 'Clear' button next to each key in Settings > Marketplace & Content Plugins or delete the app support cache."
                 ],
                 shortcutsOrPaths: [
-                    (label: "Root Folder", value: "~/Documents/MacAuraLiveApp/"),
-                    (label: "Video Loops", value: "~/Documents/MacAuraLiveApp/livewallpaper/"),
-                    (label: "Static 4K", value: "~/Documents/MacAuraLiveApp/staticwallpaper/"),
-                    (label: "GIF Animations", value: "~/Documents/MacAuraLiveApp/gif/"),
-                    (label: "Code Shaders", value: "~/Documents/MacAuraLiveApp/animatedcode/")
+                    (label: "Root Folder", value: "~/Library/Application Support/MacAuraLive/Media/"),
+                    (label: "Video Loops", value: "~/Library/Application Support/MacAuraLive/Media/livewallpaper/"),
+                    (label: "Static 4K", value: "~/Library/Application Support/MacAuraLive/Media/staticwallpaper/"),
+                    (label: "GIF Animations", value: "~/Library/Application Support/MacAuraLive/Media/gif/"),
+                    (label: "Code Shaders", value: "~/Library/Application Support/MacAuraLive/Media/animatedcode/")
                 ]
             )
         ]
@@ -321,12 +374,7 @@ public struct UserGuideView: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.white.opacity(0.06))
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
+                .macaSubcardStyle(cornerRadius: 8)
             }
             
             // Category Filter Pills with unified styling
@@ -342,12 +390,12 @@ public struct UserGuideView: View {
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(selectedCategory == category ? Color.accentColor : Color.white.opacity(0.06))
+                        .background(selectedCategory == category ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                         .foregroundColor(selectedCategory == category ? .white : .primary)
                         .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(selectedCategory == category ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(selectedCategory == category ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
@@ -539,8 +587,7 @@ private struct InteractiveGuideCard: View {
                                 }
                             }
                             .padding(12)
-                            .background(Color.white.opacity(0.03))
-                            .cornerRadius(8)
+                            .macaSubcardStyle(cornerRadius: 8)
                         }
                         .padding(.horizontal, 16)
                     }
@@ -548,11 +595,6 @@ private struct InteractiveGuideCard: View {
                 .padding(.bottom, 16)
             }
         }
-        .background(Color.white.opacity(isExpanded ? 0.07 : 0.04))
-        .cornerRadius(14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(isExpanded ? topic.badgeColor.opacity(0.4) : Color.white.opacity(0.08), lineWidth: isExpanded ? 1.5 : 1)
-        )
+        .macaCardStyle(cornerRadius: 14)
     }
 }

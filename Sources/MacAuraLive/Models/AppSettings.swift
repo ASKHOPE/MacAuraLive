@@ -259,4 +259,23 @@ public class AppSettings: ObservableObject {
             launchAtLoginStatus = launchAtLogin ? "Active (Legacy)" : "Off"
         }
     }
+    
+    public func resetToDefaults() {
+        self.pauseOnBattery = true
+        self.pauseOnFullScreen = true
+        self.enableLockScreenWallpaper = false
+        self.lockScreenWallpaperId = ""
+        self.lockScreenImagePath = ""
+        self.spanAcrossDisplays = false
+        self.playbackRate = 1.0
+        self.audioVolume = 0.5
+        self.isMuted = false
+        self.defaultAspectFill = true
+        self.wallpaperPlacement = "original"
+        self.wallpaperZoom = 1.0
+        self.appTheme = "system"
+        self.enableTransparency = true
+        self.autoDayNightWallpapers = false
+        self.applyAppearanceTheme()
+    }
 }

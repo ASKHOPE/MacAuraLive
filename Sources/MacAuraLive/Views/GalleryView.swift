@@ -22,6 +22,11 @@ public struct GalleryView: View {
     @State private var showWebImporter: Bool = false
     @State private var previewWallpaper: WallpaperItem? = nil
     
+    // Multi-Select & Batch Clear States
+    @State private var isSelectionMode: Bool = false
+    @State private var selectedWallpaperIds: Set<String> = []
+    @State private var showMultiDeleteAlert: Bool = false
+    
     @State private var aiPromptInput: String = "Cyberpunk neon city with glowing rain reflections and particle vortex"
     @State private var aiStyleInput: String = "Neon Cyberpunk"
     @State private var aiResolutionInput: String = "4K UHD"
@@ -139,12 +144,7 @@ public struct GalleryView: View {
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color.white.opacity(0.06))
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                        )
+                        .macaSubcardStyle(cornerRadius: 8)
                         
                         Button { openFolderPicker() } label: {
                             Label("Import Folder", systemImage: "folder.badge.plus")
@@ -156,6 +156,21 @@ public struct GalleryView: View {
                             Label("Import File", systemImage: "plus.circle.fill")
                         }
                         .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
+                        
+                        // Multi-Select Toggle Button
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isSelectionMode.toggle()
+                                if !isSelectionMode {
+                                    selectedWallpaperIds.removeAll()
+                                }
+                            }
+                        } label: {
+                            Label(isSelectionMode ? "Cancel Select" : "Select Items", systemImage: isSelectionMode ? "checkmark.circle.fill" : "checkmark.circle")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(isSelectionMode ? .blue : .primary)
                         .controlSize(.regular)
                         
                         Menu {
@@ -176,6 +191,67 @@ public struct GalleryView: View {
                         .controlSize(.regular)
                         .help("Global Wallpaper Sizing & Aspect Ratio Mode")
                     }
+                }
+                
+                // Multi-Selection Action Toolbar (Appears when isSelectionMode is active)
+                if isSelectionMode {
+                    let deletable = filteredWallpapers.map { $0.id }
+                    HStack(spacing: 12) {
+                        Button {
+                            if selectedWallpaperIds.count == deletable.count && !deletable.isEmpty {
+                                selectedWallpaperIds.removeAll()
+                            } else {
+                                selectedWallpaperIds = Set(deletable)
+                            }
+                        } label: {
+                            Label(selectedWallpaperIds.count == deletable.count && !deletable.isEmpty ? "Deselect All" : "Select All (\(deletable.count))", systemImage: "checklist")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .buttonStyle(.bordered)
+                        
+                        Text("\(selectedWallpaperIds.count) of \(deletable.count) selected")
+                            .font(.caption)
+                            .bold()
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Color.blue.opacity(0.18))
+                            .foregroundColor(.blue)
+                            .cornerRadius(6)
+                        
+                        Spacer()
+                        
+                        if !selectedWallpaperIds.isEmpty {
+                            Button(role: .destructive) {
+                                showMultiDeleteAlert = true
+                            } label: {
+                                Label("Clear Selected (\(selectedWallpaperIds.count))", systemImage: "trash.fill")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.red)
+                        }
+                        
+                        Button {
+                            withAnimation {
+                                isSelectionMode = false
+                                selectedWallpaperIds.removeAll()
+                            }
+                        } label: {
+                            Text("Done")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(10)
+                    .background(Color.blue.opacity(0.08))
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.blue.opacity(0.25), lineWidth: 1)
+                    )
                 }
                 
                 // Sleek Filter Bar
@@ -199,12 +275,12 @@ public struct GalleryView: View {
                             }
                             .padding(.horizontal, 14)
                             .padding(.vertical, 6)
-                            .background(selectedCategory == cat ? Color.accentColor : Color.white.opacity(0.06))
+                            .background(selectedCategory == cat ? Color.accentColor : Color(NSColor.controlBackgroundColor))
                             .foregroundColor(selectedCategory == cat ? .white : .primary)
                             .cornerRadius(8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selectedCategory == cat ? Color.clear : Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(selectedCategory == cat ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
@@ -225,9 +301,28 @@ public struct GalleryView: View {
                             WallpaperCardView(
                                 wallpaper: wallpaper,
                                 isActive: storage.activeWallpaperId == wallpaper.id,
+                                isSelectionMode: isSelectionMode,
+                                isSelected: selectedWallpaperIds.contains(wallpaper.id),
                                 onSelect: {
-                                    WallpaperStorageManager.shared.setActiveWallpaper(wallpaper)
-                                    engine.reloadEngine()
+                                    if isSelectionMode {
+                                        if wallpaper.type != .builtInWeb {
+                                            if selectedWallpaperIds.contains(wallpaper.id) {
+                                                selectedWallpaperIds.remove(wallpaper.id)
+                                            } else {
+                                                selectedWallpaperIds.insert(wallpaper.id)
+                                            }
+                                        }
+                                    } else {
+                                        WallpaperStorageManager.shared.setActiveWallpaper(wallpaper)
+                                        engine.reloadEngine()
+                                    }
+                                },
+                                onToggleSelect: {
+                                    if selectedWallpaperIds.contains(wallpaper.id) {
+                                        selectedWallpaperIds.remove(wallpaper.id)
+                                    } else {
+                                        selectedWallpaperIds.insert(wallpaper.id)
+                                    }
                                 },
                                 onPreview: {
                                     previewWallpaper = wallpaper
@@ -291,6 +386,17 @@ public struct GalleryView: View {
         }
         .sheet(item: $previewWallpaper) { item in
             FullWallpaperPreviewModal(wallpaper: item)
+        }
+        .alert("Delete \(selectedWallpaperIds.count) Wallpapers?", isPresented: $showMultiDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                storage.deleteWallpapers(ids: selectedWallpaperIds)
+                selectedWallpaperIds.removeAll()
+                isSelectionMode = false
+                engine.reloadEngine()
+            }
+        } message: {
+            Text("This will permanently remove the selected \(selectedWallpaperIds.count) wallpapers and their local files from your Mac library.")
         }
     }
     
@@ -709,7 +815,10 @@ struct MiniWebPreviewView: NSViewRepresentable {
 struct WallpaperCardView: View {
     let wallpaper: WallpaperItem
     let isActive: Bool
+    var isSelectionMode: Bool = false
+    var isSelected: Bool = false
     let onSelect: () -> Void
+    var onToggleSelect: (() -> Void)? = nil
     let onPreview: () -> Void
     let onDelete: () -> Void
     
@@ -765,37 +874,47 @@ struct WallpaperCardView: View {
                 }
                 .padding(8)
                 
-                // Active Status Badge Overlay
-                if isActive {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("ACTIVE")
+                // Multi-Selection Checkbox or Active / Hover Badges
+                if isSelectionMode {
+                    Button(action: { onToggleSelect?() }) {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                            .foregroundColor(isSelected ? .blue : .white)
+                            .background(Circle().fill(isSelected ? Color.white : Color.black.opacity(0.6)))
                     }
-                    .font(.caption2)
-                    .bold()
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .buttonStyle(.plain)
                     .padding(8)
-                }
-                
-                // Hover Action Buttons: Full Preview & Delete
-                if isHovering {
-                    HStack(spacing: 6) {
-                        Button(action: onPreview) {
-                            Image(systemName: "eye.fill")
-                                .font(.caption2)
-                                .foregroundColor(.white)
-                                .padding(7)
-                                .background(Color.blue.opacity(0.85))
-                                .clipShape(Circle())
+                } else {
+                    // Active Status Badge Overlay
+                    if isActive {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("ACTIVE")
                         }
-                        .buttonStyle(.plain)
-                        .help("Quick Look / Full Preview")
-                        
-                        if wallpaper.type != .builtInWeb {
+                        .font(.caption2)
+                        .bold()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .padding(8)
+                    }
+                    
+                    // Hover Action Buttons: Full Preview & Delete
+                    if isHovering {
+                        HStack(spacing: 6) {
+                            Button(action: onPreview) {
+                                Image(systemName: "eye.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                    .padding(7)
+                                    .background(Color.blue.opacity(0.85))
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .help("Quick Look / Full Preview")
+                            
                             Button(action: onDelete) {
                                 Image(systemName: "trash.fill")
                                     .font(.caption2)
@@ -807,8 +926,8 @@ struct WallpaperCardView: View {
                             .buttonStyle(.plain)
                             .help("Delete Wallpaper")
                         }
+                        .padding(8)
                     }
-                    .padding(8)
                 }
             }
             
@@ -817,11 +936,18 @@ struct WallpaperCardView: View {
                 HStack {
                     Text(wallpaper.title)
                         .font(.headline)
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                     Spacer()
-                    Text(wallpaper.resolutionTag)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                    HStack(spacing: 4) {
+                        Text(wallpaper.resolutionTag)
+                        if !wallpaper.formattedFileSize.isEmpty {
+                            Text("•")
+                            Text(wallpaper.formattedFileSize)
+                        }
+                    }
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
                 }
                 
                 Text(wallpaper.description)
@@ -830,17 +956,24 @@ struct WallpaperCardView: View {
                     .lineLimit(2)
             }
             .padding(12)
-            .background(Color.white.opacity(0.05))
+            .background(Color(NSColor.controlBackgroundColor))
         }
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(isActive ? Color.blue : Color.white.opacity(0.12), lineWidth: isActive ? 2 : 1)
+                .stroke(isSelected ? Color.blue : (isActive ? Color.blue : Color(NSColor.separatorColor)), lineWidth: isSelected ? 2.5 : (isActive ? 2 : 1))
         )
+        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
         .scaleEffect(isHovering ? 1.02 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isHovering)
         .onHover { hover in isHovering = hover }
-        .onTapGesture { onSelect() }
+        .onTapGesture {
+            if isSelectionMode {
+                onToggleSelect?()
+            } else {
+                onSelect()
+            }
+        }
     }
     
     @ViewBuilder
@@ -935,7 +1068,7 @@ struct FullWallpaperPreviewModal: View {
                     Text(wallpaper.title)
                         .font(.title2)
                         .bold()
-                    Text("\(wallpaper.category) • \(wallpaper.resolutionTag)")
+                    Text("\(wallpaper.category) • \(wallpaper.resolutionTag)\(wallpaper.formattedFileSize.isEmpty ? "" : " • " + wallpaper.formattedFileSize)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

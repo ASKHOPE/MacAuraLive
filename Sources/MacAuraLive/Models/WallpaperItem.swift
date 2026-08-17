@@ -51,4 +51,17 @@ public struct WallpaperItem: Identifiable, Codable, Hashable {
         self.manifest = manifest
         self.customSettings = customSettings
     }
+    
+    public var formattedFileSize: String {
+        if let url = WallpaperStorageManager.shared.resolveURL(forPath: pathOrUrl), url.isFileURL {
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+               let size = attrs[.size] as? Int64, size > 0 {
+                return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+            }
+        }
+        if type == .builtInWeb {
+            return "~15 KB"
+        }
+        return ""
+    }
 }

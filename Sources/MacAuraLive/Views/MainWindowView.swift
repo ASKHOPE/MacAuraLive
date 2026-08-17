@@ -30,6 +30,7 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
 
 public struct MainWindowView: View {
     @State private var selectedTab: NavigationTab = .liveWallpapers
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @ObservedObject var engine = WallpaperEngine.shared
     @ObservedObject var storage = WallpaperStorageManager.shared
     @ObservedObject var settings = AppSettings.shared
@@ -44,7 +45,7 @@ public struct MainWindowView: View {
     }
 
     public var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             VStack(alignment: .leading, spacing: 14) {
                 // Header Logo
                 HStack(spacing: 14) {
@@ -145,12 +146,12 @@ public struct MainWindowView: View {
                                     .bold()
                                     .foregroundColor(!isStatic && engine.isPaused ? .orange : (isStatic ? .blue : .green))
                                 Spacer()
-                                if !isStatic {
+                                 if !isStatic {
                                     Button(action: { engine.togglePlayPause() }) {
                                         Image(systemName: engine.isPaused ? "play.fill" : "pause.fill")
                                             .font(.caption2)
                                             .padding(6)
-                                            .background(Color.white.opacity(0.12))
+                                            .background(Color(NSColor.quaternaryLabelColor).opacity(0.2))
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(.plain)
@@ -245,8 +246,8 @@ public struct MainWindowView: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(settings.isMuted ? Color.red.opacity(0.25) : Color.blue.opacity(0.25))
-                                .foregroundColor(settings.isMuted ? .red : .cyan)
+                                .background(settings.isMuted ? Color.red.opacity(0.18) : Color.blue.opacity(0.18))
+                                .foregroundColor(settings.isMuted ? .red : .blue)
                                 .cornerRadius(8)
                             }
                             .buttonStyle(.plain)
@@ -256,7 +257,7 @@ public struct MainWindowView: View {
                             Text(settings.isMuted ? "MUTED" : "\(Int(settings.audioVolume * 100))%")
                                 .font(.caption2)
                                 .bold()
-                                .foregroundColor(settings.isMuted ? .red : .white)
+                                .foregroundColor(settings.isMuted ? .red : .primary)
                         }
                         
                         Slider(value: Binding(
@@ -272,16 +273,11 @@ public struct MainWindowView: View {
                     }
                 }
                 .padding(12)
-                .background(Color.black.opacity(0.4))
-                .cornerRadius(14)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
+                .macaCardStyle(cornerRadius: 14)
                 .padding(.horizontal, 14)
                 .padding(.bottom, 14)
             }
-            .frame(minWidth: 230)
+            .navigationSplitViewColumnWidth(min: 250, ideal: 270, max: 320)
         } detail: {
             Group {
                 switch selectedTab {
@@ -330,8 +326,12 @@ public struct MainWindowView: View {
     }
     
     private func exportAllScreenshots() {
-        let outDir = "/Users/hosanna/Documents/wallpapermacs/Documentation/Screenshots"
-        try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
+        let baseDir = "/Users/hosanna/Documents/wallpapermacs/Documentation/Screenshots"
+        let darkDir = "\(baseDir)/dark"
+        let lightDir = "\(baseDir)/light"
+        try? FileManager.default.createDirectory(atPath: baseDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: darkDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: lightDir, withIntermediateDirectories: true)
         
         let tabMap: [(NavigationTab, String)] = [
             (.liveWallpapers, "01_live_wallpapers.png"),
@@ -341,31 +341,58 @@ public struct MainWindowView: View {
             (.lockScreen, "05_lock_screen.png"),
             (.userGuide, "06_user_guide.png"),
             (.aiConfig, "07_ai_workshop.png"),
-            (.settings, "08_settings.png")
+            (.settings, "08_settings.png"),
+            (.marketplace, "09_marketplace.png")
         ]
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        // Phase 1: Capture Dark Theme
+        self.settings.appTheme = "dark"
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             for (idx, (tab, filename)) in tabMap.enumerated() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.8) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.85) {
                     self.selectedTab = tab
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        if let window = NSApp.windows.first(where: { $0.isVisible }),
-                           let view = window.contentView {
-                            let rect = view.bounds
-                            if let bitmap = view.bitmapImageRepForCachingDisplay(in: rect) {
-                                view.cacheDisplay(in: rect, to: bitmap)
+                        if let window = NSApp.windows.first(where: { $0.isVisible }) {
+                            window.makeKeyAndOrderFront(nil)
+                            if let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                                let bitmap = NSBitmapImageRep(cgImage: cgImage)
                                 if let pngData = bitmap.representation(using: .png, properties: [:]) {
-                                    let savePath = "\(outDir)/\(filename)"
-                                    try? pngData.write(to: URL(fileURLWithPath: savePath))
-                                    print("[ScreenshotAutomation] ✅ Exported tab '\(tab.rawValue)' to \(savePath)")
+                                    try? pngData.write(to: URL(fileURLWithPath: "\(darkDir)/\(filename)"))
+                                    try? pngData.write(to: URL(fileURLWithPath: "\(baseDir)/\(filename)"))
+                                    print("[ScreenshotAutomation] 🌙 Exported Dark tab '\(tab.rawValue)' to \(darkDir)/\(filename)")
                                 }
                             }
                         }
-                        
-                        if idx == tabMap.count - 1 {
-                            print("[ScreenshotAutomation] 🎉 All 8 UI tab screenshots exported successfully!")
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                NSApp.terminate(nil)
+                    }
+                }
+            }
+            
+            // Phase 2: Capture Light Theme
+            let phase2Start = Double(tabMap.count) * 0.85 + 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + phase2Start) {
+                self.settings.appTheme = "light"
+                
+                for (idx, (tab, filename)) in tabMap.enumerated() {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.85) {
+                        self.selectedTab = tab
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            if let window = NSApp.windows.first(where: { $0.isVisible }) {
+                                window.makeKeyAndOrderFront(nil)
+                                if let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                                    let bitmap = NSBitmapImageRep(cgImage: cgImage)
+                                    if let pngData = bitmap.representation(using: .png, properties: [:]) {
+                                        try? pngData.write(to: URL(fileURLWithPath: "\(lightDir)/\(filename)"))
+                                        print("[ScreenshotAutomation] ☀️ Exported Light tab '\(tab.rawValue)' to \(lightDir)/\(filename)")
+                                    }
+                                }
+                            }
+                            
+                            if idx == tabMap.count - 1 {
+                                print("[ScreenshotAutomation] 🎉 All Dark & Light mode UI screenshots exported successfully!")
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                    NSApp.terminate(nil)
+                                }
                             }
                         }
                     }

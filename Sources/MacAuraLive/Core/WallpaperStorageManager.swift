@@ -14,6 +14,16 @@ public class WallpaperStorageManager: ObservableObject {
         }
     }
     
+    private var deletedDefaultIds: Set<String> {
+        get {
+            let arr = UserDefaults.standard.stringArray(forKey: "deletedDefaultIds") ?? []
+            return Set(arr)
+        }
+        set {
+            UserDefaults.standard.set(Array(newValue), forKey: "deletedDefaultIds")
+        }
+    }
+    
     private let appSupportDirectory: URL
     private let wallpapersDirectory: URL
     private let metaFileURL: URL
@@ -32,17 +42,22 @@ public class WallpaperStorageManager: ObservableObject {
         loadWallpapers()
     }
     
+    public var userMediaRootURL: URL {
+        return appSupportDirectory.appendingPathComponent("Media", isDirectory: true)
+    }
+    
     public var userDocumentsRootURL: URL? {
         guard let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
-        return docsURL.appendingPathComponent("MacAuraLiveApp", isDirectory: true)
+        let legacyPath = docsURL.appendingPathComponent("MacAuraLiveApp", isDirectory: true)
+        return FileManager.default.fileExists(atPath: legacyPath.path) ? legacyPath : nil
     }
     
     public var documentsDirectory: URL {
-        return userDocumentsRootURL ?? appSupportDirectory
+        return userMediaRootURL
     }
     
     public func targetDirectory(for type: WallpaperType) -> URL {
-        let root = userDocumentsRootURL ?? appSupportDirectory
+        let root = userMediaRootURL
         let subfolder: String
         switch type {
         case .video:
@@ -63,7 +78,7 @@ public class WallpaperStorageManager: ObservableObject {
     
     private func setupDefaultDocumentDirectories() {
         let fm = FileManager.default
-        guard let macauraRoot = userDocumentsRootURL else { return }
+        let macauraRoot = userMediaRootURL
         
         let subfolders = ["livewallpaper", "staticwallpaper", "gif", "animatedcode"]
         for sub in subfolders {
@@ -77,7 +92,7 @@ public class WallpaperStorageManager: ObservableObject {
     }
     
     public func copyBundledWallpapersToUserDocuments() {
-        guard let root = userDocumentsRootURL else { return }
+        let root = userMediaRootURL
         let fm = FileManager.default
         
         let staticDir = root.appendingPathComponent("staticwallpaper", isDirectory: true)
@@ -120,12 +135,25 @@ public class WallpaperStorageManager: ObservableObject {
             return URL(fileURLWithPath: pathOrUrl)
         }
         
-        // 3. User Documents Directory (~/Documents/MacAuraLiveApp/)
+        // 3. User Media Directory in Application Support (~/Library/Application Support/MacAuraLive/Media/)
+        let mediaRoot = userMediaRootURL
+        let directMedia = mediaRoot.appendingPathComponent(pathOrUrl)
+        if fm.fileExists(atPath: directMedia.path) { return directMedia }
+        
+        let lastComponent = (pathOrUrl as NSString).lastPathComponent
+        for sub in ["livewallpaper", "staticwallpaper", "gif", "animatedcode"] {
+            let subDirect = mediaRoot.appendingPathComponent(sub).appendingPathComponent(pathOrUrl)
+            if fm.fileExists(atPath: subDirect.path) { return subDirect }
+            
+            let subByFileName = mediaRoot.appendingPathComponent(sub).appendingPathComponent(lastComponent)
+            if fm.fileExists(atPath: subByFileName.path) { return subByFileName }
+        }
+        
+        // 4. Legacy User Documents Directory (passive check if folder already existed)
         if let docsRoot = userDocumentsRootURL {
             let directDocs = docsRoot.appendingPathComponent(pathOrUrl)
             if fm.fileExists(atPath: directDocs.path) { return directDocs }
             
-            let lastComponent = (pathOrUrl as NSString).lastPathComponent
             for sub in ["livewallpaper", "staticwallpaper", "gif", "animatedcode"] {
                 let subDirect = docsRoot.appendingPathComponent(sub).appendingPathComponent(pathOrUrl)
                 if fm.fileExists(atPath: subDirect.path) { return subDirect }
@@ -135,7 +163,7 @@ public class WallpaperStorageManager: ObservableObject {
             }
         }
         
-        // 4. Swift Package Bundle Resources
+        // 5. Swift Package Bundle Resources
         if let bundleURL = Bundle.module.url(forResource: pathOrUrl, withExtension: nil, subdirectory: "Resources/Wallpapers") ??
                            Bundle.module.url(forResource: pathOrUrl, withExtension: nil, subdirectory: "Resources") ??
                            Bundle.module.url(forResource: "Wallpapers/\(pathOrUrl)", withExtension: nil) ??
@@ -143,7 +171,7 @@ public class WallpaperStorageManager: ObservableObject {
             return bundleURL
         }
         
-        // 5. Application Support Directory Fallback
+        // 6. Application Support Directory Fallback
         let appSupportDirect = appSupportDirectory.appendingPathComponent("Wallpapers/\(pathOrUrl)")
         if fm.fileExists(atPath: appSupportDirect.path) { return appSupportDirect }
         
@@ -170,16 +198,35 @@ public class WallpaperStorageManager: ObservableObject {
     public func loadWallpapers() {
         setupDefaultDocumentDirectories()
         var items = getBuiltInWallpapers()
+        let deletedDefaults = self.deletedDefaultIds
+        items.removeAll(where: { deletedDefaults.contains($0.id) })
         
         if FileManager.default.fileExists(atPath: metaFileURL.path),
            let data = try? Data(contentsOf: metaFileURL),
            let saved = try? JSONDecoder().decode([WallpaperItem].self, from: data) {
-            let builtInIds = Set(items.map { $0.id })
+            let builtInIds = Set(getBuiltInWallpapers().map { $0.id })
             let customItems = saved.filter { !builtInIds.contains($0.id) }
             
-            // Removed expensive audio re-verification that triggered repeated permission prompts
+            // Auto-migrate any previously imported local files and validate physical existence
+            var validCustomItems: [WallpaperItem] = []
+            for item in customItems {
+                var updated = item
+                if item.category == "GenAI" && (item.type == .image || item.type == .video) {
+                    updated.category = item.type == .image ? "Imported Static" : "Imported Video"
+                    if updated.thumbnailIcon == "sparkles" {
+                        updated.thumbnailIcon = item.type == .image ? "photo.fill" : "play.rectangle.fill"
+                    }
+                }
+                
+                // Verify file exists on disk if it's a local file
+                if item.type == .builtInWeb || item.type == .webUrl {
+                    validCustomItems.append(updated)
+                } else if let resolvedURL = resolveURL(for: updated), FileManager.default.fileExists(atPath: resolvedURL.path) {
+                    validCustomItems.append(updated)
+                }
+            }
             
-            items.append(contentsOf: customItems)
+            items.append(contentsOf: validCustomItems)
         }
         
         self.wallpapers = items
@@ -912,17 +959,17 @@ public class WallpaperStorageManager: ObservableObject {
         let hasAudioTrack: Bool
         
         if ext == "gif" {
-            categoryName = "GIF"
+            categoryName = "Imported GIF"
             type = .gif
             icon = "photo.stack.fill"
             hasAudioTrack = false
         } else if ["png", "jpg", "jpeg", "webp", "heic"].contains(ext) {
-            categoryName = "GenAI"
+            categoryName = "Imported Static"
             type = .image
-            icon = "sparkles"
+            icon = "photo.fill"
             hasAudioTrack = false
         } else {
-            categoryName = "MP4 Video"
+            categoryName = "Imported Video"
             type = .video
             icon = "play.rectangle.fill"
             hasAudioTrack = true // We will set this correctly after copy
@@ -1023,13 +1070,13 @@ public class WallpaperStorageManager: ObservableObject {
         let item = WallpaperItem(
             id: UUID().uuidString,
             title: title.isEmpty ? "Web Wallpaper" : title,
-            category: "GenAI",
+            category: "Web & Shader",
             resolutionTag: "Dynamic",
             type: .webUrl,
             pathOrUrl: urlString,
             thumbnailIcon: "globe",
             hasAudio: false,
-            author: "Web Library",
+            author: "User Library",
             description: "Custom web page live wallpaper."
         )
         wallpapers.append(item)
@@ -1039,17 +1086,43 @@ public class WallpaperStorageManager: ObservableObject {
     }
     
     public func deleteWallpaper(_ wallpaper: WallpaperItem) {
-        guard !getBuiltInWallpapers().contains(where: { $0.id == wallpaper.id }) else { return }
-        wallpapers.removeAll(where: { $0.id == wallpaper.id })
-        if wallpaper.type == .video || wallpaper.type == .gif || wallpaper.type == .image {
-            try? FileManager.default.removeItem(atPath: wallpaper.pathOrUrl)
-        }
-        if activeWallpaperId == wallpaper.id {
-            if let first = wallpapers.first {
-                setActiveWallpaper(first)
+        deleteWallpapers(ids: [wallpaper.id])
+    }
+    
+    public func deleteWallpapers(ids: Set<String>) {
+        let builtInItems = getBuiltInWallpapers()
+        let builtInIds = Set(builtInItems.map { $0.id })
+        
+        var currentDeletedDefaults = self.deletedDefaultIds
+        let toDelete = wallpapers.filter { ids.contains($0.id) }
+        
+        for wallpaper in toDelete {
+            if builtInIds.contains(wallpaper.id) {
+                currentDeletedDefaults.insert(wallpaper.id)
+            }
+            if wallpaper.type == .video || wallpaper.type == .gif || wallpaper.type == .image {
+                if let url = resolveURL(for: wallpaper), FileManager.default.fileExists(atPath: url.path) {
+                    try? FileManager.default.removeItem(at: url)
+                } else if FileManager.default.fileExists(atPath: wallpaper.pathOrUrl) {
+                    try? FileManager.default.removeItem(atPath: wallpaper.pathOrUrl)
+                }
             }
         }
+        
+        self.deletedDefaultIds = currentDeletedDefaults
+        
+        let toDeleteIds = Set(toDelete.map { $0.id })
+        wallpapers.removeAll(where: { toDeleteIds.contains($0.id) })
+        
+        if toDeleteIds.contains(activeWallpaperId) {
+            if let first = wallpapers.first {
+                setActiveWallpaper(first)
+                WallpaperEngine.shared.reloadEngine()
+            }
+        }
+        
         saveCustomWallpapers()
+        StorageAnalyticsManager.shared.calculateStorage()
     }
     
     public func saveCustomWallpapers() {
@@ -1068,5 +1141,107 @@ public class WallpaperStorageManager: ObservableObject {
             setActiveWallpaper(matching)
             WallpaperEngine.shared.reloadEngine()
         }
+    }
+    
+    /// Clears all user-imported wallpapers, restores any deleted default wallpapers, and restores the library to factory state.
+    public func resetWallpapersLibrary() {
+        print("[WallpaperStorageManager] Resetting wallpapers library to factory defaults...")
+        
+        // 0. Reset deleted default IDs so all original defaults return
+        self.deletedDefaultIds = []
+        UserDefaults.standard.removeObject(forKey: "deletedDefaultIds")
+        
+        let builtInItems = getBuiltInWallpapers()
+        let builtInIds = Set(builtInItems.map { $0.id })
+        
+        // 1. Physically delete any custom files tracked in current wallpapers array
+        for item in self.wallpapers where !builtInIds.contains(item.id) {
+            if item.type == .video || item.type == .image || item.type == .gif {
+                if let url = resolveURL(for: item), FileManager.default.fileExists(atPath: url.path) {
+                    try? FileManager.default.removeItem(at: url)
+                } else if FileManager.default.fileExists(atPath: item.pathOrUrl) {
+                    try? FileManager.default.removeItem(atPath: item.pathOrUrl)
+                }
+            }
+        }
+        
+        // 2. Clear all user media subfolders (~/Library/Application Support/MacAuraLive/Media/*)
+        let mediaRoot = userMediaRootURL
+        for sub in ["livewallpaper", "staticwallpaper", "gif", "animatedcode"] {
+            let subDir = mediaRoot.appendingPathComponent(sub)
+            if let files = try? FileManager.default.contentsOfDirectory(at: subDir, includingPropertiesForKeys: nil) {
+                for file in files {
+                    try? FileManager.default.removeItem(at: file)
+                }
+            }
+        }
+        
+        // Also clear legacy docs directory if it existed
+        if let docsRoot = userDocumentsRootURL {
+            for sub in ["livewallpaper", "staticwallpaper", "gif", "animatedcode"] {
+                let subDir = docsRoot.appendingPathComponent(sub)
+                if let files = try? FileManager.default.contentsOfDirectory(at: subDir, includingPropertiesForKeys: nil) {
+                    for file in files {
+                        try? FileManager.default.removeItem(at: file)
+                    }
+                }
+            }
+            try? FileManager.default.removeItem(at: docsRoot.appendingPathComponent("wallpapers.json"))
+            try? FileManager.default.removeItem(at: docsRoot.appendingPathComponent("custom_wallpapers.json"))
+        }
+        
+        // 3. Clear AppSupport metadata
+        try? FileManager.default.removeItem(at: metaFileURL)
+        if let data = try? JSONEncoder().encode([WallpaperItem]()) {
+            try? data.write(to: metaFileURL)
+        }
+        
+        // 4. Clear referenced bulk folder
+        self.referencedFolderURL = nil
+        UserDefaults.standard.removeObject(forKey: "referencedFolderURL")
+        
+        // 5. Re-seed bundled default wallpapers
+        copyBundledWallpapersToUserDocuments()
+        
+        // 6. Update in-memory wallpapers on Main Thread and notify all SwiftUI views
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+            self.wallpapers = builtInItems
+            if let defaultItem = builtInItems.first {
+                self.setActiveWallpaper(defaultItem)
+                WallpaperEngine.shared.reloadEngine()
+            }
+            StorageAnalyticsManager.shared.clearCache()
+            StorageAnalyticsManager.shared.calculateStorage()
+            DuplicateFinderManager.shared.duplicateGroups.removeAll()
+            DuplicateFinderManager.shared.scanMessage = nil
+        }
+        
+        print("[WallpaperStorageManager] Wallpapers library successfully reset to factory defaults.")
+    }
+    
+    /// Performs a full application factory reset: clears imported wallpapers, resets all preferences, and reloads engines.
+    public func performFullFactoryReset() {
+        print("[WallpaperStorageManager] Performing Full Factory Reset...")
+        
+        // 1. Reset wallpapers
+        resetWallpapersLibrary()
+        
+        // 2. Reset app settings and preferences
+        AppSettings.shared.resetToDefaults()
+        
+        // 3. Clear storage analytics
+        StorageAnalyticsManager.shared.clearCache()
+        
+        // 4. Reload engine
+        WallpaperEngine.shared.reloadEngine()
+        print("[WallpaperStorageManager] Full Factory Reset completed.")
+    }
+    
+    /// Resets only application preferences back to default while keeping all user wallpapers and media files intact.
+    public func resetOnlyPreferences() {
+        print("[WallpaperStorageManager] Resetting only preferences...")
+        AppSettings.shared.resetToDefaults()
+        WallpaperEngine.shared.reloadEngine()
     }
 }

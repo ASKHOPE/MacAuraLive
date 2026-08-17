@@ -197,8 +197,7 @@ public struct LockScreenView: View {
                         }
                     }
                     .padding(14)
-                    .background(Color.white.opacity(0.04))
-                    .cornerRadius(10)
+                    .macaSubcardStyle(cornerRadius: 10)
                 }
 
                 // Library thumbnails (if any static images exist in MacAuraLive library)
@@ -261,12 +260,7 @@ public struct LockScreenView: View {
                 }
             }
             .padding(20)
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-            )
+            .macaCardStyle(cornerRadius: 16)
 
             // ── Info Note ─────────────────────────────────────────────
             HStack(spacing: 10) {

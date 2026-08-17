@@ -1,22 +1,32 @@
 #!/bin/bash
 
-# Build script for MacAuraLive on macOS ARM64 / Apple Silicon
+# Build script for MacAuraLive Universal 2 (Apple Silicon & Intel)
 set -e
 
 # 1. Run Pre-Build Verification Test Suite
 bash Scripts/verify_environment.sh
 
-echo "🚀 Building MacAuraLive Wallpaper Engine for macOS..."
+echo "🚀 Building MacAuraLive Universal 2 (Apple Silicon & Intel x86_64)..."
 
-swift build -c release
+swift build -c release --triple arm64-apple-macosx13.0
+swift build -c release --triple x86_64-apple-macosx13.0
+
+mkdir -p "build/universal"
+lipo -create -output "build/universal/MacAuraLive" \
+    ".build/arm64-apple-macosx/release/MacAuraLive" \
+    ".build/x86_64-apple-macosx/release/MacAuraLive"
+
+# Minify executable by stripping unneeded debug symbol tables
+echo "🗜️ Minifying binary with dead symbol stripping..."
+strip -u -r "build/universal/MacAuraLive"
 
 BUILD_DIR="build/MacAuraLive.app/Contents"
 rm -rf "build/MacAuraLive.app"
 mkdir -p "$BUILD_DIR/MacOS"
 mkdir -p "$BUILD_DIR/Resources"
 
-# Copy compiled executable
-cp ".build/release/MacAuraLive" "$BUILD_DIR/MacOS/MacAuraLive"
+# Copy compiled universal stripped executable
+cp "build/universal/MacAuraLive" "$BUILD_DIR/MacOS/MacAuraLive"
 chmod +x "$BUILD_DIR/MacOS/MacAuraLive"
 
 # Copy Resources (including PrivacyInfo.xcprivacy, Assets, Runtime, Wallpapers)
@@ -55,9 +65,9 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.6.0</string>
+    <string>1.8.0</string>
     <key>CFBundleVersion</key>
-    <string>100</string>
+    <string>120</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
@@ -73,7 +83,7 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
 EOF
 
 # Code sign ad-hoc
-echo "🔒 Code signing MacAuraLive.app for macOS ARM64..."
+echo "🔒 Code signing Universal MacAuraLive.app..."
 codesign --force --deep --sign - "build/MacAuraLive.app"
 
-echo "✅ App bundle created and signed successfully at: build/MacAuraLive.app"
+echo "✅ Universal 2 App bundle created and signed successfully at: build/MacAuraLive.app"

@@ -5,26 +5,26 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-macOS%2013.0%2B-lightgrey?style=flat-square&logo=apple" />
+  <img src="https://img.shields.io/badge/Platform-macOS%2013.0%2B%20%28Ventura%20%2F%20Sonoma%20%2F%20Sequoia%29-lightgrey?style=flat-square&logo=apple" />
+  <img src="https://img.shields.io/badge/Architecture-Universal%202%20%28Apple%20Silicon%20%2B%20Intel%29-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/Swift-5.9%2F6.0-orange?style=flat-square&logo=swift" />
-  <img src="https://img.shields.io/badge/Architecture-Apple%20Silicon%20%28ARM64%29-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
-  <img src="https://img.shields.io/badge/Status-Active-purple?style=flat-square" />
+  <img src="https://img.shields.io/badge/Privacy-100%25%20On--Device-success?style=flat-square" />
 </p>
 
 <p align="center">
   <a href="https://github.com/ASKHOPE/MacAuraLive/releases/latest">
-    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.6.0%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
+    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.8.0%20Universal%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
   </a>
 </p>
 
-> **MacAuraLive** is an open-source, hardware-accelerated live wallpaper engine for macOS — built entirely in Swift and SwiftUI, with zero external dependencies.
+> **MacAuraLive** is a lightweight, hardware-accelerated live wallpaper engine for macOS — built in pure Swift and SwiftUI with zero third-party binary dependencies. Runs natively on both **Apple Silicon (M1/M2/M3/M4)** and **Intel** Macs.
 > 
-> 📦 **[Download Direct DMG Installer (v1.6.0 Apple Silicon)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.6.0_Installer_AppleSilicon.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
+> 🌐 **[Visit Official Webpage](https://askhope.github.io/MacAuraLive/)** | 📦 **[Download Direct DMG Installer (v1.8.0 Universal)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.8.0_Universal_Installer.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
 > [!TIP]
 > ### 🍎 macOS First-Time Launch Note (Gatekeeper Override)
-> As an open-source application distributed outside the Mac App Store, macOS may display a standard *"Apple could not verify..."* dialog upon first launch.
+> As an open-source application distributed directly on GitHub, macOS may display a standard *"Apple could not verify..."* dialog on first launch.
 > 
 > **Option 1 (Fastest — One-line Terminal command):**
 > ```bash
@@ -33,34 +33,35 @@
 > 
 > **Option 2 (macOS Settings Override):**
 > 1. **Right-click (Control-click)** on `MacAuraLive.app` in your Applications folder and select **Open**.
-> 2. Or go to **System Settings > Privacy & Security**, scroll down to the **Security** section, and click **"Open Anyway"**.
+> 2. Or open **System Settings > Privacy & Security**, scroll to **Security**, and click **"Open Anyway"**.
+
+---
+
+## 📸 Application User Interface Gallery (Dark & Light Modes)
+
+### 🌓 Adaptive macOS Appearance
+MacAuraLive features full automatic dynamic adaptation to macOS Light and Dark modes with high-contrast glassmorphism surfaces.
+
+| View / Feature | 🌙 Dark Mode | ☀️ Light Mode |
+| :--- | :---: | :---: |
+| **01. Live Wallpapers Gallery** | ![Dark Live](Documentation/Screenshots/dark/01_live_wallpapers.png) | ![Light Live](Documentation/Screenshots/light/01_live_wallpapers.png) |
+| **02. Static 4K Engine** | ![Dark Static](Documentation/Screenshots/dark/02_static_wallpapers.png) | ![Light Static](Documentation/Screenshots/light/02_static_wallpapers.png) |
+| **03. Slideshow & Schedules** | ![Dark Slideshow](Documentation/Screenshots/dark/03_slideshow_schedule.png) | ![Light Slideshow](Documentation/Screenshots/light/03_slideshow_schedule.png) |
+| **04. Multi-Monitor Displays** | ![Dark Displays](Documentation/Screenshots/dark/04_displays.png) | ![Light Displays](Documentation/Screenshots/light/04_displays.png) |
+| **05. macOS Lock Screen** | ![Dark Lock Screen](Documentation/Screenshots/dark/05_lock_screen.png) | ![Light Lock Screen](Documentation/Screenshots/light/05_lock_screen.png) |
+| **06. Built-in User Guide** | ![Dark User Guide](Documentation/Screenshots/dark/06_user_guide.png) | ![Light User Guide](Documentation/Screenshots/light/06_user_guide.png) |
+| **07. AI Scene Planner** | ![Dark AI Workshop](Documentation/Screenshots/dark/07_ai_workshop.png) | ![Light AI Workshop](Documentation/Screenshots/light/07_ai_workshop.png) |
+| **08. Settings & Storage** | ![Dark Settings](Documentation/Screenshots/dark/08_settings.png) | ![Light Settings](Documentation/Screenshots/light/08_settings.png) |
+| **09. Marketplace Plugins** | ![Dark Marketplace](Documentation/Screenshots/dark/09_marketplace.png) | ![Light Marketplace](Documentation/Screenshots/light/09_marketplace.png) |
 
 ---
 
 ## ✨ Features
-## 📸 Application User Interface Gallery
-
-| 01. Live Wallpapers Gallery | 02. Static Wallpapers |
-| :---: | :---: |
-| ![Live Wallpapers](Documentation/Screenshots/01_live_wallpapers.png) | ![Static Wallpapers](Documentation/Screenshots/02_static_wallpapers.png) |
-
-| 03. Slideshow & Schedule | 04. Multi-Monitor Displays |
-| :---: | :---: |
-| ![Slideshow & Schedule](Documentation/Screenshots/03_slideshow_schedule.png) | ![Displays](Documentation/Screenshots/04_displays.png) |
-
-| 05. macOS Lock Screen | 06. Built-in User Guide |
-| :---: | :---: |
-| ![Lock Screen](Documentation/Screenshots/05_lock_screen.png) | ![User Guide](Documentation/Screenshots/06_user_guide.png) |
-
-| 07. AI Workshop (Google Gemini / OpenRouter) | 08. Software Updates & Settings |
-| :---: | :---: |
-| ![AI Workshop](Documentation/Screenshots/07_ai_workshop.png) | ![Settings](Documentation/Screenshots/08_settings.png) |
-
----
 
 ### 🎬 Live & Static Wallpaper Engine & Sizing Controls
-- **Native Static Wallpaper Engine (`StaticWallpaperView`)** — Pixel-perfect native AppKit CoreGraphics/Metal image rendering with high interpolation.
-- **Default Original Resolution (macOS Native Fit)** — Applies wallpapers in their exact 1:1 pixel dimensions and native aspect ratios centered on the display, preventing distortion or forced cropping.
+- **Universal 2 Native Engine** — Pure Swift/Metal rendering running natively on **Apple Silicon (`arm64`)** and **Intel (`x86_64`)** Macs.
+- **Native Static Wallpaper Engine (`StaticWallpaperView`)** — Pixel-perfect native AppKit CoreGraphics/Metal image rendering with zero WebKit overhead (< 35 MB RAM).
+- **Default Original Resolution (macOS Native Fit)** — Renders wallpapers in their exact 1:1 pixel dimensions and native aspect ratios centered on the display, preventing distortion or forced cropping.
 - **Interactive Sizing & Crop Controls** — Switch seamlessly between **Original (1:1)**, **Fit to Screen (Aspect Contain)**, **Crop to Fill (Aspect Fill)**, **Stretch to Fill**, and **Custom Zoom & Scale** in the Gallery header and preview modal.
 - **Video Wallpapers** — Hardware-accelerated 1080p / 2K / 4K / 8K video loops via `AVFoundation` (H.264, HEVC/H.265, ProRes).
 - **Interactive Video Seek Slider** — Real-time playback timeline slider with `MM:SS` duration tracking and live seeking for video wallpapers.
@@ -68,69 +69,59 @@
 - **Built-in Shader Pack** — Aurora Borealis, Matrix Digital Rain, Cyberpunk Synthwave, 3D Particle Wave.
 - **Live Wallpaper 60 FPS Acceleration** — Optimized gallery thumbnails to prevent background WebKit process contention, maintaining solid 60/120 FPS desktop performance.
 
+### 🤖 AI Wallpaper Workshop & Scene Planner
+- Generate custom procedural live wallpapers using natural language prompts.
+- Connect your own API keys for **Google Gemini 2.0 / 1.5 Flash**, **OpenRouter (DeepSeek R1, Llama 3.3, Qwen 2.5)**, **Anthropic Claude**, **OpenAI**, or **Local Offline LLMs (Ollama / LMStudio)**.
+- **Dedicated Key Management Trio** — **Save Key**, **Test Key** (live API ping), and **Clear Key** buttons.
+- All credentials stored in hardware **macOS Keychain** via `Security.framework` backed by Apple Silicon Secure Enclave.
+
 ### ⏰ Slideshow & Timed Rotation Engine
-- **Interval Slideshow** — Automatically rotate active wallpapers on a configurable timer (30 sec, 5 min, 15 min, 1 hr, 24 hr)
-- **Time-of-Day Schedules** — Assign specific wallpapers to automatically trigger at exact times (e.g. 08:00 AM Morning Sunrise, 18:00 PM Sunset, 22:00 PM Night Cosmos)
-- **Shuffle & Next Trigger** — Sequential or randomized rotation with instant manual "Rotate Now" action button
+- **Interval Slideshow** — Automatically rotate active wallpapers on a configurable timer (30 sec, 5 min, 15 min, 1 hr, 24 hr).
+- **Time-of-Day Schedules** — Assign specific wallpapers to trigger at exact times (e.g. 08:00 AM Sunrise, 18:00 PM Sunset, 22:00 PM Night Starfield).
+- **Shuffle & Next Trigger** — Sequential or randomized rotation with instant manual "Rotate Now" action button.
 
 ### 🚀 System Startup & Launch at Login
-- **Launch at Boot / Startup** — Powered by macOS `SMAppService.mainApp`
-- **Live Status Indicator** — Real-time feedback (`Active`, `Requires Approval`, `Not Registered`) in Settings & menu bar
-- **Quick Access Menu** — Toggle launch at login directly from the status bar menu bar icon
+- **Launch at Boot / Startup** — Powered by modern macOS `SMAppService.mainApp`.
+- **Live Status Indicator** — Real-time feedback (`Active`, `Requires Approval`, `Not Registered`) in Settings & menu bar.
+- **Quick Access Menu** — Toggle launch at login directly from the status bar menu icon.
 
 ### 🔒 Independent Lock Screen Wallpaper
-- **Separate Lock Screen Image** — Choose an independent static wallpaper image for your macOS lock screen while keeping your animated live wallpaper running on desktop
-- **Instant Preview & Selector** — Interactive preview card showing lock screen clock overlay with your selected image
+- **Separate Lock Screen Image** — Choose an independent static wallpaper image for your macOS lock screen while keeping animated live wallpapers active on the desktop.
+- **Live Lock Screen Preview** — Interactive preview card showing lock screen clock overlay with your selected image.
 
 ### 🖥️ Multi-Monitor Support
-- Assign individual wallpapers per display or mirror across all screens
-- Dynamic hot-plug detection (`didChangeScreenParametersNotification`)
-- Per-display zoom, fit, fill, and stretch placement modes
+- Assign individual wallpapers per display or span/mirror across all connected screens.
+- Dynamic hot-plug detection (`didChangeScreenParametersNotification`).
+- Per-display zoom, fit, fill, and stretch placement modes.
 
 ### ⚡ Smart Power Management
-- Auto-pause on battery with configurable threshold
-- Full-screen app detection pauses rendering to give 100% GPU to active apps
-- Performance tiers: Full (60fps), Balanced (30fps), Low Power (15fps), Paused
+- Auto-pause on battery with configurable threshold.
+- Full-screen app detection automatically pauses rendering to give 100% GPU to active games and applications.
+- Performance tiers: Full (60fps), Balanced (30fps), Low Power (15fps), Paused.
 
-### 💾 Inbuilt Storage & Resource Analytics Dashboard
-- **Real-Time Storage Breakdown** — Live analytics dashboard built directly into Settings tracking disk allocation across all components:
-  - **App Binary & Metal Engine**: ~7.5 MB (Compiled ARM64 native Mach-O executable)
-  - **Built-in Shaders & Video Resources**: ~15.0 MB (4K WebGL/Canvas shaders & video loops)
-  - **User Static Wallpapers**: ~0.4 MB (`~/Documents/MacAuraLiveApp/staticwallpaper/`)
-  - **Animated GIFs & AI Code**: ~0.2 MB (`~/Documents/MacAuraLiveApp/animatedcode/`)
-  - **Temporary Cache & Manifests**: ~0.1 MB
-  - **Total Application Footprint**: ~23.2 MB (Ultra-lightweight footprint)
-- **Interactive Multi-Color Storage Bar** — Visual segmented gauge matching macOS System Settings design language.
+### 💾 Minified Footprint & Resource Analytics Dashboard
+- **Minified Binary** — Stripped Universal 2 binary (~4.4 MB total for both ARM64 and x86_64 combined; ~2.2 MB single arch).
+- **Real-Time Storage Breakdown** — Live analytics dashboard built directly into Settings tracking disk allocation across binary, live shaders, static wallpapers, and cache.
+- **Real-Time File Size Badges** — Wallpaper card footers and quick-look preview modals dynamically display exact file sizes (e.g., `4K UHD • 12.4 MB`).
+- **Duplicate Media Scanner & Cleaner** — Built-in SHA-256 byte scanner detects duplicate video, photo, and GIF assets across your library with 1-click batch cleanup.
+- **Settings Backup & Migration (Export / Import)** — Export complete app configurations, display assignments, and slideshow rules to portable JSON or restore on a new Mac in seconds.
+- **Granular Reset System** — Dedicated **Reset Only Media** (clears custom imported files and restores bundled pack while keeping all preferences intact), **Reset Only Preferences**, and **Full Factory Reset**.
+- **Multi-Select & Batch Media Operations** — Multi-select mode across all gallery tabs with Select All, selection counter, and batch deletion.
 - **One-Click Cache Management** — Instant cache cleanup and Finder reveal actions.
-
-### 🎛️ Menu Bar App, Sidebar Controls & Speed Slider
-- Runs silently in background with status bar menu bar icon
-- **Real-Time Playback Speed Slider** — Dynamically adjust playback speed from `0.25x` to `3.0x` across both Video loops and WebGL/Canvas shaders
-- Quick pause/resume, mute/unmute, volume control, and Launch at Login toggles
-- **Reliable Dashboard Window Launcher** — Quick "Open Dashboard" menu action surfacing the window regardless of Dock visibility or window state
-
-### 🤖 AI Wallpaper Workshop & Key Management
-- Generate custom HTML5/WebGL live wallpapers using natural language prompts
-- Supports Google Gemini 2.0/1.5 Flash, OpenRouter (DeepSeek R1, Llama 3.3, Qwen 2.5), and local offline LLMs (Ollama / LMStudio)
-- **API Key Action Trio** — Dedicated **Save Key**, **Test Key** (live API server validation ping), and **Clear Key** buttons
-- All API keys stored securely in macOS **Keychain** hardware enclave via `Security.framework`
-
-### 📁 Document Library
-- Auto-creates `~/Documents/MacAuraLiveApp/` folder structure on first launch (`livewallpaper/`, `staticwallpaper/`, `gif/`, `animatedcode/`)
-- Import custom `.mp4`, `.mov`, `.m4v`, `.gif`, `.html`, `.jpg`, `.png` wallpapers via drag & drop or file scanner
 
 ---
 
-## 📊 Storage Usage & Resource Allocation Estimates
+## 📊 Storage Usage & Resource Allocation Breakdown
 
-| Component | Storage Type | Typical Size | % of Total | Description |
+| Component | Storage Type | Size | % of Total | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **App Executable (Mach-O)** | Binary | ~7.5 MB | ~32% | Compiled Swift & Metal rendering engine |
-| **Built-in Live Shaders** | Resources | ~15.0 MB | ~64% | Bundled 60fps Aurora, Matrix, Cyberpunk, ParticleWave |
-| **Static Wallpapers** | User Data | ~0.4 MB | ~2% | User-imported 4K/8K static desktop backdrops |
-| **AI Generations & Code** | User Data | ~0.2 MB | ~1% | Custom generated HTML5/Canvas shader source files |
-| **Cache & Settings** | Cache | ~0.1 MB | <1% | Temporary previews, JSON metadata & manifests |
-| **Total Footprint** | Combined | **~23.2 MB** | **100%** | Ultra-efficient footprint on Apple Silicon |
+| **App Executable (Universal 2)** | Mach-O Binary | **4.8 MB** | ~13% | Minified Universal dual-arch binary (ARM64 + Intel x86_64) |
+| **Bundled 4K Video Loop** | Media Resource | **11.3 MB** | ~31% | High-bitrate 4K loop (`ShivaayWaves/wallpaper.mp4`) |
+| **Bundled 4K Static Wallpapers** | Media Resource | **14.4 MB** | ~39% | 5 high-res desktop backdrops (Ocean, Mountains, Space, Glacier) |
+| **App Branding & High-DPI Icons** | Asset Catalog | **6.5 MB** | ~17% | Retina 1024×1024 AppIcon.icns, StatusBarIcon & legal suite |
+| **Built-in Shaders & Runtime** | HTML5/GLSL | **~60 KB** | <1% | 60fps Aurora, Matrix, Cyberpunk, Particle Wave shaders |
+| **Total Uncompressed `.app`** | Combined Bundle | **~36.8 MB** | **100%** | Ultra-efficient footprint on Apple Silicon & Intel Macs |
+| **Compressed DMG Installer** | Disk Image | **~34.1 MB** | — | Single universal installer from GitHub Releases |
 
 ---
 
@@ -140,15 +131,16 @@
 MacAuraLive/
 ├── Package.swift                      # Swift Package Manifest (macOS 13.0+)
 ├── Scripts/
-│   ├── build_app.sh                  # Release build + .app bundle packager
-│   ├── create_installer_dmg.sh       # Apple Silicon DMG installer packager + Checksum generator
-│   └── verify_environment.sh         # Pre-build audit & version sync verifier
+│   ├── build_app.sh                  # Universal 2 release build + symbol minifier
+│   ├── create_installer_dmg.sh       # Universal DMG installer packager + Checksum generator
+│   └── verify_environment.sh         # Pre-build audit & 7-part legal sync verifier
 └── Sources/MacAuraLive/
     ├── MacAuraLiveApp.swift               # @main entry, NSStatusItem, Dock & Launch at Login toggles
     ├── Models/
     │   ├── WallpaperItem.swift        # Wallpaper data model
     │   ├── AppSettings.swift          # UserDefaults + Keychain settings & LaunchAtLogin status
-    │   └── DisplayInfo.swift          # Display/monitor state
+    │   ├── DisplayInfo.swift          # Display/monitor state
+    │   └── OnlineWallpaperPlugin.swift# Plugin protocol for Unsplash, Pixabay, Pexels
     ├── Core/
     │   ├── WallpaperEngine.swift      # Multi-monitor window orchestrator & playback speed delegation
     │   ├── StorageAnalyticsManager.swift # Live storage footprint calculator & resource analytics
@@ -161,26 +153,31 @@ MacAuraLive/
     │   ├── AIGenerationManager.swift  # Multi-provider AI wallpaper generation & key testing
     │   ├── KeychainManager.swift      # Hardware Keychain AES-256 key storage
     │   ├── LockScreenManager.swift    # Lock screen static wallpaper application
-    │   ├── PerformanceManager.swift   # Battery, thermal, FPS management
-    │   └── DisplayManager.swift       # NSScreen multi-monitor manager
+    │   ├── SecurityHardeningManager.swift # Prompt injection filter & CSP sanitizer
+    │   ├── OnlineMarketplaceManager.swift # Unsplash/Pixabay/Pexels aggregator
+    │   ├── UpdateManager.swift        # GitHub Releases update checker
+    │   └── PerformanceManager.swift   # Battery, thermal, FPS management
     ├── Views/
     │   ├── MainWindowView.swift       # SwiftUI dashboard, sidebar navigation & speed slider widget
     │   ├── GalleryView.swift          # Wallpaper grid, importer, preview cards with teardown
     │   ├── SlideshowView.swift        # Interval rotation & time-of-day schedule manager UI
     │   ├── SettingsView.swift         # Preferences, Storage Analytics, Changelog Modal, Legal Suite
     │   ├── AIConfigurationView.swift  # AI provider setup, Save/Test/Clear Key actions
+    │   ├── MarketplaceView.swift      # Online wallpaper marketplace browser
     │   ├── DisplayManagerView.swift   # Per-display wallpaper assignment
-    │   ├── UserGuideView.swift        # Searchable User Guide with responsive wrapping FlowLayout
-    │   ├── LockScreenView.swift       # Lock screen wallpaper picker & live preview
-    │   └── AdminGateView.swift        # Early-access passcode gate (hashed)
+    │   ├── UserGuideView.swift        # Searchable User Guide with responsive FlowLayout
+    │   └── LockScreenView.swift       # Lock screen wallpaper picker & live preview
     └── Resources/
+        ├── PrivacyInfo.xcprivacy      # Apple Privacy Manifest (Zero tracking, declared reasons)
         ├── Assets/
         │   ├── AppIcon.png            # Web-compatible browser App icon (1024x1024 PNG)
         │   ├── AppIcon.icns           # macOS bundle App icon
         │   └── StatusBarIcon.png      # Menu bar icon (18×18 @1x)
+        ├── Runtime/                   # JavaScript wallpaper runtime engine
         └── Wallpapers/
             ├── Live/                  # Aurora, Matrix, Cyberpunk, ParticleWave
-            └── Static/                # Bundled default high-res static images
+            ├── Static/                # Bundled default high-res static images
+            └── Video/                 # Bundled ShivaayWaves 4K video loop
 ```
 
 ---
@@ -188,36 +185,26 @@ MacAuraLive/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- macOS 13.0 Ventura or newer
-- Xcode Command Line Tools (`xcode-select --install`)
-- Apple Silicon Mac (ARM64) — Intel build possible with minor script edits
+- macOS 13.0 Ventura or newer (macOS 13, 14 Sonoma, 15 Sequoia)
+- Apple Silicon Mac (M1/M2/M3/M4) **OR** Intel Mac (Core i5/i7/i9)
+- Xcode Command Line Tools (`xcode-select --install`) for compiling from source
 
-### Build & Run
+### Build from Source
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/ASKHOPE/MacAuraLive.git
 cd MacAuraLive
 
-# 2. Build the signed .app bundle
+# 2. Build the Universal 2 signed .app bundle
 ./Scripts/build_app.sh
 
-# 3. Launch MacAuraLive
+# 3. Create DMG Installer & Checksums
+./Scripts/create_installer_dmg.sh
+
+# 4. Launch MacAuraLive
 open build/MacAuraLive.app
-
-# 4. Verify Installer Integrity (SHA-256)
-shasum -a 256 build/MacAuraLive_v1.2.0_Installer_AppleSilicon.dmg
 ```
-
-### 🔑 Cryptographic Checksums (v1.2.0)
-- **SHA-256**: `9806eb0b7d9d4d956d9a198444f0c02f149d090be2678d327f4d36d2975bdbdb`
-- **MD5**: `177296f659db348297f293f0dbd9a9e1`
-
-### First Launch
-On first launch, MacAuraLive will:
-1. Create `~/Documents/MacauraApp/` with subfolders for your wallpaper library
-2. Appear in your **menu bar** and **Dock**
-3. Request **Screen Recording** permission (required to detect full-screen apps and auto-pause rendering)
 
 ---
 
@@ -225,34 +212,15 @@ On first launch, MacAuraLive will:
 
 | Area | Approach |
 |---|---|
-| API Keys | Stored in macOS **Keychain** via `Security.framework` — never written to disk or UserDefaults |
-| Admin Passcode | Verified against **SHA-256 hash** only — plaintext never in source |
-| Wallpaper Data | 100% local — no telemetry, no analytics, no cloud sync |
-| Network | Only outbound calls are to AI provider APIs *you configure* |
-| Permissions | Screen Recording (full-screen detection only), no microphone/camera |
+| **API Keys** | Stored exclusively in macOS **Keychain** via `Security.framework` (`kSecClassGenericPassword` with `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) — never saved in plaintext or `UserDefaults`. |
+| **Privacy Manifest** | Official Apple `PrivacyInfo.xcprivacy` declaring `NSPrivacyTracking = false`, zero data collection, and declared reasons for `UserDefaults` (CA92.1) and `FileTimestamp` (C617.1). |
+| **Wallpaper Data** | 100% local on-device execution — zero telemetry, zero analytics, zero tracking servers. |
+| **Network** | Only outbound TLS connections are to user-configured AI APIs or online marketplace providers (Unsplash/Pixabay/Pexels). |
+| **Security Hardening** | Automated Content Security Policy (CSP) injection blocking `eval()`, `Function()`, `fetch()`, `document.cookie`, and `localStorage` in generated shaders. |
 
 ---
 
-## 📦 MacAuraLive SDK (for Wallpaper Developers)
-
-Custom HTML5 wallpapers can tap into the MacAuraLive SDK injected into every `WKWebView`:
-
-```javascript
-window.macAura.onInit(function(config) {
-  // Called once when wallpaper loads
-  console.log(config.settings); // user custom settings
-});
-
-window.macAura.onUpdate(function(state) {
-  // Called every frame (~60fps)
-  const { batteryLevel, isPluggedIn, performanceTier, fps } = state.system;
-  const { x, y } = state.mouse; // real-time mouse position
-});
-```
-
----
-
-## ⚖️ Legal & Security Documentation
+## ⚖️ Legal & Compliance Documentation Suite
 
 | Document | Description |
 | :--- | :--- |
@@ -265,13 +233,11 @@ window.macAura.onUpdate(function(state) {
 | **[DMCA.md](DMCA.md)** | DMCA Copyright Policy & Takedown Notice Procedures |
 
 ### Disclaimer
-> MacAuraLive is provided **"as-is"** without warranty of any kind. The authors are not responsible for any damage to hardware, software, data loss, or system instability arising from use of this application. Use at your own risk.
->
-> Setting live wallpapers increases GPU and CPU load. Ensure your Mac has adequate cooling. MacAuraLive is not responsible for overheating, hardware degradation, or reduced battery lifespan resulting from continuous use.
+> MacAuraLive is provided **"as-is"** without warranty of any kind. The authors are not responsible for any damage to hardware, software, data loss, or system instability arising from use of this application. Setting live wallpapers naturally increases GPU energy consumption; laptop users are encouraged to enable "Pause on Battery".
 
 ### Trademarks
-Apple, macOS, Metal, AVFoundation, SwiftUI, and related marks are trademarks of **Apple Inc.** MacAuraLive is an independent project and is not affiliated with, endorsed by, or sponsored by Apple Inc.
+Apple, macOS, Metal, AVFoundation, SwiftUI, and related marks are trademarks of **Apple Inc.** Unsplash, Pixabay, and Pexels are trademarks of their respective owners. MacAuraLive is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Apple Inc. or third-party content platforms.
 
 ---
 
-<p align="center">Made with ❤️ for macOS</p>
+<p align="center">Made with ❤️ for macOS (Apple Silicon & Intel)</p>
