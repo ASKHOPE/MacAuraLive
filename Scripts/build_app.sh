@@ -93,13 +93,17 @@ codesign --force --deep --sign - "build/MacAuraLive.app"
 echo "✅ Universal 2 App bundle created and signed at: build/MacAuraLive.app"
 
 # ── DMG Packaging ─────────────────────────────────────────────────────────────
+RELEASE_DIR="build/MacAuraLive_${VERSION}"
 DMG_NAME="MacAuraLive-${VERSION}.dmg"
 DMG_STAGING="build/dmg_staging"
-DMG_OUTPUT="build/${DMG_NAME}"
+DMG_OUTPUT="${RELEASE_DIR}/${DMG_NAME}"
+
+mkdir -p "${RELEASE_DIR}"
+echo "📂 Release folder: ${RELEASE_DIR}"
 
 echo "📦 Creating DMG installer: ${DMG_NAME}..."
 
-rm -rf "${DMG_STAGING}" "${DMG_OUTPUT}"
+rm -rf "${DMG_STAGING}" "${DMG_OUTPUT}" "${RELEASE_DIR}/${DMG_NAME}.sha256" "${RELEASE_DIR}/${DMG_NAME}.md5"
 mkdir -p "${DMG_STAGING}"
 
 cp -R "build/MacAuraLive.app" "${DMG_STAGING}/MacAuraLive.app"
@@ -132,8 +136,11 @@ BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "${SHA256}  ${DMG_NAME}" > "${DMG_OUTPUT}.sha256"
 echo "${MD5}  ${DMG_NAME}"    > "${DMG_OUTPUT}.md5"
 
+# Copy signed .app into release folder for reference
+cp -R "build/MacAuraLive.app" "${RELEASE_DIR}/MacAuraLive.app"
+
 # Human-readable CHECKSUMS.txt
-cat > "build/CHECKSUMS.txt" << CSEOF
+cat > "${RELEASE_DIR}/CHECKSUMS.txt" << CSEOF
 ===================================================================
  MacAuraLive v${VERSION} Official Universal Release Checksums
 ===================================================================
@@ -152,6 +159,9 @@ Verify with:
   md5 -q ${DMG_NAME}
 ===================================================================
 CSEOF
+
+# Also keep a root-level CHECKSUMS.txt for convenience
+cp "${RELEASE_DIR}/CHECKSUMS.txt" "build/CHECKSUMS.txt"
 
 # ── docs/checksums.json — website reads this automatically on load ────────────
 cat > "docs/checksums.json" << JSONEOF
@@ -172,8 +182,10 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "SHA-256: ${SHA256}"
 echo "MD5:     ${MD5}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📁 DMG:              ${DMG_OUTPUT}"
-echo "📁 SHA-256 sidecar:  ${DMG_OUTPUT}.sha256"
-echo "📁 MD5 sidecar:      ${DMG_OUTPUT}.md5"
-echo "📁 CHECKSUMS.txt:    build/CHECKSUMS.txt"
+echo "📁 Release folder:   ${RELEASE_DIR}/"
+echo "   ├── MacAuraLive.app"
+echo "   ├── ${DMG_NAME}"
+echo "   ├── ${DMG_NAME}.sha256"
+echo "   ├── ${DMG_NAME}.md5"
+echo "   └── CHECKSUMS.txt"
 echo "📁 Website JSON:     docs/checksums.json"
