@@ -48,6 +48,17 @@ public class WallpaperEngine: ObservableObject {
                 self?.reloadEngine()
             }
             .store(in: &cancellables)
+        
+        // Re-assert wallpaper window level after wake from sleep / display-on.
+        // macOS can reset window ordering while the display is off, which causes
+        // the wallpaper window to sit above the Dock and all app windows on wake.
+        NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didWakeNotification)
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.reloadEngine()
+                }
+            }
+            .store(in: &cancellables)
             
         // Observe Span Across Displays toggle
         AppSettings.shared.$spanAcrossDisplays

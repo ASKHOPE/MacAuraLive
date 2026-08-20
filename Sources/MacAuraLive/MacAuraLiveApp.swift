@@ -70,6 +70,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
     /// Intercept red close button click on the main window: hide window instead of destroying it
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
         sender.orderOut(nil)
+        // Drop back to accessory (no Dock icon) once the dashboard is hidden
+        NSApp.setActivationPolicy(.accessory)
         return false // Intercept destruction
     }
 
@@ -96,6 +98,11 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
     }
     
     public func applicationDidFinishLaunching(_ notification: Notification) {
+        // Run as a menu-bar app — hide from Dock while running.
+        // The dashboard window will temporarily promote to .regular so it
+        // appears in Cmd+Tab, then we drop back to .accessory on close.
+        NSApp.setActivationPolicy(.accessory)
+        
         // Initialize Wallpaper Engine
         WallpaperEngine.shared.startEngine()
         
@@ -128,6 +135,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
             } else {
                 button.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "MacAuraLive Live Wallpaper")
             }
+            button.toolTip = "MacAuraLive Live Wallpaper"
         }
         
         let menu = NSMenu()
@@ -220,6 +228,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
     }
     
     @objc public func openDashboard() {
+        // Promote to regular app so the window appears in Cmd+Tab switcher
+        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
         
         let targetWindow = mainWindow ?? NSApp.windows.first(where: { !($0 is NSPanel) && $0.canBecomeMain })

@@ -30,20 +30,32 @@ public class LockScreenManager: ObservableObject {
         )
 
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.sessionDidResignActiveNotification)
-            .sink { [weak self] _ in self?.isScreenLocked = true }
+            .sink { [weak self] _ in
+                self?.isScreenLocked = true
+                WallpaperEngine.shared.reloadEngine()
+            }
             .store(in: &cancellables)
 
         NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.sessionDidBecomeActiveNotification)
-            .sink { [weak self] _ in self?.isScreenLocked = false }
+            .sink { [weak self] _ in
+                self?.isScreenLocked = false
+                WallpaperEngine.shared.reloadEngine()
+            }
             .store(in: &cancellables)
     }
 
     @objc private func screenDidLock() {
-        DispatchQueue.main.async { self.isScreenLocked = true }
+        DispatchQueue.main.async {
+            self.isScreenLocked = true
+            WallpaperEngine.shared.reloadEngine()
+        }
     }
 
     @objc private func screenDidUnlock() {
-        DispatchQueue.main.async { self.isScreenLocked = false }
+        DispatchQueue.main.async {
+            self.isScreenLocked = false
+            WallpaperEngine.shared.reloadEngine()
+        }
     }
 
     // MARK: - Set Static Lock Screen Wallpaper
