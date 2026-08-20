@@ -206,7 +206,7 @@ public struct GalleryView: View {
                 Divider()
                 
                 // Secondary Filter Row: Resolution & Categories + Action Buttons
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     // Resolution Pills
                     HStack(spacing: 4) {
                         ForEach(["1080P", "2K", "4K UHD", "8K"], id: \.self) { res in
@@ -216,8 +216,9 @@ public struct GalleryView: View {
                             }) {
                                 Text(res)
                                     .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: .monospaced))
+                                    .fixedSize()
                                     .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
+                                    .padding(.vertical, 5)
                                     .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
                                     .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
                                     .cornerRadius(settings.appTheme == "classic" ? 2 : 4)
@@ -230,35 +231,39 @@ public struct GalleryView: View {
                         }
                     }
                     
-                    // Category Pills
-                    HStack(spacing: 4) {
-                        ForEach(currentCategoryPills, id: \.self) { cat in
-                            Button(action: { selectedCategory = cat }) {
-                                HStack(spacing: 4) {
-                                    if cat == "With Audio" {
-                                        Image(systemName: "speaker.wave.2.fill")
-                                            .font(.system(size: 10))
+                    // Category Pills Scrollable Container
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 4) {
+                            ForEach(currentCategoryPills, id: \.self) { cat in
+                                let isSelected = selectedCategory == cat
+                                Button(action: { selectedCategory = cat }) {
+                                    HStack(spacing: 4) {
+                                        if cat == "With Audio" {
+                                            Image(systemName: "speaker.wave.2.fill")
+                                                .font(.system(size: 10))
+                                        }
+                                        Text(cat)
+                                            .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                            .fixedSize()
                                     }
-                                    Text(cat)
-                                        .font(.system(size: 11.5, weight: selectedCategory == cat ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 5)
+                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
+                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 6)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 6)
+                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
+                                    )
                                 }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4.5)
-                                .background(selectedCategory == cat ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
-                                .foregroundColor(selectedCategory == cat ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                .cornerRadius(settings.appTheme == "classic" ? 3 : 6)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 3 : 6)
-                                        .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
-                                )
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                     
-                    Spacer()
+                    Spacer(minLength: 4)
                     
-                    // Sizing & Actions
+                    // Sizing & Action Buttons
                     HStack(spacing: 6) {
                         Button { openFolderPicker() } label: {
                             Label("Import Folder", systemImage: "folder.badge.plus")
@@ -429,7 +434,7 @@ public struct GalleryView: View {
                 let doubleVal = Double(currentVal) ?? (Double(setting.defaultValue) ?? minVal)
                 
                 HStack {
-                    Slider(value: Binding(
+                    MacaRetroSlider(value: Binding(
                         get: { doubleVal },
                         set: { newValue in
                             storage.updateWallpaperSetting(id: activeWallpaper.id, key: setting.key, value: String(format: "%.2f", newValue))

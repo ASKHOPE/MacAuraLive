@@ -290,51 +290,66 @@ struct MoodEditorSheet: View {
             Divider()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    // Name & Description
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Mood Name & Tagline").font(.caption).bold()
+                VStack(alignment: .leading, spacing: 22) {
+                    // Section 1: Name & Tagline
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Mood Name & Tagline")
+                            .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                         TextField("e.g. Deep Coding, Relaxing Rain, Nightshift", text: $name)
                             .textFieldStyle(.roundedBorder)
                         TextField("Description of what this mood is for", text: $description)
                             .textFieldStyle(.roundedBorder)
                     }
+                    .padding(14)
+                    .macaSubcardStyle(cornerRadius: 8)
                     
-                    // Icon & Accent Color Row
-                    HStack(spacing: 24) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Icon").font(.caption).bold()
-                            HStack(spacing: 8) {
-                                ForEach(availableIcons, id: \.self) { sym in
-                                    Image(systemName: sym)
-                                        .font(.system(size: 16))
-                                        .frame(width: 32, height: 32)
-                                        .background(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive.opacity(0.2) : Color.accentColor.opacity(0.2)) : Color.clear)
-                                        .macaItemRadius(4)
-                                        .overlay(RoundedRectangle(cornerRadius: isClassic ? 2 : 6).stroke(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor) : Color.gray.opacity(0.3)))
-                                        .onTapGesture { icon = sym }
+                    // Section 2: Icon & Accent Color Row
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Mood Identity & Visuals")
+                            .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
+                        
+                        HStack(spacing: 24) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Icon").font(.caption).bold().foregroundColor(.secondary)
+                                HStack(spacing: 8) {
+                                    ForEach(availableIcons, id: \.self) { sym in
+                                        Image(systemName: sym)
+                                            .font(.system(size: 16))
+                                            .frame(width: 32, height: 32)
+                                            .background(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive.opacity(0.2) : Color.accentColor.opacity(0.2)) : Color.clear)
+                                            .macaItemRadius(4)
+                                            .overlay(RoundedRectangle(cornerRadius: isClassic ? 2 : 6).stroke(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor) : Color.gray.opacity(0.3)))
+                                            .onTapGesture { icon = sym }
+                                    }
                                 }
                             }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Accent Color").font(.caption).bold()
-                            HStack(spacing: 8) {
-                                ForEach(availableColors, id: \.self) { hex in
-                                    Circle()
-                                        .fill(Color(hex: hex) ?? .blue)
-                                        .frame(width: 24, height: 24)
-                                        .overlay(Circle().stroke(accentColorHex == hex ? (isClassic ? MacaThemeTokens.classicTextDark : Color.white) : Color.clear, lineWidth: 2))
-                                        .shadow(radius: accentColorHex == hex ? 2 : 0)
-                                        .onTapGesture { accentColorHex = hex }
+                            
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Accent Color").font(.caption).bold().foregroundColor(.secondary)
+                                HStack(spacing: 8) {
+                                    ForEach(availableColors, id: \.self) { hex in
+                                        Circle()
+                                            .fill(Color(hex: hex) ?? .blue)
+                                            .frame(width: 24, height: 24)
+                                            .overlay(Circle().stroke(accentColorHex == hex ? (isClassic ? MacaThemeTokens.classicTextDark : Color.white) : Color.clear, lineWidth: 2))
+                                            .shadow(radius: accentColorHex == hex ? 2 : 0)
+                                            .onTapGesture { accentColorHex = hex }
+                                    }
                                 }
                             }
                         }
                     }
+                    .padding(14)
+                    .macaSubcardStyle(cornerRadius: 8)
                     
-                    // macOS Sync Link Dropdown
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Linked macOS Trigger").font(.caption).bold()
+                    // Section 3: macOS Sync Trigger
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Linked macOS System Trigger")
+                            .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
+                        
                         Picker("Trigger on macOS Event:", selection: $linkedMode) {
                             ForEach(LinkedMacOSMode.allCases, id: \.self) { mode in
                                 Label(mode.rawValue, systemImage: mode.iconName).tag(mode)
@@ -342,93 +357,114 @@ struct MoodEditorSheet: View {
                         }
                         .pickerStyle(.menu)
                     }
+                    .padding(14)
+                    .macaSubcardStyle(cornerRadius: 8)
                     
-                    // Playback & Timing
-                    HStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Playback Mode").font(.caption).bold()
-                            HStack(spacing: 4) {
-                                ForEach(MoodPlaybackMode.allCases, id: \.self) { mode in
-                                    let isSel = playbackMode == mode
-                                    Button(action: { playbackMode = mode }) {
-                                        Text(mode.rawValue)
-                                            .font(.system(size: 11, weight: isSel ? .bold : .medium, design: isClassic ? .monospaced : .default))
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 5)
-                                            .background(
-                                                isSel
-                                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
-                                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
-                                            )
-                                            .foregroundColor(isSel ? .white : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
-                                            .macaItemRadius(3)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: isClassic ? 2 : 3)
-                                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
-                                            )
+                    // Section 4: Playback & Audio
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Playback & Audio Behavior")
+                            .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
+                        
+                        HStack(spacing: 20) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Playback Mode").font(.caption).bold().foregroundColor(.secondary)
+                                HStack(spacing: 4) {
+                                    ForEach(MoodPlaybackMode.allCases, id: \.self) { mode in
+                                        let isSel = playbackMode == mode
+                                        Button(action: { playbackMode = mode }) {
+                                            Text(mode.rawValue)
+                                                .font(.system(size: 11, weight: isSel ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 5)
+                                                .background(
+                                                    isSel
+                                                        ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                                        : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                                                )
+                                                .foregroundColor(isSel ? .white : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
+                                                .macaItemRadius(3)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: isClassic ? 2 : 3)
+                                                        .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
+                                                )
+                                        }
+                                        .buttonStyle(.plain)
                                     }
-                                    .buttonStyle(.plain)
                                 }
                             }
+                            
+                            Spacer()
+                            
+                            MacaRetroToggle("Mute Audio", isOn: $isMuted)
+                        }
+                    }
+                    .padding(14)
+                    .macaSubcardStyle(cornerRadius: 8)
+                    
+                    // Section 5: Wallpaper Selection Grid
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Select Wallpapers in this Mood")
+                                .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
+                            Spacer()
+                            Text("\(selectedWallpaperIDs.count) Selected")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                         
-                        Spacer()
-                        
-                        MacaRetroToggle("Mute Audio", isOn: $isMuted)
-                            .padding(.top, 14)
-                    }
-                    
-                    // Wallpaper Selection List
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Select Wallpapers in this Mood (\(selectedWallpaperIDs.count) selected)")
-                            .font(.caption).bold()
-                        
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 140, maximum: 180), spacing: 10)], spacing: 10) {
-                            ForEach(WallpaperStorageManager.shared.wallpapers) { item in
-                                let isSelected = selectedWallpaperIDs.contains(item.id)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    ZStack(alignment: .topTrailing) {
-                                        RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
-                                            .fill(isClassic ? MacaThemeTokens.classicSubcardBg : Color.gray.opacity(0.15))
-                                            .frame(height: 80)
+                        ScrollView(.vertical, showsIndicators: true) {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 140, maximum: 180), spacing: 10)], spacing: 10) {
+                                ForEach(WallpaperStorageManager.shared.wallpapers) { item in
+                                    let isSelected = selectedWallpaperIDs.contains(item.id)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        ZStack(alignment: .topTrailing) {
+                                            RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                                .fill(isClassic ? MacaThemeTokens.classicSubcardBg : Color.gray.opacity(0.15))
+                                                .frame(height: 80)
+                                            
+                                            Image(systemName: item.thumbnailIcon)
+                                                .font(.system(size: 24))
+                                                .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .secondary)
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            
+                                            if isSelected {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
+                                                    .padding(6)
+                                            }
+                                        }
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                                .stroke(isSelected ? (isClassic ? MacaThemeTokens.classicOlive : Color.blue) : (isClassic ? MacaThemeTokens.classicBorder : Color.clear), lineWidth: 1.5)
+                                        )
                                         
-                                        Image(systemName: item.thumbnailIcon)
-                                            .font(.system(size: 24))
-                                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .secondary)
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                        
+                                        Text(item.title)
+                                            .font(.system(size: 11, design: isClassic ? .monospaced : .default))
+                                            .lineLimit(1)
+                                    }
+                                    .onTapGesture {
                                         if isSelected {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
-                                                .padding(6)
+                                            selectedWallpaperIDs.remove(item.id)
+                                        } else {
+                                            selectedWallpaperIDs.insert(item.id)
                                         }
                                     }
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
-                                            .stroke(isSelected ? (isClassic ? MacaThemeTokens.classicOlive : Color.blue) : (isClassic ? MacaThemeTokens.classicBorder : Color.clear), lineWidth: 1.5)
-                                    )
-                                    
-                                    Text(item.title)
-                                        .font(.system(size: 11, design: isClassic ? .monospaced : .default))
-                                        .lineLimit(1)
-                                }
-                                .onTapGesture {
-                                    if isSelected {
-                                        selectedWallpaperIDs.remove(item.id)
-                                    } else {
-                                        selectedWallpaperIDs.insert(item.id)
-                                    }
                                 }
                             }
+                            .padding(4)
                         }
-                        .frame(maxHeight: 220)
+                        .frame(height: 180)
                     }
+                    .padding(14)
+                    .macaSubcardStyle(cornerRadius: 8)
                 }
-                .padding(.vertical, 4)
+                .padding(.vertical, 8)
             }
         }
         .padding(24)
-        .frame(minWidth: 640, minHeight: 520)
+        .frame(minWidth: 680, minHeight: 560)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
 }

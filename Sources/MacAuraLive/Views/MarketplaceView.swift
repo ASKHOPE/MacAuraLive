@@ -353,7 +353,9 @@ public struct MarketplaceView: View {
     // MARK: - API Key Configuration Modal
     
     private var apiKeyConfigurationModal: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Configure Marketplace Plugin API Keys")
@@ -365,13 +367,14 @@ public struct MarketplaceView: View {
                 }
                 Spacer()
                 Button("Done") { showApiKeyModal = false }
+                    .macaButtonStyle(.primary)
                     .keyboardShortcut(.defaultAction)
             }
             
             Divider()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 16) {
                     // Unsplash
                     providerKeyCard(
                         provider: .unsplash,
@@ -403,24 +406,25 @@ public struct MarketplaceView: View {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "lock.shield.fill")
                             .font(.title3)
-                            .foregroundColor(.green)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .green)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Hardware Enclave Security (macOS Keychain)")
-                                .font(.caption)
-                                .bold()
+                                .font(.system(size: 11.5, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                             Text("Your API keys are encrypted locally using macOS Security.framework. They are never sent to any MacAuraLive server and communicate directly with provider APIs.")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                     }
                     .padding(12)
-                    .background(Color.green.opacity(0.08))
-                    .cornerRadius(10)
+                    .macaSubcardStyle(cornerRadius: 8)
                 }
+                .padding(.vertical, 4)
             }
         }
         .padding(24)
-        .frame(width: 580, height: 600)
+        .frame(width: 600, height: 580)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
     
     private func providerKeyCard(
@@ -430,23 +434,26 @@ public struct MarketplaceView: View {
         portalUrl: String,
         keyBinding: Binding<String>
     ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: provider.iconName)
-                    .foregroundColor(.blue)
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
                 Text(title)
-                    .font(.headline)
+                    .font(.system(size: 14, weight: .bold, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                 Spacer()
                 Link("Get Free Key ↗", destination: URL(string: portalUrl)!)
-                    .font(.caption)
-                    .foregroundColor(.blue)
+                    .font(.system(size: 11, weight: .medium, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
             }
             
             Text(desc)
                 .font(.caption)
                 .foregroundColor(.secondary)
             
-            HStack {
+            HStack(spacing: 8) {
                 SecureField("Paste API Key here...", text: keyBinding)
                     .textFieldStyle(.roundedBorder)
                 
@@ -469,14 +476,14 @@ public struct MarketplaceView: View {
                     if testingProvider == provider {
                         ProgressView()
                             .scaleEffect(0.6)
-                            .frame(width: 60)
+                            .frame(width: 50)
                     } else {
                         Text("Test")
                             .font(.caption)
-                            .frame(width: 60)
+                            .frame(width: 50)
                     }
                 }
-                .buttonStyle(.bordered)
+                .macaButtonStyle(.secondary, size: .small)
             }
             
             if let result = testResults[provider] {

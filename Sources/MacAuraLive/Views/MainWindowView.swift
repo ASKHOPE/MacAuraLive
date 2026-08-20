@@ -138,6 +138,7 @@ public struct MainWindowView: View {
                 let activeItem = storage.getActiveWallpaper()
                 let isStatic = activeItem == nil || activeItem?.type == .image || activeItem?.category == "Static"
                 let isVideo = activeItem?.type == .video
+                let isClassic = settings.appTheme == "classic"
                 
                 // Sidebar Footer: Active Status + Always Visible Mute / Unmute Controls
                 VStack(alignment: .leading, spacing: 10) {
@@ -188,17 +189,16 @@ public struct MainWindowView: View {
                                         .foregroundColor(.cyan)
                                 }
                                 
-                                Slider(
+                                MacaRetroSlider(
                                     value: Binding(
                                         get: { engine.playbackCurrentTime },
                                         set: { newValue in
                                             engine.seekToPosition(seconds: newValue)
                                         }
                                     ),
-                                    in: 0...max(0.1, engine.playbackDuration)
+                                    in: 0...max(0.1, engine.playbackDuration),
+                                    accentColor: .cyan
                                 )
-                                .controlSize(.small)
-                                .tint(.cyan)
                             }
                         }
                         
@@ -223,7 +223,7 @@ public struct MainWindowView: View {
                                     .foregroundColor(.orange)
                             }
                             
-                            Slider(
+                            MacaRetroSlider(
                                 value: Binding(
                                     get: { Double(settings.playbackRate) },
                                     set: { newVal in
@@ -233,10 +233,11 @@ public struct MainWindowView: View {
                                     }
                                 ),
                                 in: 0.25...3.0,
-                                step: 0.25
+                                step: 0.25,
+                                accentColor: .orange,
+                                showTicks: true,
+                                tickCount: 8
                             )
-                            .controlSize(.mini)
-                            .tint(.orange)
                         }
                         
                         HStack {
@@ -248,34 +249,30 @@ public struct MainWindowView: View {
                                     Image(systemName: settings.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                                         .font(.caption)
                                     Text(settings.isMuted ? "Unmute" : "Mute")
-                                        .font(.caption2)
-                                        .bold()
+                                        .font(.system(size: 11, weight: .bold, design: isClassic ? .monospaced : .default))
                                 }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .background(settings.isMuted ? Color.red.opacity(0.18) : Color.blue.opacity(0.18))
-                                .foregroundColor(settings.isMuted ? .red : .blue)
-                                .cornerRadius(8)
                             }
-                            .buttonStyle(.plain)
+                            .macaButtonStyle(settings.isMuted ? .destructive : .secondary, size: .small)
                             
                             Spacer()
                             
                             Text(settings.isMuted ? "MUTED" : "\(Int(settings.audioVolume * 100))%")
-                                .font(.caption2)
-                                .bold()
-                                .foregroundColor(settings.isMuted ? .red : .primary)
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .foregroundColor(settings.isMuted ? .red : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
                         }
                         
-                        Slider(value: Binding(
-                            get: { settings.audioVolume },
-                            set: { newValue in
-                                settings.audioVolume = newValue
-                                engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
-                            }
-                        ), in: 0.0...1.0)
-                        .controlSize(.small)
-                        .tint(.blue)
+                        MacaRetroSlider(
+                            value: Binding(
+                                get: { settings.audioVolume },
+                                set: { newValue in
+                                    settings.audioVolume = newValue
+                                    engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
+                                }
+                            ),
+                            in: 0.0...1.0,
+                            accentColor: isClassic ? MacaThemeTokens.classicOlive : Color.blue
+                        )
+                        .opacity(settings.isMuted ? 0.4 : 1.0)
                         .disabled(settings.isMuted)
                     }
                 }

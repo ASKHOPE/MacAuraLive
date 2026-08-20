@@ -384,7 +384,7 @@ public struct SettingsView: View {
                             .monospacedDigit()
                     }
                     
-                    Slider(value: $settings.wallpaperZoom, in: 0.25...3.0, step: 0.05)
+                    MacaRetroSlider(value: $settings.wallpaperZoom, in: 0.25...3.0, step: 0.05, showTicks: true, tickCount: 6)
                 }
                 .padding(.top, 4)
             }
@@ -1099,11 +1099,13 @@ public struct SettingsView: View {
     
     @ViewBuilder
     private var dataManagementResetCard: some View {
+        let isClassic = settings.appTheme == "classic"
+        
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 10) {
                 Image(systemName: "arrow.counterclockwise.circle.fill")
                     .font(.title3)
-                    .foregroundColor(.red)
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .red)
                 Text("Data Management & Reset")
                     .font(.title3)
                     .bold()
@@ -1131,7 +1133,7 @@ public struct SettingsView: View {
                 }
                 .padding(10)
                 .background(Color.green.opacity(0.12))
-                .cornerRadius(8)
+                .cornerRadius(isClassic ? 2 : 8)
             }
             
             HStack(spacing: 12) {
@@ -1139,44 +1141,29 @@ public struct SettingsView: View {
                     showResetMediaAlert = true
                 } label: {
                     Label("Reset Only Media", systemImage: "photo.stack")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.bordered)
-                .tint(.orange)
+                .macaButtonStyle(.secondary)
                 
                 Button(role: .destructive) {
                     showResetPreferencesAlert = true
                 } label: {
                     Label("Reset Only Preferences", systemImage: "gearshape.arrow.triangle.2.circlepath")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.bordered)
-                .tint(.blue)
+                .macaButtonStyle(.secondary)
                 
                 Button(role: .destructive) {
                     showFactoryResetAlert = true
                 } label: {
                     Label("Full Factory Reset...", systemImage: "exclamationmark.arrow.triangle.2.circlepath")
-                        .font(.caption)
-                        .fontWeight(.bold)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
+                .macaButtonStyle(.destructive)
                 
                 Spacer()
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(Color.red.opacity(0.06))
-        .cornerRadius(14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.red.opacity(0.25), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 1)
+        .macaCardStyle(cornerRadius: 14)
     }
     
     @ViewBuilder
@@ -1337,13 +1324,16 @@ public struct SettingsView: View {
     // MARK: - Modals
     
     private var tosModalView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("MacAuraLive Terms of Service & Use")
+                Text("Terms of Service")
                     .font(.title2)
                     .bold()
                 Spacer()
                 Button("Close") { showTOSModal = false }
+                    .macaButtonStyle(.primary)
             }
             Divider()
             ScrollView {
@@ -1371,16 +1361,20 @@ public struct SettingsView: View {
         }
         .padding(24)
         .frame(width: 580, height: 480)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
     
     private var licenseModalView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("MIT Open-Source License")
                     .font(.title2)
                     .bold()
                 Spacer()
                 Button("Close") { showLicenseModal = false }
+                    .macaButtonStyle(.primary)
             }
             Divider()
             ScrollView {
@@ -1404,16 +1398,20 @@ public struct SettingsView: View {
         }
         .padding(24)
         .frame(width: 580, height: 420)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
     
     private var disclaimerModalView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Disclaimer & Hardware Compatibility")
                     .font(.title2)
                     .bold()
                 Spacer()
                 Button("Close") { showDisclaimerModal = false }
+                    .macaButtonStyle(.primary)
             }
             Divider()
             ScrollView {
@@ -1435,58 +1433,61 @@ public struct SettingsView: View {
         }
         .padding(24)
         .frame(width: 580, height: 420)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
     
     private var changelogModalView: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("MacAuraLive v1.8.0 Release Notes")
+                    Text("MacAuraLive v\(AppVersion.current.version) Release Notes")
                         .font(.title2)
                         .bold()
-                    Text("Build 120 • Production Release • Universal 2 (Apple Silicon & Intel)")
+                    Text("Build \(AppVersion.current.build) • Production Release • Universal 2 (Apple Silicon & Intel)")
                         .font(.caption)
-                        .foregroundColor(.cyan)
+                        .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .cyan)
                 }
                 Spacer()
                 Button("Done") { showChangelogModal = false }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
             }
             Divider()
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("🚀 Universal 2 & Multi-Architecture Release")
+                        Text("🖥️ Authentic OS Classic Design & Custom Hardware Sliders")
                             .font(.headline)
-                            .foregroundColor(.pink)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .cyan)
+                        Text("• Sharp 2pt corner radius across all cards, dialogs, buttons, and thumbnails.\n• Custom beveled MacaRetroSlider component for Seek, Speed, and Volume controls.\n• Braun & System 7 styled hardware switches and toggle components.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("🛡️ In-App Background Updater & SHA-256 Checksum Verification")
+                            .font(.headline)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .green)
+                        Text("• Automatic background download with live progress indicator.\n• SHA-256 cryptographic verification prior to atomic bundle swap in /Applications.\n• Seamless 1-click restart and relaunch.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("✨ Custom Mood Profiles & macOS Event Sync")
+                            .font(.headline)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .purple)
+                        Text("• Tailored wallpaper presets with linked macOS triggers (Focus Mode, Sleep, Day/Night Appearance).\n• Enhanced form spacing and responsive grid layout in Mood Editor Sheet.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("🚀 Universal 2 Native Compilation")
+                            .font(.headline)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .pink)
                         Text("• Native compilation for both Apple Silicon (ARM64) and Intel (x86_64) Macs.\n• Stripped and minified binary footprint (~4.4 MB total).\n• Full macOS 13 (Ventura), 14 (Sonoma), and 15 (Sequoia) compatibility.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("🔍 Duplicate Media Scanner & 1-Click Cleaner")
-                            .font(.headline)
-                            .foregroundColor(.cyan)
-                        Text("• Automated SHA-256 byte-level duplicate wallpaper scanner.\n• Identifies duplicate media files across library and calculates wasted space.\n• 1-Click batch clean action to reclaim disk storage.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("💾 Settings Backup & Migration")
-                            .font(.headline)
-                            .foregroundColor(.purple)
-                        Text("• Export all app settings, preferences, and display configurations to portable JSON.\n• 1-Click import to restore preferences on any Mac.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("🎯 Granular Reset Controls & File Sizes")
-                            .font(.headline)
-                            .foregroundColor(.green)
-                        Text("• Reset Only Media: Wipes imported files without touching preferences or API keys.\n• Multi-Select in Gallery with Select All, selection counter, and batch deletion.\n• Real-time file sizes shown on all wallpaper card footers and quick-look modals.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -1496,6 +1497,7 @@ public struct SettingsView: View {
         }
         .padding(24)
         .frame(width: 580, height: 500)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
 
     private func openReferenceFolderPicker() {

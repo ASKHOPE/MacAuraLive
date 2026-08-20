@@ -186,9 +186,14 @@ public struct SlideshowView: View {
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
 
-                                Slider(value: $thumbnailWidth, in: 90...220)
-                                    .frame(width: 110)
-                                    .controlSize(.small)
+                                MacaRetroSlider(
+                                    value: Binding(
+                                        get: { Double(thumbnailWidth) },
+                                        set: { thumbnailWidth = CGFloat($0) }
+                                    ),
+                                    in: 90...220
+                                )
+                                .frame(width: 110)
 
                                 Image(systemName: "photo.fill")
                                     .font(.caption)
@@ -262,9 +267,12 @@ public struct SlideshowView: View {
             }
         }
         .sheet(isPresented: $showAddSheet) {
-            VStack(alignment: .leading, spacing: 20) {
+            let isClassic = AppSettings.shared.appTheme == "classic"
+            
+            VStack(alignment: .leading, spacing: 18) {
                 Text("Add Time-Based Schedule Rule")
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .bold, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
 
                 TextField("Rule Label (e.g. Morning Glow)", text: $newLabel)
                     .textFieldStyle(.roundedBorder)
@@ -278,6 +286,8 @@ public struct SlideshowView: View {
                     }
                 }
                 .pickerStyle(.menu)
+
+                Divider()
 
                 HStack {
                     Button("Cancel") {
@@ -300,7 +310,8 @@ public struct SlideshowView: View {
                 }
             }
             .padding(24)
-            .frame(width: 380)
+            .frame(width: 420)
+            .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
         }
     }
 }

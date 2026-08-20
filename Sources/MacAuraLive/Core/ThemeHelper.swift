@@ -281,6 +281,163 @@ public struct MacaRetroToggle: View {
     }
 }
 
+// MARK: - MacaRetroSlider Component
+
+public struct MacaRetroSlider: View {
+    @Binding public var value: Double
+    public let range: ClosedRange<Double>
+    public let step: Double?
+    public let accentColor: Color?
+    public let showTicks: Bool
+    public let tickCount: Int
+    public let onEditingChanged: ((Bool) -> Void)?
+    
+    @State private var isDragging: Bool = false
+    
+    public init(
+        value: Binding<Double>,
+        in range: ClosedRange<Double> = 0.0...1.0,
+        step: Double? = nil,
+        accentColor: Color? = nil,
+        showTicks: Bool = false,
+        tickCount: Int = 8,
+        onEditingChanged: ((Bool) -> Void)? = nil
+    ) {
+        self._value = value
+        self.range = range
+        self.step = step
+        self.accentColor = accentColor
+        self.showTicks = showTicks
+        self.tickCount = max(2, tickCount)
+        self.onEditingChanged = onEditingChanged
+    }
+    
+    public var body: some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        
+        GeometryReader { geometry in
+            let totalWidth = geometry.size.width
+            let thumbWidth: CGFloat = isClassic ? 14 : 16
+            let thumbHeight: CGFloat = isClassic ? 18 : 16
+            let trackHeight: CGFloat = isClassic ? 6 : 5
+            
+            // Normalize value
+            let clamped = min(max(value, range.lowerBound), range.upperBound)
+            let span = range.upperBound - range.lowerBound
+            let fraction = span > 0 ? (clamped - range.lowerBound) / span : 0.0
+            let effectiveWidth = max(0, totalWidth - thumbWidth)
+            let thumbOffset = CGFloat(fraction) * effectiveWidth
+            
+            ZStack(alignment: .leading) {
+                // Ticks if enabled in Classic Mode
+                if showTicks && isClassic {
+                    HStack {
+                        ForEach(0..<tickCount, id: \.self) { i in
+                            Rectangle()
+                                .fill(Color(red: 0.58, green: 0.55, blue: 0.50))
+                                .frame(width: 1.2, height: 3.5)
+                            if i < tickCount - 1 {
+                                Spacer()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, thumbWidth / 2)
+                    .offset(y: 8)
+                }
+                
+                // Track Slot / Groove
+                ZStack(alignment: .leading) {
+                    // Track Groove Inset Background
+                    RoundedRectangle(cornerRadius: isClassic ? 1.5 : 3)
+                        .fill(isClassic ? Color(red: 0.76, green: 0.73, blue: 0.67) : Color.gray.opacity(0.25))
+                        .frame(height: trackHeight)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: isClassic ? 1.5 : 3)
+                                .stroke(isClassic ? Color(red: 0.48, green: 0.45, blue: 0.40) : Color.clear, lineWidth: isClassic ? 1 : 0)
+                        )
+                    
+                    // Track Active Fill
+                    let fillWidth = max(0, thumbOffset + thumbWidth / 2)
+                    RoundedRectangle(cornerRadius: isClassic ? 1.5 : 3)
+                        .fill(accentColor ?? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor))
+                        .frame(width: min(fillWidth, totalWidth), height: trackHeight)
+                }
+                .frame(width: totalWidth, height: trackHeight)
+                
+                // Slider Thumb Knob
+                ZStack {
+                    if isClassic {
+                        // 3D Beveled Chassis Knob
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(Color(red: 0.94, green: 0.92, blue: 0.88))
+                            .frame(width: thumbWidth, height: thumbHeight)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 1.5)
+                                    .stroke(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.white.opacity(0.9),
+                                                Color(red: 0.38, green: 0.36, blue: 0.32)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1.2
+                                    )
+                            )
+                            .shadow(color: Color.black.opacity(0.25), radius: 1, x: 0.5, y: 1)
+                        
+                        // Center Grip Ridges
+                        VStack(spacing: 2) {
+                            Rectangle().fill(Color(red: 0.45, green: 0.42, blue: 0.38)).frame(width: 6, height: 1)
+                            Rectangle().fill(Color(red: 0.45, green: 0.42, blue: 0.38)).frame(width: 6, height: 1)
+                            Rectangle().fill(Color(red: 0.45, green: 0.42, blue: 0.38)).frame(width: 6, height: 1)
+                        }
+                    } else {
+                        // Modern Circular Thumb
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: thumbWidth, height: thumbHeight)
+                            .shadow(color: Color.black.opacity(0.18), radius: 2, x: 0, y: 1)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.25), lineWidth: 0.5)
+                            )
+                    }
+                }
+                .offset(x: thumbOffset)
+            }
+            .frame(width: totalWidth, height: max(thumbHeight, 20))
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { gesture in
+                        if !isDragging {
+                            isDragging = true
+                            onEditingChanged?(true)
+                        }
+                        
+                        let locationX = gesture.location.x
+                        let relativeX = max(0, min(locationX - thumbWidth / 2, effectiveWidth))
+                        let pct = effectiveWidth > 0 ? Double(relativeX / effectiveWidth) : 0.0
+                        var newValue = range.lowerBound + pct * (range.upperBound - range.lowerBound)
+                        
+                        if let step = step, step > 0 {
+                            newValue = (newValue / step).rounded() * step
+                        }
+                        
+                        value = min(max(newValue, range.lowerBound), range.upperBound)
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                        onEditingChanged?(false)
+                    }
+            )
+        }
+        .frame(height: 20)
+    }
+}
+
 public extension Color {
     init?(hex: String) {
         var cString: String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()

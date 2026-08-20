@@ -437,14 +437,16 @@ public struct UserGuideView: View {
                     let isSelected = selectedCategory == category
                     let isClassic = AppSettings.shared.appTheme == "classic"
                     Button(action: { selectedCategory = category }) {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 6) {
                             Image(systemName: category.iconName)
                                 .font(.caption2)
                             Text(category.rawValue)
                                 .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                                .fixedSize()
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 6)
+                        .frame(minHeight: 28)
                         .background(
                             isSelected
                                 ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
@@ -543,11 +545,13 @@ private struct InteractiveGuideCard: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Text(topic.title)
-                                .font(.system(size: 15, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .font(.system(size: 14.5, weight: .bold, design: isClassic ? .monospaced : .default))
                                 .foregroundColor(textPrimaryColor)
+                                .fixedSize(horizontal: false, vertical: true)
                             
                             Text(topic.badge)
                                 .font(.system(size: 9, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .fixedSize()
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(isClassic ? MacaThemeTokens.classicSubcardBg : Color(NSColor.controlBackgroundColor))
@@ -562,7 +566,8 @@ private struct InteractiveGuideCard: View {
                         Text(topic.summary)
                             .font(.caption)
                             .foregroundColor(textSecondaryColor)
-                            .lineLimit(isExpanded ? nil : 1)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(isExpanded ? nil : 2)
                     }
                     
                     Spacer()
