@@ -8,7 +8,7 @@ echo "🚀 Packaging MacAuraLive Universal 2 DMG Installer (Apple Silicon & Inte
 # Ensure universal release build exists
 bash Scripts/build_app.sh
 
-DMG_OUTPUT="build/MacAuraLive_v1.8.0_Universal_Installer.dmg"
+DMG_OUTPUT="build/MacAuraLive-1.8.1.dmg"
 DMG_STAGING="build/dmg_staging"
 DMG_VOLUME_NAME="MacAuraLive Installer"
 SOURCE_APP="build/MacAuraLive.app"
@@ -38,14 +38,14 @@ rm -rf "$DMG_STAGING"
 
 # Generate cryptographic checksums
 echo "🔑 Generating SHA-256 and MD5 checksum files..."
-DMG_FILENAME="MacAuraLive_v1.8.0_Universal_Installer.dmg"
+DMG_FILENAME="MacAuraLive-1.8.1.dmg"
 cd build
 shasum -a 256 "$DMG_FILENAME" > "${DMG_FILENAME}.sha256"
 md5 -r "$DMG_FILENAME" > "${DMG_FILENAME}.md5"
 
 cat << EOF > CHECKSUMS.txt
 ===================================================================
- MacAuraLive v1.8.0 Official Universal Release Checksums
+ MacAuraLive v1.8.1 Official Universal Release Checksums
 ===================================================================
 File: $DMG_FILENAME
 Architecture: Universal 2 (Apple Silicon ARM64 + Intel x86_64)

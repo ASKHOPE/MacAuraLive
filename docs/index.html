@@ -1369,7 +1369,7 @@
             <a href="#" class="nav-brand">
                 <img src="assets/AppIcon.png" alt="MacAuraLive Logo">
                 <span>MacAuraLive</span>
-                <span class="nav-badge">v1.8.0</span>
+                <span class="nav-badge">v1.8.1</span>
             </a>
 
             <ul class="nav-links">
@@ -1999,7 +1999,7 @@
             </div>
             
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
-                Your download for <strong id="modalReleaseTag" style="color: var(--text-main);">MacAuraLive v1.8.0 Universal DMG</strong> has been initiated. Verify package authenticity using the official release checksums:
+                Your download for <strong id="modalReleaseTag" style="color: var(--text-main);">MacAuraLive v1.8.1 Universal DMG</strong> has been initiated. Verify package authenticity using the official release checksums:
             </p>
 
             <div class="checksum-box">
@@ -2008,7 +2008,7 @@
                         <span>SHA-256 Checksum</span>
                     </div>
                     <div class="checksum-hash">
-                        <span id="sha256Hash">c63d3f2da9f5b4ebab1ee2fa753a8703db960814a5bea7be3201c37868552aaf</span>
+                        <span id="sha256Hash">a65fb4dbd52da4cf59f8f5cb1d375f7b1c44909caef811766681d2f2ff7ac845</span>
                         <button class="checksum-copy-btn" onclick="copyHash('sha256Hash', this)">📋 Copy</button>
                     </div>
                 </div>
@@ -2018,7 +2018,7 @@
                         <span>MD5 Checksum</span>
                     </div>
                     <div class="checksum-hash">
-                        <span id="md5Hash">b002629219d279e34c128921fa0be24e</span>
+                        <span id="md5Hash">33a0a0ededb15fde9438fe11b4c07253</span>
                         <button class="checksum-copy-btn" onclick="copyHash('md5Hash', this)">📋 Copy</button>
                     </div>
                 </div>
@@ -2027,7 +2027,7 @@
             <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 20px;">
                 <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">Terminal Verification Command:</div>
                 <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-main); word-break: break-all; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                    <span id="verifyCmd">shasum -a 256 MacAuraLive_v1.8.0_Universal_Installer.dmg</span>
+                    <span id="verifyCmd">shasum -a 256 MacAuraLive-1.8.1.dmg</span>
                     <button class="checksum-copy-btn" onclick="copyHash('verifyCmd', this)">📋 Copy</button>
                 </div>
             </div>
@@ -2471,7 +2471,7 @@
         // -------------------------------------------------------------
         // DOWNLOAD & CHECKSUM MODAL HANDLER
         // -------------------------------------------------------------
-        let currentDownloadUrl = 'https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.8.0_Universal_Installer.dmg';
+        let currentDownloadUrl = 'https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.8.1.dmg';
 
         function handleDmgDownload(event) {
             if (event) event.preventDefault();
@@ -2530,7 +2530,7 @@
                 if (!response.ok) return;
                 const data = await response.json();
                 
-                const tagName = data.tag_name || 'v1.8.0';
+                const tagName = data.tag_name || 'v1.8.1';
                 const dmgAsset = data.assets && data.assets.find(a => a.name.endsWith('.dmg'));
                 if (dmgAsset && dmgAsset.browser_download_url) {
                     currentDownloadUrl = dmgAsset.browser_download_url;
