@@ -688,12 +688,12 @@ public struct SettingsView: View {
         switch updater.status {
         case .idle:
             HStack {
-                Text("Current Version: v1.8.0 (Build 120)")
+                Text("Current Version: \(AppVersion.current.fullVersionString)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
                 Button(action: { showChangelogModal = true }) {
-                    Label("What's New in v1.8.0 (Changelog)", systemImage: "sparkles")
+                    Label("What's New (Changelog)", systemImage: "sparkles")
                         .font(.caption)
                         .fontWeight(.semibold)
                 }
@@ -707,9 +707,12 @@ public struct SettingsView: View {
                 }
             }
         case .checking:
-            Text("Querying GitHub API for latest MacAuraLive release...")
-                .font(.caption)
-                .foregroundColor(.cyan)
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Querying GitHub API for latest MacAuraLive release...")
+                    .font(.caption)
+                    .foregroundColor(.cyan)
+            }
         case .upToDate(let ver):
             HStack {
                 Image(systemName: "checkmark.circle.fill")
@@ -725,8 +728,8 @@ public struct SettingsView: View {
                         .foregroundColor(.secondary)
                 }
             }
-        case .updateAvailable(let newVer, let notes, let downloadUrl):
-            VStack(alignment: .leading, spacing: 10) {
+        case .updateAvailable(let newVer, let notes, _):
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "sparkles")
                         .foregroundColor(.purple)
@@ -736,8 +739,8 @@ public struct SettingsView: View {
                         .foregroundColor(.purple)
                     Spacer()
                     
-                    Button("Download v\(newVer) Installer") {
-                        updater.openDownloadPage(url: downloadUrl)
+                    Button("Update Now (In-App)") {
+                        updater.startInAppUpdate()
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.purple)
@@ -748,8 +751,78 @@ public struct SettingsView: View {
                     .foregroundColor(.secondary)
                     .lineLimit(4)
             }
+            .padding(14)
+            .background(Color.purple.opacity(0.12))
+            .cornerRadius(10)
+        case .downloading(let progress, let written, let total):
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Downloading Update...")
+                        .font(.subheadline)
+                        .bold()
+                    Spacer()
+                    Text(String(format: "%.0f%%", progress * 100))
+                        .font(.caption)
+                        .monospacedDigit()
+                        .bold()
+                    Button("Cancel") {
+                        updater.cancelDownload()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+                ProgressView(value: progress)
+                    .tint(.purple)
+                
+                let writtenMB = Double(written) / (1024 * 1024)
+                let totalMB = Double(total) / (1024 * 1024)
+                Text(String(format: "%.1f MB / %.1f MB", writtenMB, max(writtenMB, totalMB)))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding(14)
+            .background(Color.purple.opacity(0.12))
+            .cornerRadius(10)
+        case .verifying:
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Verifying update package integrity...")
+                    .font(.caption)
+                    .foregroundColor(.purple)
+            }
             .padding(12)
             .background(Color.purple.opacity(0.12))
+            .cornerRadius(10)
+        case .readyToInstall(let dmgPath, let version):
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("v\(version) Ready to Install")
+                        .font(.subheadline)
+                        .bold()
+                        .foregroundColor(.green)
+                    Text("Click to restart and apply update seamlessly.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button("Restart & Update") {
+                    updater.installAndRelaunch(dmgPath: dmgPath)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+            }
+            .padding(14)
+            .background(Color.green.opacity(0.12))
+            .cornerRadius(10)
+        case .installing:
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Installing update and preparing relaunch...")
+                    .font(.subheadline)
+                    .bold()
+            }
+            .padding(14)
+            .background(Color.blue.opacity(0.12))
             .cornerRadius(10)
         case .error(let msg):
             HStack {
@@ -758,7 +831,16 @@ public struct SettingsView: View {
                 Text(msg)
                     .font(.caption)
                     .foregroundColor(.orange)
+                Spacer()
+                Button("Retry") {
+                    updater.checkForUpdates()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
+            .padding(10)
+            .background(Color.orange.opacity(0.12))
+            .cornerRadius(8)
         }
     }
     
@@ -983,111 +1065,98 @@ public struct SettingsView: View {
     
     @ViewBuilder
     private var aboutAppCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 14) {
-                ZStack {
-                    if let appIcon = NSImage(named: "AppIcon") {
-                        Image(nsImage: appIcon)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 54, height: 54)
-                            .cornerRadius(12)
-                    } else {
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 54, height: 54)
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 26))
-                            .foregroundColor(.white)
-                    }
+        // Orion-style About panel layout
+        HStack(alignment: .top, spacing: 24) {
+            // Large app icon on the left
+            ZStack {
+                if let appIcon = NSImage(named: "AppIcon") {
+                    Image(nsImage: appIcon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .cornerRadius(18)
+                        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
+                } else {
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(LinearGradient(
+                            colors: [Color(hue: 0.75, saturation: 0.7, brightness: 0.9),
+                                     Color(hue: 0.65, saturation: 0.8, brightness: 0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 80, height: 80)
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 36, weight: .medium))
+                        .foregroundColor(.white)
                 }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("MacAuraLive Live Wallpaper Engine")
-                        .font(.title2)
-                        .bold()
-                    Text("v1.8.0 (Build 120) • Production Release • Universal 2 (ARM64 + Intel)")
-                        .font(.caption)
-                        .foregroundColor(.cyan)
-                        .fontWeight(.medium)
-                }
-                Spacer()
-                
-                Button {
-                    showOnboardingWizard = true
-                } label: {
-                    Label("Setup Wizard", systemImage: "wand.and.stars")
-                }
-                .buttonStyle(.bordered)
-            }
-            
-            Divider()
-            
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("App Version:").bold().font(.caption)
-                    Text("1.8.0 (Build 120)").font(.caption).foregroundColor(.secondary)
-                }
-                HStack {
-                    Text("Architecture:").bold().font(.caption)
-                    Text("Universal 2 Native (ARM64 + Intel)").font(.caption).foregroundColor(.secondary)
-                }
-                HStack {
-                    Text("macOS Compatibility:").bold().font(.caption)
-                    Text("macOS 13.0 (Ventura) or later").font(.caption).foregroundColor(.secondary)
-                }
-                HStack {
-                    Text("Rendering Engine:").bold().font(.caption)
-                    Text("Metal 3, WebGL 2.0, AVFoundation, WebKit JS").font(.caption).foregroundColor(.secondary)
-                }
-                HStack {
-                    Text("Privacy Policy:").bold().font(.caption)
-                    Text("100% On-Device Processing. Zero Cloud Telemetry.").font(.caption).foregroundColor(.green)
-                }
-            }
-            
-            HStack(spacing: 10) {
-                Button("Terms of Service") {
-                    showTOSModal = true
-                }
-                .buttonStyle(.bordered)
-                
-                Button("MIT License") {
-                    showLicenseModal = true
-                }
-                .buttonStyle(.bordered)
-                
-                Button("Disclaimer") {
-                    showDisclaimerModal = true
-                }
-                .buttonStyle(.bordered)
-                
-                Button(action: {
-                    if let url = URL(string: "https://github.com/ASKHOPE/MacAuraLive") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }) {
-                    Label("Visit Repo", systemImage: "link")
-                }
-                .buttonStyle(.bordered)
-                .tint(.blue)
-                
-                Button(action: { showChangelogModal = true }) {
-                    Label("Changelog", systemImage: "doc.plaintext.fill")
-                }
-                .buttonStyle(.bordered)
-                .tint(.purple)
-                
-                Spacer()
-                
-                Text("© 2026 MacAuraLive")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
             }
             .padding(.top, 4)
+
+            // Right side: name, version, info, buttons
+            VStack(alignment: .leading, spacing: 10) {
+                // App name
+                Text("MacAuraLive")
+                    .font(.system(size: 22, weight: .bold))
+
+                // Version line
+                let appVersion = AppVersion.current.version
+                let buildNumber = AppVersion.current.build
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Version \(appVersion) (\(buildNumber))")
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+
+                    Text("Universal 2 Native (Apple Silicon + Intel)")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+
+                    Text("macOS 13.0 Ventura or later  •  Metal 3, WebKit, AVFoundation")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+
+                // Copyright + tagline
+                Text("MacAuraLive by ASKHOPE. Copyright © 2026 MacAuraLive.\nAll rights reserved. Live your walls.")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 2)
+
+                // Action buttons row
+                HStack(spacing: 8) {
+                    Button {
+                        showChangelogModal = true
+                    } label: {
+                        Text("What's New")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+
+                    Button {
+                        if let url = URL(string: "https://github.com/ASKHOPE/MacAuraLive/issues") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        Text("Send Feedback")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+
+                    Button {
+                        showLicenseModal = true
+                    } label: {
+                        Text("Licenses")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                }
+                .padding(.top, 4)
+            }
+
+            Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(18)
+        .padding(20)
         .macaCardStyle(cornerRadius: 14)
     }
     

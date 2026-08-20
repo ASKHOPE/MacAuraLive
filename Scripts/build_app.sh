@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Build script for MacAuraLive Universal 2 (Apple Silicon & Intel)
-# ── Single source of truth: bump VERSION & BUILD_NUMBER here each release ─────
-VERSION="1.8.1"
-BUILD_NUMBER="121"
+# ── Single source of truth: resolved dynamically from version.json ───────────
+if [ ! -f "version.json" ]; then
+    echo "❌ version.json not found in repository root!"
+    exit 1
+fi
+
+VERSION=$(python3 -c "import json; print(json.load(open('version.json'))['version'])")
+BUILD_NUMBER=$(python3 -c "import json; print(json.load(open('version.json')).get('build', '1'))")
 # ─────────────────────────────────────────────────────────────────────────────
 set -e
 
@@ -36,6 +41,11 @@ chmod +x "$BUILD_DIR/MacOS/MacAuraLive"
 # Copy Resources (including PrivacyInfo.xcprivacy, Assets, Runtime, Wallpapers)
 if [ -d "Sources/MacAuraLive/Resources" ]; then
     cp -R "Sources/MacAuraLive/Resources/" "$BUILD_DIR/Resources/"
+fi
+
+# Copy version.json into bundle Resources
+if [ -f "version.json" ]; then
+    cp "version.json" "$BUILD_DIR/Resources/version.json"
 fi
 
 # Copy AppIcon.icns
@@ -108,6 +118,11 @@ mkdir -p "${DMG_STAGING}"
 
 cp -R "build/MacAuraLive.app" "${DMG_STAGING}/MacAuraLive.app"
 ln -s /Applications "${DMG_STAGING}/Applications"
+# Also generate official macOS Installer Wizard (.pkg)
+bash Scripts/package_pkg_installer.sh 2>/dev/null || true
+if [ -f "build/MacAuraLive_${VERSION}/MacAuraLive_Installer_${VERSION}.pkg" ]; then
+    cp "build/MacAuraLive_${VERSION}/MacAuraLive_Installer_${VERSION}.pkg" "${DMG_STAGING}/MacAuraLive Setup Wizard.pkg"
+fi
 
 for doc in EULA.md LICENSE PRIVACY_POLICY.md THIRD_PARTY_LICENSES.md; do
     [ -f "${doc}" ] && cp "${doc}" "${DMG_STAGING}/${doc}"
@@ -163,18 +178,34 @@ CSEOF
 # Also keep a root-level CHECKSUMS.txt for convenience
 cp "${RELEASE_DIR}/CHECKSUMS.txt" "build/CHECKSUMS.txt"
 
-# ── docs/checksums.json — website reads this automatically on load ────────────
-cat > "docs/checksums.json" << JSONEOF
-{
-  "version": "${VERSION}",
-  "buildNumber": "${BUILD_NUMBER}",
-  "date": "${BUILD_DATE}",
-  "filename": "${DMG_NAME}",
-  "downloadUrl": "https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/${DMG_NAME}",
-  "sha256": "${SHA256}",
-  "md5": "${MD5}"
+# ── Record to build/build_history.json for rollback traceability ─────────────
+mkdir -p "build"
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+python3 -c "
+import json, os
+history_file = 'build/build_history.json'
+history = []
+if os.path.exists(history_file):
+    try:
+        history = json.load(open(history_file))
+    except Exception:
+        history = []
+
+entry = {
+    'version': '${VERSION}',
+    'build': '${BUILD_NUMBER}',
+    'commit': '${GIT_COMMIT}',
+    'date': '${BUILD_DATE}',
+    'dmg': '${DMG_OUTPUT}',
+    'sha256': '${SHA256}',
+    'md5': '${MD5}'
 }
-JSONEOF
+
+# Avoid duplicate entries for same version & build
+history = [h for h in history if not (h.get('version') == '${VERSION}' and h.get('build') == '${BUILD_NUMBER}')]
+history.append(entry)
+json.dump(history, open(history_file, 'w'), indent=2)
+"
 
 echo ""
 echo "🔐 Cryptographic Checksums"

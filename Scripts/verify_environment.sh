@@ -75,14 +75,21 @@ if [ -z "$PACKAGE_NAME" ]; then
     ERRORS=$((ERRORS + 1))
 fi
 
-UPDATE_VER=$(grep -o 'currentVersion = "1.8.0"' Sources/MacAuraLive/Core/UpdateManager.swift || true)
+# Verify dynamic AppVersion in UpdateManager and version.json existence
+if [ ! -f "version.json" ]; then
+    echo "  ❌ version.json missing in repository root."
+    ERRORS=$((ERRORS + 1))
+fi
+
+UPDATE_VER=$(grep -o 'AppVersion.current.version' Sources/MacAuraLive/Core/UpdateManager.swift || true)
 if [ -z "$UPDATE_VER" ]; then
-    echo "  ❌ UpdateManager.swift version mismatch."
+    echo "  ❌ UpdateManager.swift missing dynamic AppVersion resolution."
     ERRORS=$((ERRORS + 1))
 fi
 
 if [ $ERRORS -eq 0 ]; then
-    echo "  ✅ App name 'MacAuraLive' and version '1.8.0' are 100% synchronized."
+    CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('version.json'))['version'])" 2>/dev/null || echo "1.8.1")
+    echo "  ✅ App name 'MacAuraLive' and dynamic version v${CURRENT_VERSION} are 100% synchronized."
 fi
 
 # 5. Security & Static Analysis Audit

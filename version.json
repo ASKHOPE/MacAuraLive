@@ -1,0 +1,6 @@
+{
+  "version": "1.8.1",
+  "build": "121",
+  "channel": "stable",
+  "minOS": "13.0"
+}
