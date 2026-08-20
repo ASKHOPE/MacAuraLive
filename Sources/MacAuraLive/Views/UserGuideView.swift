@@ -61,7 +61,7 @@ public struct UserGuideView: View {
                 category: .moods,
                 title: "Mood Profiles: Custom Wallpaper Templates & macOS Mode Sync",
                 summary: "Group wallpapers under customizable mood profiles and automatically trigger them on Focus Mode, Sleep, or Appearance changes.",
-                badge: "NEW in v1.9",
+                badge: "NEW in v1.9.2",
                 badgeColor: .indigo,
                 steps: [
                     "1. Open 'Moods & Presets' from the sidebar.",
@@ -86,7 +86,7 @@ public struct UserGuideView: View {
                 category: .updater,
                 title: "In-App Background Updater & 1-Click Relaunch",
                 summary: "Download and apply GitHub releases directly in Settings without visiting a browser.",
-                badge: "NEW in v1.9",
+                badge: "NEW in v1.9.2",
                 badgeColor: .green,
                 steps: [
                     "1. Open Settings (Command + ,) and scroll down to the 'Software Update' section.",

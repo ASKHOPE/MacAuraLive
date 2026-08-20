@@ -107,51 +107,31 @@ public struct MainWindowView: View {
                 Divider()
                     .padding(.vertical, 4)
                 
-                // Sidebar Navigation List (Grouped by Nature)
-                List(selection: $selectedTab) {
-                    Section("Library & Discover") {
-                        NavigationLink(value: NavigationTab.liveWallpapers) {
-                            Label(NavigationTab.liveWallpapers.rawValue, systemImage: NavigationTab.liveWallpapers.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.staticWallpapers) {
-                            Label(NavigationTab.staticWallpapers.rawValue, systemImage: NavigationTab.staticWallpapers.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.moods) {
-                            Label(NavigationTab.moods.rawValue, systemImage: NavigationTab.moods.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.marketplace) {
-                            Label(NavigationTab.marketplace.rawValue, systemImage: NavigationTab.marketplace.iconName)
-                        }
+                // Custom Sidebar Navigation List (Themed & Grouped)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        sidebarSection(
+                            title: "LIBRARY & DISCOVER",
+                            tabs: [.liveWallpapers, .staticWallpapers, .moods, .marketplace]
+                        )
+                        
+                        sidebarSection(
+                            title: "DISPLAYS & SCHEDULING",
+                            tabs: [.slideshow, .displays, .lockScreen]
+                        )
+                        
+                        sidebarSection(
+                            title: "CREATIVE STUDIO",
+                            tabs: [.aiConfig]
+                        )
+                        
+                        sidebarSection(
+                            title: "SYSTEM & SUPPORT",
+                            tabs: [.userGuide, .settings]
+                        )
                     }
-                    
-                    Section("Displays & Scheduling") {
-                        NavigationLink(value: NavigationTab.slideshow) {
-                            Label(NavigationTab.slideshow.rawValue, systemImage: NavigationTab.slideshow.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.displays) {
-                            Label(NavigationTab.displays.rawValue, systemImage: NavigationTab.displays.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.lockScreen) {
-                            Label(NavigationTab.lockScreen.rawValue, systemImage: NavigationTab.lockScreen.iconName)
-                        }
-                    }
-                    
-                    Section("Creative Studio") {
-                        NavigationLink(value: NavigationTab.aiConfig) {
-                            Label(NavigationTab.aiConfig.rawValue, systemImage: NavigationTab.aiConfig.iconName)
-                        }
-                    }
-                    
-                    Section("System & Support") {
-                        NavigationLink(value: NavigationTab.userGuide) {
-                            Label(NavigationTab.userGuide.rawValue, systemImage: NavigationTab.userGuide.iconName)
-                        }
-                        NavigationLink(value: NavigationTab.settings) {
-                            Label(NavigationTab.settings.rawValue, systemImage: NavigationTab.settings.iconName)
-                        }
-                    }
+                    .padding(.vertical, 4)
                 }
-                .listStyle(.sidebar)
                 
                 Spacer()
                 
@@ -456,6 +436,110 @@ public struct MainWindowView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private func sidebarSection(title: String, tabs: [NavigationTab]) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            if settings.appTheme == "classic" {
+                Text(title)
+                    .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                    .foregroundColor(MacaThemeTokens.classicTextMuted)
+                    .tracking(1.0)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 6)
+                    .padding(.bottom, 2)
+            } else {
+                Text(title)
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 6)
+                    .padding(.bottom, 2)
+            }
+            
+            ForEach(tabs) { tab in
+                sidebarRow(tab: tab)
+            }
+        }
+    }
+    
+    private func sidebarRow(tab: NavigationTab) -> some View {
+        let isSelected = selectedTab == tab
+        let isClassic = settings.appTheme == "classic"
+        
+        return Button(action: {
+            selectedTab = tab
+        }) {
+            HStack(spacing: 10) {
+                Image(systemName: isClassic ? classicIconName(for: tab) : tab.iconName)
+                    .font(.system(size: 13, weight: isSelected ? .bold : .regular))
+                    .foregroundColor(
+                        isClassic ? (isSelected ? .white : MacaThemeTokens.classicTextDark) : (isSelected ? .white : .primary)
+                    )
+                    .frame(width: 20)
+                
+                Text(isClassic ? classicTabTitle(for: tab) : tab.rawValue)
+                    .font(
+                        isClassic ? .system(size: 12.5, weight: isSelected ? .bold : .medium, design: .monospaced) : .system(size: 13, weight: isSelected ? .semibold : .regular)
+                    )
+                    .foregroundColor(
+                        isClassic ? (isSelected ? .white : MacaThemeTokens.classicTextDark) : (isSelected ? .white : .primary)
+                    )
+                
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                Group {
+                    if isSelected {
+                        if isClassic {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(MacaThemeTokens.classicOlive)
+                        } else {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.accentColor)
+                        }
+                    } else {
+                        Color.clear
+                    }
+                }
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+    }
+    
+    private func classicTabTitle(for tab: NavigationTab) -> String {
+        switch tab {
+        case .liveWallpapers: return "Dynamic"
+        case .staticWallpapers: return "Static"
+        case .moods: return "Moods & Presets"
+        case .marketplace: return "Marketplace"
+        case .slideshow: return "Slideshow"
+        case .displays: return "Displays"
+        case .lockScreen: return "Lock Screen"
+        case .aiConfig: return "AI Workshop"
+        case .userGuide: return "User Guide"
+        case .settings: return "Settings"
+        }
+    }
+    
+    private func classicIconName(for tab: NavigationTab) -> String {
+        switch tab {
+        case .liveWallpapers: return "square.stack.3d.forward.dottedline"
+        case .staticWallpapers: return "photo.artframe"
+        case .moods: return "sparkles.rectangle.stack"
+        case .marketplace: return "bag"
+        case .slideshow: return "clock.arrow.2.circlepath"
+        case .displays: return "desktopcomputer"
+        case .lockScreen: return "lock.rectangle.on.rectangle"
+        case .aiConfig: return "chevron.left.forwardslash.chevron.right"
+        case .userGuide: return "book.closed"
+        case .settings: return "gearshape"
         }
     }
     

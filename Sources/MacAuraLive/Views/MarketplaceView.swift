@@ -101,9 +101,9 @@ public struct MarketplaceView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Marketplace")
                     .font(.system(size: 26, weight: .bold))
-                Text("Discover and download 4K wallpapers and cinematic motion loops from Unsplash, Pixabay, and Pexels.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Text("Discover and download 4K wallpapers and cinematic motion loops.")
+                    .font(.system(size: 12.5, weight: .regular, design: settings.appTheme == "classic" ? .monospaced : .default))
+                    .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
             }
             
             Spacer()
@@ -113,11 +113,12 @@ public struct MarketplaceView: View {
                 // Search Field
                 HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                         .font(.caption)
                     TextField("Search online...", text: $marketplace.searchQuery)
                         .textFieldStyle(.plain)
-                        .font(.subheadline)
+                        .font(.system(size: 12.5, weight: .regular, design: settings.appTheme == "classic" ? .monospaced : .default))
+                        .foregroundColor(settings.appTheme == "classic" ? .white : .primary)
                         .frame(width: 160)
                         .onSubmit {
                             Task { await marketplace.fetchMarketplaceWallpapers() }
@@ -136,16 +137,23 @@ public struct MarketplaceView: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .macaSubcardStyle(cornerRadius: 8)
+                .background(settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.105) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
+                .cornerRadius(settings.appTheme == "classic" ? 4 : 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 8)
+                        .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor).opacity(0.6), lineWidth: 1)
+                )
                 
                 Button { showApiKeyModal = true } label: {
                     Label("API Keys", systemImage: "key.fill")
+                        .font(settings.appTheme == "classic" ? .system(size: 12, weight: .semibold, design: .monospaced) : .body)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.regular)
                 
                 Button { showTermsModal = true } label: {
                     Label("Licenses", systemImage: "doc.text.fill")
+                        .font(settings.appTheme == "classic" ? .system(size: 12, weight: .semibold, design: .monospaced) : .body)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.regular)
@@ -169,17 +177,30 @@ public struct MarketplaceView: View {
                                 Image(systemName: prov.iconName)
                                     .font(.caption2)
                                 Text(prov.rawValue)
-                                    .font(.caption)
-                                    .fontWeight(marketplace.selectedProvider == prov ? .bold : .medium)
+                                    .font(.system(size: 12, weight: marketplace.selectedProvider == prov ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(marketplace.selectedProvider == prov ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                            .foregroundColor(marketplace.selectedProvider == prov ? .white : .primary)
-                            .cornerRadius(8)
+                            .background(
+                                Group {
+                                    if settings.appTheme == "classic" {
+                                        if marketplace.selectedProvider == prov {
+                                            Color(red: 0.90, green: 0.88, blue: 0.84)
+                                        } else {
+                                            Color(red: 0.96, green: 0.95, blue: 0.93)
+                                        }
+                                    } else {
+                                        marketplace.selectedProvider == prov ? Color.accentColor : Color(NSColor.controlBackgroundColor)
+                                    }
+                                }
+                            )
+                            .foregroundColor(
+                                settings.appTheme == "classic" ? (marketplace.selectedProvider == prov ? MacaThemeTokens.classicOlive : MacaThemeTokens.classicTextDark) : (marketplace.selectedProvider == prov ? .white : .primary)
+                            )
+                            .cornerRadius(settings.appTheme == "classic" ? 4 : 8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedProvider == prov ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 8)
+                                    .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : (marketplace.selectedProvider == prov ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)

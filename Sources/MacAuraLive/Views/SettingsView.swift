@@ -26,12 +26,46 @@ public struct SettingsView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             // Title Header
-            VStack(alignment: .leading, spacing: 6) {
-                Text("App Preferences & Settings")
-                    .font(.system(size: 28, weight: .bold))
-                Text("Configure startup, appearance, multi-monitor display spanning, and storage.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("App Preferences")
+                        .font(.system(size: 28, weight: .bold))
+                    Text("Configure startup, appearance, and engine parameters.")
+                        .font(.system(size: 12.5, weight: .regular, design: settings.appTheme == "classic" ? .monospaced : .default))
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                }
+                
+                Spacer()
+                
+                if settings.appTheme == "classic" {
+                    HStack(spacing: 8) {
+                        Button(action: { showResetPreferencesAlert = true }) {
+                            Text("Reset")
+                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(Color(red: 0.90, green: 0.88, blue: 0.84))
+                                .foregroundColor(MacaThemeTokens.classicTextDark)
+                                .cornerRadius(4)
+                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(MacaThemeTokens.classicBorder, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Button(action: {
+                            settings.applyAppearanceTheme()
+                            engine.reloadEngine()
+                        }) {
+                            Text("Apply")
+                                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 6)
+                                .background(MacaThemeTokens.classicOlive)
+                                .foregroundColor(.white)
+                                .cornerRadius(4)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
             
             ScrollView {
@@ -51,6 +85,20 @@ public struct SettingsView: View {
                     settingsBackupCard
                     dataManagementResetCard
                     aboutAppCard
+                    
+                    if settings.appTheme == "classic" {
+                        HStack {
+                            Text("© 1984-2026 MacAura Systems.")
+                                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                                .foregroundColor(MacaThemeTokens.classicTextMuted)
+                            Spacer()
+                            Text("Documentation   System Log")
+                                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                                .foregroundColor(MacaThemeTokens.classicTextMuted)
+                        }
+                        .padding(.top, 14)
+                        .padding(.bottom, 8)
+                    }
                 }
             }
         }
@@ -105,9 +153,22 @@ public struct SettingsView: View {
     @ViewBuilder
     private var systemLaunchCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("System Launch Options")
-                .font(.title3)
-                .bold()
+            HStack {
+                if settings.appTheme == "classic" {
+                    Image(systemName: "power")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(MacaThemeTokens.classicOlive)
+                    Text("SYSTEM LAUNCH")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(MacaThemeTokens.classicTextDark)
+                        .tracking(1.0)
+                } else {
+                    Text("System Launch Options")
+                        .font(.title3)
+                        .bold()
+                }
+                Spacer()
+            }
             
             HStack(alignment: .top, spacing: 12) {
                 Toggle(isOn: $settings.launchAtLogin) {
@@ -201,39 +262,73 @@ public struct SettingsView: View {
     private var appThemeCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Image(systemName: "paintpalette.fill")
-                    .font(.title3)
-                    .foregroundColor(.pink)
-                Text("App Theme & macOS Appearance")
-                    .font(.title3)
-                    .bold()
-                Spacer()
-                Text(settings.appTheme == "system" ? "AUTO (macOS)" : settings.appTheme.uppercased())
-                    .font(.caption2)
-                    .bold()
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.pink.opacity(0.18))
-                    .foregroundColor(.pink)
-                    .cornerRadius(6)
+                if settings.appTheme == "classic" {
+                    Image(systemName: "paintpalette")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(MacaThemeTokens.classicOlive)
+                    Text("APPEARANCE")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(MacaThemeTokens.classicTextDark)
+                        .tracking(1.0)
+                    Spacer()
+                    Text("VRAM OPTIMIZED")
+                        .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(MacaThemeTokens.classicDarkTag)
+                        .foregroundColor(Color(red: 0.90, green: 0.88, blue: 0.84))
+                        .cornerRadius(4)
+                } else {
+                    Image(systemName: "paintpalette.fill")
+                        .font(.title3)
+                        .foregroundColor(.pink)
+                    Text("App Theme & macOS Appearance")
+                        .font(.title3)
+                        .bold()
+                    Spacer()
+                    Text(settings.appTheme == "system" ? "AUTO (macOS)" : settings.appTheme.uppercased())
+                        .font(.caption2)
+                        .bold()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.pink.opacity(0.18))
+                        .foregroundColor(.pink)
+                        .cornerRadius(6)
+                }
             }
             
             Text("Customize dashboard appearance to follow native macOS settings with glassmorphic transparency and auto-adapting Day/Night wallpapers.")
                 .font(.caption)
                 .foregroundColor(.secondary)
             
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Appearance Mode")
-                    .font(.body)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("UI Theme Mode")
+                    .font(settings.appTheme == "classic" ? .system(size: 12, weight: .bold, design: .monospaced) : .body)
                     .fontWeight(.medium)
                 
-                Picker("Appearance Mode", selection: $settings.appTheme) {
-                    Text("💻 Auto (macOS)").tag("system")
-                    Text("🌙 Dark").tag("dark")
-                    Text("☀️ Light").tag("light")
-                    Text("📻 OS Classic").tag("classic")
+                if settings.appTheme == "classic" {
+                    HStack(spacing: 8) {
+                        classicThemeRadio(title: "System Auto", tag: "system")
+                        classicThemeRadio(title: "Light Mode", tag: "light")
+                        classicThemeRadio(title: "Dark Mode", tag: "dark")
+                        classicThemeRadio(title: "OS Classic", tag: "classic")
+                    }
+                    .padding(6)
+                    .background(Color(red: 0.92, green: 0.90, blue: 0.86))
+                    .cornerRadius(6)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(MacaThemeTokens.classicBorder, lineWidth: 1))
+                } else {
+                    Picker("Appearance Mode", selection: $settings.appTheme) {
+                        Text("💻 Auto (macOS)").tag("system")
+                        Text("🌙 Dark").tag("dark")
+                        Text("☀️ Light").tag("light")
+                        Text("📻 OS Classic").tag("classic")
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: settings.appTheme) { _ in
+                        settings.applyAppearanceTheme()
+                    }
                 }
-                .pickerStyle(.segmented)
             }
             
             Divider()
@@ -262,6 +357,39 @@ public struct SettingsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
         .macaCardStyle(cornerRadius: 14)
+    }
+    
+    private func classicThemeRadio(title: String, tag: String) -> some View {
+        let isSelected = settings.appTheme == tag
+        return Button(action: {
+            settings.appTheme = tag
+            settings.applyAppearanceTheme()
+        }) {
+            HStack(spacing: 6) {
+                ZStack {
+                    Circle()
+                        .stroke(MacaThemeTokens.classicOlive, lineWidth: 1.5)
+                        .frame(width: 13, height: 13)
+                    if isSelected {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                Text(title)
+                    .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: .monospaced))
+                    .foregroundColor(MacaThemeTokens.classicTextDark)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(isSelected ? Color(red: 0.985, green: 0.980, blue: 0.965) : Color.clear)
+            .cornerRadius(4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(isSelected ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
     
     @ViewBuilder
@@ -798,7 +926,7 @@ public struct SettingsView: View {
         case .verifying:
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text("Verifying update package integrity...")
+                Text("Verifying SHA-256 cryptographic checksum and disk integrity...")
                     .font(.caption)
                     .foregroundColor(.purple)
             }
@@ -806,26 +934,42 @@ public struct SettingsView: View {
             .background(Color.purple.opacity(0.12))
             .cornerRadius(10)
         case .readyToInstall(let dmgPath, let version):
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("v\(version) Ready to Install")
-                        .font(.subheadline)
-                        .bold()
-                        .foregroundColor(.green)
-                    Text("Click to restart and apply update seamlessly.")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(.green)
+                            Text("v\(version) Verified & Ready to Install")
+                                .font(.subheadline)
+                                .bold()
+                                .foregroundColor(.green)
+                        }
+                        
+                        if let sha = updater.verifiedSha256 {
+                            Text("SHA-256: \(sha.prefix(12))...\(sha.suffix(8)) (Verified Authentic)")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Text("App will quit cleanly, replace the bundle atomically, and relaunch the new version.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button("Install & Restart") {
+                        updater.installAndRelaunch(dmgPath: dmgPath)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.green)
                 }
-                Spacer()
-                Button("Restart & Update") {
-                    updater.installAndRelaunch(dmgPath: dmgPath)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
             }
             .padding(14)
             .background(Color.green.opacity(0.12))
             .cornerRadius(10)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.green.opacity(0.3), lineWidth: 1))
         case .installing:
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)

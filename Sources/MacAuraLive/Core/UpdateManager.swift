@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import Combine
+import CryptoKit
 
 public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelegate {
     public static let shared = UpdateManager()
@@ -21,6 +22,7 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
     @Published public var lastCheckedDate: Date? = nil
     @Published public var downloadProgress: Double = 0.0
     @Published public var autoCheckEnabled: Bool = true
+    @Published public var verifiedSha256: String? = nil
     
     public var currentVersion: String {
         AppVersion.current.version
@@ -41,6 +43,7 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
     public func checkForUpdates() {
         DispatchQueue.main.async {
             self.status = .checking
+            self.verifiedSha256 = nil
         }
         
         guard let url = URL(string: githubReleasesURL) else { return }
@@ -69,17 +72,47 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
                 let latestVersion = rawTag.trimmingCharacters(in: CharacterSet(charactersIn: "vV"))
                 let body = json["body"] as? String ?? "New performance improvements and stability updates."
                 
-                // Find DMG download URL
+                // Parse expected SHA-256 from release body if present
+                var parsedSha: String? = nil
+                let shaPattern = #"(?i)SHA-?256:\s*([a-f0-9]{64})"#
+                if let regex = try? NSRegularExpression(pattern: shaPattern),
+                   let match = regex.firstMatch(in: body, range: NSRange(body.startIndex..., in: body)),
+                   let range = Range(match.range(at: 1), in: body) {
+                    parsedSha = String(body[range])
+                }
+                
+                // Find DMG download URL & Checksum asset URL
                 var downloadUrl = json["html_url"] as? String ?? "https://github.com/ASKHOPE/MacAuraLive/releases"
+                var checksumDownloadUrl: String? = nil
+                
                 if let assets = json["assets"] as? [[String: Any]] {
                     if let dmgAsset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".dmg") == true }),
                        let browserUrl = dmgAsset["browser_download_url"] as? String {
                         downloadUrl = browserUrl
                     }
+                    if let shaAsset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".sha256") == true }),
+                       let shaUrl = shaAsset["browser_download_url"] as? String {
+                        checksumDownloadUrl = shaUrl
+                    }
                 }
                 
                 self?.downloadUrlString = downloadUrl
                 self?.targetVersion = latestVersion
+                self?.expectedSha256 = parsedSha
+                
+                // Fetch external sha256 asset if present
+                if let checksumUrlStr = checksumDownloadUrl, let checksumUrl = URL(string: checksumUrlStr) {
+                    URLSession.shared.dataTask(with: checksumUrl) { cData, _, _ in
+                        if let cData = cData, let text = String(data: cData, encoding: .utf8) {
+                            let parts = text.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: .whitespaces)
+                            if let first = parts.first, first.count == 64 {
+                                DispatchQueue.main.async {
+                                    self?.expectedSha256 = first
+                                }
+                            }
+                        }
+                    }.resume()
+                }
                 
                 if let self = self, self.isVersion(latestVersion, newerThan: self.currentVersion) {
                     self.status = .updateAvailable(version: latestVersion, releaseNotes: body, downloadUrl: downloadUrl)
@@ -136,7 +169,42 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
         
         do {
             try fileManager.moveItem(at: location, to: destinationURL)
+            
+            // 1. Cryptographic SHA-256 Checksum Verification
+            guard let computedHash = computeSHA256(of: destinationURL) else {
+                DispatchQueue.main.async {
+                    self.status = .error(message: "Failed to compute cryptographic checksum for downloaded file.")
+                }
+                return
+            }
+            
+            if let expected = self.expectedSha256, !expected.isEmpty {
+                if computedHash.lowercased() != expected.lowercased() {
+                    try? fileManager.removeItem(at: destinationURL)
+                    DispatchQueue.main.async {
+                        self.status = .error(message: "Security Error: Checksum mismatch! Expected \(expected), but got \(computedHash). The download was compromised or corrupted and has been deleted.")
+                    }
+                    return
+                }
+            }
+            
+            // 2. Apple Disk Image Structure Verification
+            let verifyProcess = Process()
+            verifyProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+            verifyProcess.arguments = ["verify", destinationURL.path]
+            try? verifyProcess.run()
+            verifyProcess.waitUntilExit()
+            
+            if verifyProcess.terminationStatus != 0 {
+                try? fileManager.removeItem(at: destinationURL)
+                DispatchQueue.main.async {
+                    self.status = .error(message: "Integrity Error: Downloaded DMG failed Apple disk verification. Installation aborted for safety.")
+                }
+                return
+            }
+            
             DispatchQueue.main.async {
+                self.verifiedSha256 = computedHash
                 self.status = .readyToInstall(installerPath: destinationURL.path, version: self.targetVersion)
             }
         } catch {
@@ -154,7 +222,7 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
         }
     }
     
-    // MARK: - Install & Relaunch
+    // MARK: - Install & Clean Relaunch
     
     public func installAndRelaunch(dmgPath: String) {
         status = .installing
@@ -170,31 +238,55 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
                 hdiutil.waitUntilExit()
                 
                 let sourceApp = "\(mountPoint)/MacAuraLive.app"
-                let targetApp = Bundle.main.bundleURL.path.contains(".app") ? Bundle.main.bundleURL.path : "/Applications/MacAuraLive.app"
+                let targetApp: String
+                if Bundle.main.bundleURL.path.hasSuffix(".app") {
+                    targetApp = Bundle.main.bundleURL.path
+                } else {
+                    targetApp = "/Applications/MacAuraLive.app"
+                }
                 
-                // Construct seamless updater bash script
                 let pid = ProcessInfo.processInfo.processIdentifier
+                
+                // Construct robust, failsafe background atomic update script
                 let scriptContent = """
                 #!/bin/bash
-                # Wait for current app instance to quit
-                while kill -0 \(pid) 2>/dev/null; do
-                    sleep 0.2
+                set -e
+                
+                PID=\(pid)
+                SOURCE="\(sourceApp)"
+                TARGET="\(targetApp)"
+                MOUNT="\(mountPoint)"
+                
+                # 1. Wait for current app instance to fully exit
+                COUNT=0
+                while kill -0 $PID 2>/dev/null; do
+                    sleep 0.15
+                    COUNT=$((COUNT + 1))
+                    if [ $COUNT -ge 40 ]; then
+                        kill -9 $PID 2>/dev/null || true
+                        break
+                    fi
                 done
                 
-                # Replace app bundle atomically
-                if [ -d "\(sourceApp)" ]; then
-                    rm -rf "\(targetApp)"
-                    cp -R "\(sourceApp)" "\(targetApp)"
+                # 2. Atomically replace application bundle
+                if [ -d "$SOURCE" ]; then
+                    rm -rf "$TARGET"
+                    cp -R "$SOURCE" "$TARGET"
+                    xattr -dr com.apple.quarantine "$TARGET" 2>/dev/null || true
                 fi
                 
-                # Detach mounted DMG
-                hdiutil detach "\(mountPoint)" -quiet || true
+                # 3. Unmount and detach disk image
+                hdiutil detach "$MOUNT" -quiet 2>/dev/null || true
                 
-                # Open updated app
-                open "\(targetApp)"
+                # 4. Clean up temporary installer script
+                rm -f /tmp/macaura_updater_atomic.sh
+                
+                # 5. Relaunch fresh instance cleanly
+                sleep 0.3
+                open -n "$TARGET"
                 """
                 
-                let tempScript = FileManager.default.temporaryDirectory.appendingPathComponent("update_relaunch.sh")
+                let tempScript = URL(fileURLWithPath: "/tmp/macaura_updater_atomic.sh")
                 try scriptContent.write(to: tempScript, atomically: true, encoding: .utf8)
                 
                 let chmod = Process()
@@ -203,12 +295,13 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
                 try chmod.run()
                 chmod.waitUntilExit()
                 
-                // Launch background worker script
+                // Launch background detached process
                 let launcher = Process()
                 launcher.executableURL = URL(fileURLWithPath: "/bin/bash")
                 launcher.arguments = [tempScript.path]
                 try launcher.run()
                 
+                // Cleanly quit current process
                 DispatchQueue.main.async {
                     NSApp.terminate(nil)
                 }
@@ -222,6 +315,22 @@ public class UpdateManager: NSObject, ObservableObject, URLSessionDownloadDelega
     }
     
     // MARK: - Helpers
+    
+    private func computeSHA256(of fileURL: URL) -> String? {
+        guard let fileHandle = try? FileHandle(forReadingFrom: fileURL) else { return nil }
+        defer { try? fileHandle.close() }
+        
+        var hasher = SHA256()
+        while autoreleasepool(invoking: {
+            let chunk = fileHandle.readData(ofLength: 1024 * 1024)
+            if chunk.isEmpty { return false }
+            hasher.update(data: chunk)
+            return true
+        }) {}
+        
+        let digest = hasher.finalize()
+        return digest.map { String(format: "%02hhx", $0) }.joined()
+    }
     
     public func openDownloadPage(url: String) {
         if let targetURL = URL(string: url) {

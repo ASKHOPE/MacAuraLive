@@ -1,12 +1,14 @@
 # MacAuraLive Changelog
 
-## [1.9.1] - 2026-08-20
+## [1.9.2] - 2026-08-20
 
 ### Added & Major Features
-- **📻 OS Classic (Retro Studio) Theme**: Added a vintage Apple System 7 / Platinum inspired theme with warm paper canvas (`#F4F1EA`), bone sidebar, monospaced tech typography, recessed search bar, resolution pill filters, and hardware-framed card containers.
+- **🎨 Complete OS Classic Sidebar & UI Transformation**: Custom grouped monospaced sidebar with `#5C5744` olive selection pills, classic wireframe icons, raised beveled import buttons, and Braun/System 7 radio buttons in Settings and Marketplace.
+- **🛡️ Cryptographic SHA-256 Checksum & Disk Image Verification**: Automated checksum validation and Apple disk image integrity verification before showing "Install & Restart" to ensure downloaded updates are authentic and not compromised in transit.
+- **⚡ Atomic Bundle Replacement & Clean Relaunch**: Failsafe background process that waits for the active app to terminate cleanly, replaces `/Applications/MacAuraLive.app` atomically, detaches the mounted DMG, clears quarantine flags, and relaunches the new version without user friction.
 - **✨ Mood Selector & Custom Profile Templates**: Create, save, and cycle customized playlists and mood profiles (e.g., Deep Focus, Night Sanctuary, Day Flow & Energy, Cyber Lounge).
 - **🌙 Automatic macOS Mode Sync**: Seamlessly syncs with macOS system states — automatically activating linked mood profiles on **Do Not Disturb / Focus Mode**, **macOS Sleep / Screen Dimmed**, and **Dark / Light Appearance** changes.
-- **⚡ In-App Background Updater & 1-Click Relaunch**: Directly checks GitHub releases, streams download progress in the background with verification, and performs zero-friction atomic bundle updates and app relaunch.
+- **💾 Live Storage Capacity & Free Disk Space Monitor**: Real-time volume capacity breakdown, available disk space indicators, and 1-click temporary cache cleaner.
 - **📦 Official macOS Setup Wizard Package (`.pkg`)**: Apple-standard installation wizard with introductory feature overview, full Terms of Service agreement step, and automated destination staging.
 - **🎨 Orion-Style Modern About Panel**: Overhauled About section in Settings with an 80pt Apple squircle icon, dynamic version metadata, live taglines, and quick actions ("What's New", "Send Feedback", "Licenses").
 - **🏷️ Dynamic Versioning & Single Source of Truth**: Centralized `version.json` and runtime `AppVersion` model eliminating hardcoded version discrepancies across builds and release channels.
