@@ -28,8 +28,7 @@ public struct DisplayManagerView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                Toggle("", isOn: $settings.spanAcrossDisplays)
-                    .toggleStyle(.switch)
+                MacaRetroToggle("", isOn: $settings.spanAcrossDisplays)
             }
             .padding(18)
             .macaCardStyle(cornerRadius: 14)
@@ -70,18 +69,22 @@ public struct DisplayCardView: View {
         HStack(spacing: 24) {
             // Monitor Icon Card
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient(colors: [Color.blue.opacity(0.35), Color.purple.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 12)
+                    .fill(
+                        settings.appTheme == "classic"
+                            ? MacaThemeTokens.classicSubcardBg
+                            : Color.blue.opacity(0.35)
+                    )
                     .frame(width: 150, height: 95)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 12)
+                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color.white.opacity(0.2), lineWidth: 1)
                     )
                 
                 VStack(spacing: 6) {
                     Image(systemName: "desktopcomputer")
                         .font(.system(size: 28))
-                        .foregroundColor(.white)
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .white)
                     Text(display.resolutionCategory)
                         .font(.caption2)
                         .fontWeight(.bold)
@@ -102,9 +105,9 @@ public struct DisplayCardView: View {
                             .fontWeight(.bold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color.blue)
+                            .background(settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue)
                             .foregroundColor(.white)
-                            .cornerRadius(6)
+                            .cornerRadius(settings.appTheme == "classic" ? 3 : 6)
                     }
                 }
                 

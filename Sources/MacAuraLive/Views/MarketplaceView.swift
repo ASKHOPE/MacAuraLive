@@ -719,9 +719,7 @@ private struct MarketplaceCardView: View {
                                 WallpaperStorageManager.shared.setActiveWallpaper(local)
                             }
                         }
-                        .font(.caption)
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
+                        .macaButtonStyle(.primary, size: .small)
                     }
                 } else {
                     HStack {
@@ -731,11 +729,8 @@ private struct MarketplaceCardView: View {
                             }
                         }) {
                             Label("Download & Set", systemImage: "arrow.down.circle.fill")
-                                .font(.caption)
-                                .fontWeight(.semibold)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
+                        .macaButtonStyle(.primary, size: .small)
                         
                         Spacer()
                         
@@ -745,10 +740,8 @@ private struct MarketplaceCardView: View {
                             }
                         }) {
                             Image(systemName: "arrow.down.doc")
-                                .font(.caption)
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                        .macaButtonStyle(.secondary, size: .small)
                         .help("Save to library without applying immediately")
                     }
                 }

@@ -2,42 +2,277 @@ import SwiftUI
 import AppKit
 
 public struct MacaThemeTokens {
-    // OS Classic / Retro Studio Warm Palette
-    public static let classicCanvas = Color(red: 0.957, green: 0.945, blue: 0.918)      // #F4F1EA
-    public static let classicSidebar = Color(red: 0.937, green: 0.925, blue: 0.902)     // #EFECE6
-    public static let classicCardBg = Color(red: 0.985, green: 0.980, blue: 0.965)      // #FAF9F6
-    public static let classicBorder = Color(red: 0.820, green: 0.795, blue: 0.755)      // #D1CBBF
-    public static let classicOlive = Color(red: 0.360, green: 0.340, blue: 0.270)       // #5C5744
-    public static let classicDarkTag = Color(red: 0.170, green: 0.160, blue: 0.135)     // #2B2922
-    public static let classicTextDark = Color(red: 0.120, green: 0.115, blue: 0.105)    // #1F1E1B
-    public static let classicTextMuted = Color(red: 0.440, green: 0.425, blue: 0.390)   // #706D63
-    public static let classicPillBorder = Color(red: 0.750, green: 0.725, blue: 0.680)  // #C0BAAD
+    // OS Classic Palette (Derived directly from MacAura Vintage Chassis App Icon)
+    public static var isDark: Bool {
+        if AppSettings.shared.appTheme == "dark" { return true }
+        if AppSettings.shared.appTheme == "light" { return false }
+        if AppSettings.shared.appTheme == "classic" {
+            return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        }
+        return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+    }
+    
+    // Canvas Background (Vintage Cream vs Deep CRT Charcoal)
+    public static var classicCanvas: Color {
+        isDark ? Color(red: 0.086, green: 0.082, blue: 0.075) : Color(red: 0.925, green: 0.902, blue: 0.855) // #ECE6DA
+    }
+    
+    // Sidebar Background (Vintage Chassis Almond vs Dark Bezel)
+    public static var classicSidebar: Color {
+        isDark ? Color(red: 0.110, green: 0.105, blue: 0.095) : Color(red: 0.885, green: 0.860, blue: 0.810) // #E2DCCF
+    }
+    
+    // Card Background (Vintage Chassis Beige - NEVER pure white)
+    public static var classicCardBg: Color {
+        isDark ? Color(red: 0.145, green: 0.138, blue: 0.125) : Color(red: 0.865, green: 0.840, blue: 0.785) // #DDD6C8
+    }
+    
+    // Subcard / Chip Background
+    public static var classicSubcardBg: Color {
+        isDark ? Color(red: 0.180, green: 0.170, blue: 0.155) : Color(red: 0.815, green: 0.790, blue: 0.735) // #D0C9BB
+    }
+    
+    // Tactile Hardware Border
+    public static var classicBorder: Color {
+        isDark ? Color(red: 0.290, green: 0.275, blue: 0.250) : Color(red: 0.680, green: 0.650, blue: 0.590) // #ADA696
+    }
+    
+    // Olive / Bronze Accent (from App Logo Buttons)
+    public static var classicOlive: Color {
+        isDark ? Color(red: 0.460, green: 0.430, blue: 0.340) : Color(red: 0.360, green: 0.335, blue: 0.260) // #5C5542
+    }
+    
+    // Dark CRT Tag
+    public static var classicDarkTag: Color {
+        isDark ? Color(red: 0.065, green: 0.060, blue: 0.055) : Color(red: 0.150, green: 0.140, blue: 0.125)
+    }
+    
+    // Primary Monospaced Text
+    public static var classicTextDark: Color {
+        isDark ? Color(red: 0.940, green: 0.930, blue: 0.905) : Color(red: 0.115, green: 0.110, blue: 0.100) // #1D1C19
+    }
+    
+    // Muted Monospaced Text
+    public static var classicTextMuted: Color {
+        isDark ? Color(red: 0.680, green: 0.660, blue: 0.615) : Color(red: 0.400, green: 0.385, blue: 0.350) // #666259
+    }
+    
+    // Button Raised Chassis
+    public static var classicButtonBg: Color {
+        isDark ? Color(red: 0.200, green: 0.190, blue: 0.175) : Color(red: 0.840, green: 0.815, blue: 0.760) // #D6D0C2
+    }
+}
+
+// MARK: - Reusable Themed Card Modifiers
+
+public extension View {
+    /// Applies an adaptive card container style with crisp 4pt corner radius in classic mode
+    func macaCardStyle(cornerRadius: CGFloat = 14) -> some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let isDark = AppSettings.shared.appTheme == "dark" || (AppSettings.shared.appTheme != "light" && MacaThemeTokens.isDark)
+        let radius: CGFloat = isClassic ? 4 : cornerRadius
+        
+        return self
+            .background(
+                isClassic
+                    ? MacaThemeTokens.classicCardBg
+                    : (isDark ? Color(red: 0.14, green: 0.14, blue: 0.16).opacity(0.85) : Color(NSColor.controlBackgroundColor))
+            )
+            .cornerRadius(radius)
+            .overlay(
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(
+                        isClassic
+                            ? MacaThemeTokens.classicBorder
+                            : (isDark ? Color.white.opacity(0.12) : Color(NSColor.separatorColor)),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(
+                color: isDark ? Color.black.opacity(0.3) : (isClassic ? Color.black.opacity(0.08) : Color.black.opacity(0.04)),
+                radius: isClassic ? 2 : 4,
+                x: isClassic ? 1 : 0,
+                y: isClassic ? 1 : 1
+            )
+    }
+    
+    /// Applies an adaptive subtle subcard / item row background with crisp 3pt-4pt corner radius in classic mode
+    func macaSubcardStyle(cornerRadius: CGFloat = 8) -> some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let isDark = AppSettings.shared.appTheme == "dark" || (AppSettings.shared.appTheme != "light" && MacaThemeTokens.isDark)
+        let radius: CGFloat = isClassic ? 3 : cornerRadius
+        
+        return self
+            .background(
+                isClassic
+                    ? MacaThemeTokens.classicSubcardBg
+                    : (isDark ? Color.white.opacity(0.06) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
+            )
+            .cornerRadius(radius)
+            .overlay(
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(
+                        isClassic
+                            ? MacaThemeTokens.classicBorder.opacity(0.75)
+                            : (isDark ? Color.white.opacity(0.08) : Color(NSColor.separatorColor).opacity(0.6)),
+                        lineWidth: 0.8
+                    )
+            )
+    }
+}
+
+// MARK: - Reusable Retro & Modern Button Styles
+
+public enum MacaButtonStyleType {
+    case primary      // Olive in classic, accent/blue in modern
+    case secondary    // Beveled raised almond in classic, bordered in modern
+    case destructive  // Crimson in classic & modern
+    case ghost        // Clean wireframe
+}
+
+public struct MacaThemeButtonStyle: ButtonStyle {
+    public let style: MacaButtonStyleType
+    public let controlSize: ControlSize
+    
+    public init(_ style: MacaButtonStyleType = .secondary, size: ControlSize = .regular) {
+        self.style = style
+        self.controlSize = size
+    }
+    
+    private func computeBackground(isClassic: Bool, isPressed: Bool) -> Color {
+        if isClassic {
+            switch style {
+            case .primary:
+                return isPressed ? MacaThemeTokens.classicOlive.opacity(0.8) : MacaThemeTokens.classicOlive
+            case .secondary:
+                return isPressed ? MacaThemeTokens.classicSubcardBg : MacaThemeTokens.classicButtonBg
+            case .destructive:
+                return isPressed ? Color.red.opacity(0.8) : Color.red
+            case .ghost:
+                return Color.clear
+            }
+        } else {
+            switch style {
+            case .primary:
+                return Color.accentColor.opacity(isPressed ? 0.8 : 1.0)
+            case .secondary:
+                return Color(NSColor.controlBackgroundColor).opacity(isPressed ? 0.6 : 1.0)
+            case .destructive:
+                return Color.red.opacity(isPressed ? 0.8 : 1.0)
+            case .ghost:
+                return Color.clear
+            }
+        }
+    }
+    
+    private func computeTextColor(isClassic: Bool) -> Color {
+        if isClassic {
+            switch style {
+            case .primary, .destructive:
+                return Color.white
+            case .secondary, .ghost:
+                return MacaThemeTokens.classicTextDark
+            }
+        } else {
+            switch style {
+            case .primary, .destructive:
+                return Color.white
+            case .secondary, .ghost:
+                return Color.primary
+            }
+        }
+    }
+    
+    public func makeBody(configuration: Configuration) -> some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let isPressed = configuration.isPressed
+        
+        let verticalPad: CGFloat = controlSize == .small ? 4 : (controlSize == .large ? 10 : 6)
+        let horizontalPad: CGFloat = controlSize == .small ? 8 : (controlSize == .large ? 16 : 12)
+        let fontSize: CGFloat = controlSize == .small ? 11 : (controlSize == .large ? 14 : 12.5)
+        
+        return configuration.label
+            .font(.system(size: fontSize, weight: .bold, design: isClassic ? .monospaced : .default))
+            .padding(.vertical, verticalPad)
+            .padding(.horizontal, horizontalPad)
+            .background(computeBackground(isClassic: isClassic, isPressed: isPressed))
+            .foregroundColor(computeTextColor(isClassic: isClassic))
+            .cornerRadius(isClassic ? 3 : 8)
+            .overlay(
+                RoundedRectangle(cornerRadius: isClassic ? 3 : 8)
+                    .stroke(
+                        isClassic ? (style == .primary ? MacaThemeTokens.classicOlive : MacaThemeTokens.classicBorder) : (style == .primary ? Color.clear : Color(NSColor.separatorColor)),
+                        lineWidth: isClassic ? 1 : 1
+                    )
+            )
+            .shadow(
+                color: isClassic && style != .ghost ? Color.black.opacity(isPressed ? 0.02 : 0.08) : Color.clear,
+                radius: isPressed ? 0.5 : 1.5,
+                x: 0,
+                y: isPressed ? 0.5 : 1.0
+            )
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isPressed)
+    }
 }
 
 public extension View {
-    /// Applies an adaptive, high-contrast macOS native card container style with subtle elevation and border
-    func macaCardStyle(cornerRadius: CGFloat = 14) -> some View {
-        let isClassic = AppSettings.shared.appTheme == "classic"
-        return self
-            .background(isClassic ? MacaThemeTokens.classicCardBg : Color(NSColor.controlBackgroundColor))
-            .cornerRadius(isClassic ? 8 : cornerRadius)
-            .overlay(
-                RoundedRectangle(cornerRadius: isClassic ? 8 : cornerRadius)
-                    .stroke(isClassic ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
-            )
-            .shadow(color: isClassic ? Color.black.opacity(0.08) : Color.black.opacity(0.04), radius: isClassic ? 3 : 4, x: isClassic ? 2 : 0, y: isClassic ? 2 : 1)
+    func macaButtonStyle(_ style: MacaButtonStyleType = .secondary, size: ControlSize = .regular) -> some View {
+        self.buttonStyle(MacaThemeButtonStyle(style, size: size))
+    }
+}
+
+// MARK: - Reusable Retro Mechanical Toggle
+
+public struct MacaRetroToggle: View {
+    @Binding var isOn: Bool
+    var label: String
+    
+    public init(_ label: String = "", isOn: Binding<Bool>) {
+        self._isOn = isOn
+        self.label = label
     }
     
-    /// Applies an adaptive subtle subcard / item row background
-    func macaSubcardStyle(cornerRadius: CGFloat = 8) -> some View {
+    public var body: some View {
         let isClassic = AppSettings.shared.appTheme == "classic"
-        return self
-            .background(isClassic ? MacaThemeTokens.classicSidebar : Color(NSColor.quaternaryLabelColor).opacity(0.15))
-            .cornerRadius(cornerRadius)
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(isClassic ? MacaThemeTokens.classicBorder.opacity(0.6) : Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
-            )
+        
+        if isClassic {
+            Button(action: { isOn.toggle() }) {
+                HStack(spacing: 8) {
+                    if !label.isEmpty {
+                        Text(label)
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundColor(MacaThemeTokens.classicTextDark)
+                    }
+                    
+                    // Hardware Rocker Switch Pill
+                    HStack(spacing: 0) {
+                        Text("ON")
+                            .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(isOn ? MacaThemeTokens.classicOlive : Color.clear)
+                            .foregroundColor(isOn ? .white : MacaThemeTokens.classicTextMuted)
+                        
+                        Text("OFF")
+                            .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(!isOn ? Color(red: 0.30, green: 0.28, blue: 0.26) : Color.clear)
+                            .foregroundColor(!isOn ? .white : MacaThemeTokens.classicTextMuted)
+                    }
+                    .background(MacaThemeTokens.classicSubcardBg)
+                    .cornerRadius(3)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 3)
+                            .stroke(MacaThemeTokens.classicBorder, lineWidth: 1)
+                    )
+                }
+            }
+            .buttonStyle(.plain)
+        } else {
+            Toggle(label, isOn: $isOn)
+        }
     }
 }
 

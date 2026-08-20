@@ -26,6 +26,11 @@ struct MacAuraLiveApp: App {
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button("About MacAuraLive") {
+                    appDelegate.showAboutPanel()
+                }
+            }
             CommandGroup(replacing: .newItem) {}
         }
     }
@@ -161,6 +166,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
         openDashboardItem.target = self
         menu.addItem(openDashboardItem)
         
+        let aboutItem = NSMenuItem(title: "About MacAuraLive...", action: #selector(showAboutPanel), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+        
         menu.addItem(NSMenuItem.separator())
         
         // Launch at Login quick toggle
@@ -181,6 +190,31 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
         
         statusItem.menu = menu
         self.statusItem = statusItem
+    }
+    
+    @objc public func showAboutPanel() {
+        let credits = NSMutableAttributedString()
+        let boldAttributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.boldSystemFont(ofSize: 11),
+            .foregroundColor: NSColor.labelColor
+        ]
+        let regularAttributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.secondaryLabelColor
+        ]
+        
+        credits.append(NSAttributedString(string: "MacAuraLive — Native Live Wallpaper Engine\n\n", attributes: boldAttributes))
+        credits.append(NSAttributedString(string: "Architecture: Universal 2 (Apple Silicon M1/M2/M3/M4 & Intel x86_64)\nGraphics Engine: Apple Metal 3 & WebKit WebGL (60 FPS VSync)\nMedia Pipeline: AVFoundation Hardware 4K Video Decoder\nStorage: Local Archive (~/Library/Application Support/MacAuraLive/Media)\nSecurity: Hardware Keychain Secure Enclave • Zero Telemetry\n\nCreated by ASKHOPE • Distributed under the MIT License.\nhttps://askhope.github.io/MacAuraLive/\n", attributes: regularAttributes))
+        
+        let options: [NSApplication.AboutPanelOptionKey: Any] = [
+            .applicationName: "MacAuraLive",
+            .applicationVersion: "v\(AppVersion.current.version)",
+            .version: "Universal 2 (Apple Silicon M1-M4 & Intel)",
+            .credits: credits
+        ]
+        
+        NSApp.orderFrontStandardAboutPanel(options: options)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     public func menuWillOpen(_ menu: NSMenu) {

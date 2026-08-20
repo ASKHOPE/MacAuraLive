@@ -480,7 +480,7 @@ public struct MainWindowView: View {
                     )
                     .frame(width: 20)
                 
-                Text(isClassic ? classicTabTitle(for: tab) : tab.rawValue)
+                Text(tab.rawValue)
                     .font(
                         isClassic ? .system(size: 12.5, weight: isSelected ? .bold : .medium, design: .monospaced) : .system(size: 13, weight: isSelected ? .semibold : .regular)
                     )
@@ -513,27 +513,12 @@ public struct MainWindowView: View {
         .padding(.horizontal, 8)
     }
     
-    private func classicTabTitle(for tab: NavigationTab) -> String {
-        switch tab {
-        case .liveWallpapers: return "Dynamic"
-        case .staticWallpapers: return "Static"
-        case .moods: return "Moods & Presets"
-        case .marketplace: return "Marketplace"
-        case .slideshow: return "Slideshow"
-        case .displays: return "Displays"
-        case .lockScreen: return "Lock Screen"
-        case .aiConfig: return "AI Workshop"
-        case .userGuide: return "User Guide"
-        case .settings: return "Settings"
-        }
-    }
-    
     private func classicIconName(for tab: NavigationTab) -> String {
         switch tab {
-        case .liveWallpapers: return "square.stack.3d.forward.dottedline"
+        case .liveWallpapers: return "play.rectangle"
         case .staticWallpapers: return "photo.artframe"
         case .moods: return "sparkles.rectangle.stack"
-        case .marketplace: return "bag"
+        case .marketplace: return "globe.americas"
         case .slideshow: return "clock.arrow.2.circlepath"
         case .displays: return "desktopcomputer"
         case .lockScreen: return "lock.rectangle.on.rectangle"

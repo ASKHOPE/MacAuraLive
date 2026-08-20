@@ -99,11 +99,11 @@ public struct LockScreenView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .cornerRadius(18)
+            .cornerRadius(settings.appTheme == "classic" ? 4 : 18)
             .clipped()
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 18)
+                    .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color.white.opacity(0.12), lineWidth: 1)
             )
             .onReceive(timer) { _ in updateTimeAndDate() }
             .onAppear {
@@ -151,11 +151,11 @@ public struct LockScreenView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 100, height: 66)
-                            .cornerRadius(8)
+                            .cornerRadius(settings.appTheme == "classic" ? 3 : 8)
                             .clipped()
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.purple, lineWidth: 2)
+                                RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 3 : 8)
+                                    .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue, lineWidth: 2)
                             )
                         VStack(alignment: .leading, spacing: 4) {
                             Label("Currently Applied", systemImage: "checkmark.circle.fill")
@@ -175,12 +175,7 @@ public struct LockScreenView: View {
                         Spacer()
                     }
                     .padding(12)
-                    .background(Color.purple.opacity(0.08))
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.purple.opacity(0.25), lineWidth: 1)
-                    )
+                    .macaSubcardStyle(cornerRadius: 8)
                 } else {
                     // No image applied yet
                     HStack(spacing: 10) {
@@ -228,9 +223,8 @@ public struct LockScreenView: View {
                         openImagePicker()
                     } label: {
                         Label("Browse Image…", systemImage: "folder.badge.plus")
-                            .fontWeight(.semibold)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
 
                     if !staticWallpapers.isEmpty {
                         Button {
@@ -238,7 +232,7 @@ public struct LockScreenView: View {
                         } label: {
                             Label("Apply Selected", systemImage: "lock.rectangle.on.rectangle.fill")
                         }
-                        .buttonStyle(.bordered)
+                        .macaButtonStyle(.secondary)
                         .disabled(selectedWallpaper == nil)
                     }
 
@@ -260,7 +254,7 @@ public struct LockScreenView: View {
                 }
             }
             .padding(20)
-            .macaCardStyle(cornerRadius: 16)
+            .macaCardStyle(cornerRadius: 14)
 
             // ── Info Note ─────────────────────────────────────────────
             HStack(spacing: 10) {

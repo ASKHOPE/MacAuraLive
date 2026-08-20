@@ -23,9 +23,8 @@ public struct MoodSelectorView: View {
                 Spacer()
                 
                 // macOS Mode Sync Toggle
-                HStack(spacing: 8) {
-                    Toggle("macOS Sync", isOn: $moodManager.isSyncEnabled)
-                        .toggleStyle(.switch)
+                HStack(spacing: 12) {
+                    MacaRetroToggle("macOS Sync", isOn: $moodManager.isSyncEnabled)
                         .help("Automatically switch mood when macOS changes Focus mode, DND, or Sleep state.")
                     
                     Button {
@@ -33,7 +32,7 @@ public struct MoodSelectorView: View {
                     } label: {
                         Label("New Mood", systemImage: "plus.circle.fill")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
                 }
             }
             
@@ -55,8 +54,7 @@ public struct MoodSelectorView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color.blue.opacity(0.1))
-                .cornerRadius(8)
+                .macaSubcardStyle(cornerRadius: 8)
             }
             
             // Moods Grid
@@ -114,7 +112,7 @@ struct MoodCard: View {
             let accentColor = Color(hex: mood.accentColorHex) ?? .purple
             HStack(spacing: 12) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: AppSettings.shared.appTheme == "classic" ? 4 : 12)
                         .fill(accentColor.opacity(0.2))
                         .frame(width: 44, height: 44)
                     Image(systemName: mood.icon)
@@ -145,7 +143,7 @@ struct MoodCard: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(Color.green.opacity(0.12))
-                    .cornerRadius(12)
+                    .cornerRadius(AppSettings.shared.appTheme == "classic" ? 3 : 12)
                 }
             }
             
@@ -170,8 +168,7 @@ struct MoodCard: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(Color(NSColor.quaternaryLabelColor).opacity(0.2))
-                .cornerRadius(6)
+                .macaSubcardStyle(cornerRadius: 6)
             }
             
             Divider()
@@ -180,11 +177,8 @@ struct MoodCard: View {
             HStack {
                 Button(action: onActivate) {
                     Label(isActive ? "Active Mood" : "Apply Mood", systemImage: isActive ? "checkmark.circle.fill" : "play.fill")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(isActive ? .green : accentColor)
+                .macaButtonStyle(.primary)
                 .disabled(isActive)
                 
                 Spacer()
@@ -259,6 +253,7 @@ struct MoodEditorSheet: View {
                     .bold()
                 Spacer()
                 Button("Cancel") { dismiss() }
+                    .macaButtonStyle(.secondary)
                     .keyboardShortcut(.cancelAction)
                 Button("Save Mood") {
                     let mood = MoodProfile(
@@ -277,7 +272,7 @@ struct MoodEditorSheet: View {
                     onSave(mood)
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                .macaButtonStyle(.primary)
                 .keyboardShortcut(.defaultAction)
             }
             

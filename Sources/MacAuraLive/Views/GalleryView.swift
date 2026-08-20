@@ -242,11 +242,11 @@ public struct GalleryView: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4.5)
-                                .background(selectedCategory == cat ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
+                                .background(selectedCategory == cat ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
                                 .foregroundColor(selectedCategory == cat ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                .cornerRadius(6)
+                                .cornerRadius(settings.appTheme == "classic" ? 3 : 6)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
+                                    RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 3 : 6)
                                         .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
                                 )
                             }
@@ -261,14 +261,12 @@ public struct GalleryView: View {
                         Button { openFolderPicker() } label: {
                             Label("Import Folder", systemImage: "folder.badge.plus")
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                        .macaButtonStyle(.secondary, size: .small)
                         
                         Button { openFilePicker() } label: {
                             Label("Import File", systemImage: "plus.circle.fill")
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
+                        .macaButtonStyle(.primary, size: .small)
                         
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -280,8 +278,7 @@ public struct GalleryView: View {
                         } label: {
                             Label(isSelectionMode ? "Cancel" : "Select", systemImage: isSelectionMode ? "checkmark.circle.fill" : "checkmark.circle")
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                        .macaButtonStyle(.secondary, size: .small)
                         
                         Menu {
                             Picker("Global Sizing", selection: $settings.wallpaperPlacement) {
@@ -297,8 +294,7 @@ public struct GalleryView: View {
                                 Text(placementLabel(settings.wallpaperPlacement))
                             }
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                        .macaButtonStyle(.secondary, size: .small)
                     }
                 }
                 

@@ -69,7 +69,7 @@ public struct AIConfigurationView: View {
             }
             
             // Sub-Tab Navigation Bar
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 ForEach(AITab.allCases) { tab in
                     Button(action: {
                         if tab.isAvailable {
@@ -77,26 +77,28 @@ public struct AIConfigurationView: View {
                             settings.selectedAIProvider = tab.rawValue
                         }
                     }) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 6) {
                             Image(systemName: tab.iconName)
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.system(size: 13, weight: .semibold))
                             Text(tab.rawValue)
-                                .font(.subheadline)
-                                .fontWeight(activeSubTab == tab ? .bold : .medium)
+                                .font(.system(size: 12.5, weight: activeSubTab == tab ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(activeSubTab == tab ? Color.pink : (tab.isAvailable ? Color.white.opacity(0.08) : Color.white.opacity(0.03)))
-                        .foregroundColor(tab.isAvailable ? .white : .secondary)
-                        .cornerRadius(12)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(tabBackground(tab: tab))
+                        .foregroundColor(tabForeground(tab: tab))
+                        .cornerRadius(settings.appTheme == "classic" ? 3 : 8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 3 : 8)
+                                .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
+                        )
                     }
                     .buttonStyle(.plain)
                     .disabled(!tab.isAvailable)
                 }
             }
-            .padding(12)
-            .background(Color.white.opacity(0.04))
-            .cornerRadius(16)
+            .padding(8)
+            .macaSubcardStyle(cornerRadius: 10)
             
             // Tab Content Body
             ScrollView {
@@ -124,14 +126,8 @@ public struct AIConfigurationView: View {
                             
                             Button(action: { showTerminalConsole.toggle() }) {
                                 Label(showTerminalConsole ? "Hide Terminal Output" : "Show Terminal Output", systemImage: "terminal.fill")
-                                    .font(.caption)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(Color.black.opacity(0.4))
-                                    .foregroundColor(.cyan)
-                                    .cornerRadius(6)
                             }
-                            .buttonStyle(.plain)
+                            .macaButtonStyle(.secondary, size: .small)
                         }
                         
                         HStack(spacing: 12) {
@@ -144,28 +140,16 @@ public struct AIConfigurationView: View {
                                         Image(systemName: "xmark.octagon.fill")
                                         Text("Stop / Kill AI")
                                     }
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(Color.red)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
                                 }
-                                .buttonStyle(.plain)
+                                .macaButtonStyle(.destructive)
                             } else {
                                 Button(action: { runTestGeneration() }) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "sparkles")
                                         Text("Generate AI Shader")
                                     }
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(LinearGradient(colors: [Color.purple, Color.pink], startPoint: .leading, endPoint: .trailing))
-                                    .foregroundColor(.white)
-                                    .cornerRadius(8)
                                 }
-                                .buttonStyle(.plain)
+                                .macaButtonStyle(.primary)
                                 .disabled(testPromptInput.isEmpty)
                             }
                         }
@@ -223,12 +207,7 @@ public struct AIConfigurationView: View {
                         }
                     }
                     .padding(18)
-                    .background(Color.pink.opacity(0.08))
-                    .cornerRadius(14)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.pink.opacity(0.2), lineWidth: 1)
-                    )
+                    .macaCardStyle(cornerRadius: 14)
                 }
             }
         }
@@ -247,13 +226,12 @@ public struct AIConfigurationView: View {
                 Label("Google Gemini API", systemImage: "sparkle")
                     .font(.title3)
                     .bold()
-                    .foregroundColor(.blue)
                 Spacer()
                 Text("Gemini 2.0 Flash / 1.5 Flash")
                     .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.2))
+                    .background(Color.blue.opacity(0.15))
                     .foregroundColor(.blue)
                     .cornerRadius(6)
             }
@@ -278,8 +256,7 @@ public struct AIConfigurationView: View {
                     }) {
                         Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
+                    .macaButtonStyle(.primary)
                     .disabled(geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     
                     Button(action: {
@@ -298,8 +275,7 @@ public struct AIConfigurationView: View {
                             Text(validatingProvider == "Google Gemini" ? "Testing..." : "Test Key")
                         }
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.green)
+                    .macaButtonStyle(.secondary)
                     .disabled(geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || validatingProvider != nil)
                     
                     Button(action: {
@@ -309,8 +285,7 @@ public struct AIConfigurationView: View {
                     }) {
                         Label("Clear Key", systemImage: "trash.fill")
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.red)
+                    .macaButtonStyle(.destructive)
                     .disabled(geminiApiKey.isEmpty)
                 }
                 
@@ -330,12 +305,7 @@ public struct AIConfigurationView: View {
             }
         }
         .padding(16)
-        .background(Color.blue.opacity(0.06))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.blue.opacity(0.2), lineWidth: 1)
-        )
+        .macaCardStyle(cornerRadius: 12)
     }
     
     // MARK: - OpenRouter Tab View
@@ -346,7 +316,6 @@ public struct AIConfigurationView: View {
                 Label("OpenRouter API", systemImage: "sparkles")
                     .font(.title3)
                     .bold()
-                    .foregroundColor(.pink)
                 Spacer()
                 
                 Button(action: { fetchLiveModels() }) {
@@ -358,15 +327,8 @@ public struct AIConfigurationView: View {
                         }
                         Text("Fetch Live Models from Internet")
                     }
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Color.pink.opacity(0.8))
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
                 }
-                .buttonStyle(.plain)
+                .macaButtonStyle(.secondary, size: .small)
                 .disabled(isFetchingModels)
             }
             
@@ -416,8 +378,7 @@ public struct AIConfigurationView: View {
                     }) {
                         Label("Save Key", systemImage: "square.and.arrow.down.fill")
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
+                    .macaButtonStyle(.primary)
                     .disabled(settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     
                     Button(action: {
@@ -435,8 +396,7 @@ public struct AIConfigurationView: View {
                             Text(validatingProvider == "OpenRouter" ? "Testing..." : "Test Key")
                         }
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.green)
+                    .macaButtonStyle(.secondary)
                     .disabled(settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || validatingProvider != nil)
                     
                     Button(action: {
@@ -445,8 +405,7 @@ public struct AIConfigurationView: View {
                     }) {
                         Label("Clear Key", systemImage: "trash.fill")
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.red)
+                    .macaButtonStyle(.destructive)
                     .disabled(settings.openRouterApiKey.isEmpty)
                 }
                 
@@ -462,12 +421,7 @@ public struct AIConfigurationView: View {
             }
         }
         .padding(18)
-        .background(Color.purple.opacity(0.12))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.pink.opacity(0.3), lineWidth: 1)
-        )
+        .macaCardStyle(cornerRadius: 14)
     }
     
     // MARK: - Local AI (LMStudio / Ollama) Tab View
@@ -478,14 +432,13 @@ public struct AIConfigurationView: View {
                 Label("Local AI / LMStudio / Ollama", systemImage: "cpu")
                     .font(.title3)
                     .bold()
-                    .foregroundColor(.green)
                 Spacer()
                 Text("100% Offline • LMStudio Ready")
                     .font(.caption2)
                     .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.green.opacity(0.2))
+                    .background(Color.green.opacity(0.15))
                     .foregroundColor(.green)
                     .cornerRadius(6)
             }
@@ -508,15 +461,8 @@ public struct AIConfigurationView: View {
                             }
                             Text("Test LMStudio Endpoint")
                         }
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
                     }
-                    .buttonStyle(.plain)
+                    .macaButtonStyle(.primary)
                     .disabled(validatingProvider != nil)
                 }
                 
@@ -531,12 +477,7 @@ public struct AIConfigurationView: View {
             }
         }
         .padding(18)
-        .background(Color.green.opacity(0.12))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.green.opacity(0.3), lineWidth: 1)
-        )
+        .macaCardStyle(cornerRadius: 14)
     }
     
     // MARK: - Coming Soon Tab View
@@ -664,5 +605,21 @@ public struct AIConfigurationView: View {
     private func appendLog(_ text: String) {
         let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
         terminalLogs.append("[\(timestamp)] \(text)")
+    }
+    
+    private func tabBackground(tab: AITab) -> Color {
+        if settings.appTheme == "classic" {
+            return activeSubTab == tab ? MacaThemeTokens.classicOlive : MacaThemeTokens.classicButtonBg
+        } else {
+            return activeSubTab == tab ? Color.accentColor : Color(NSColor.controlBackgroundColor)
+        }
+    }
+    
+    private func tabForeground(tab: AITab) -> Color {
+        if settings.appTheme == "classic" {
+            return activeSubTab == tab ? Color.white : (tab.isAvailable ? MacaThemeTokens.classicTextDark : MacaThemeTokens.classicTextMuted)
+        } else {
+            return activeSubTab == tab ? Color.white : (tab.isAvailable ? Color.primary : Color.secondary)
+        }
     }
 }

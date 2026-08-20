@@ -67,8 +67,7 @@ public struct SlideshowView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            Toggle("", isOn: $slideshow.isSlideshowEnabled)
-                                .toggleStyle(.switch)
+                            MacaRetroToggle("", isOn: $slideshow.isSlideshowEnabled)
                         }
 
                         if slideshow.isSlideshowEnabled {
@@ -95,8 +94,7 @@ public struct SlideshowView: View {
                                 } label: {
                                     Label("Rotate Now", systemImage: "forward.fill")
                                 }
-                                .buttonStyle(.borderedProminent)
-                                .tint(.blue)
+                                .macaButtonStyle(.primary)
                             }
 
                             // Shuffle Option
@@ -118,15 +116,13 @@ public struct SlideshowView: View {
                                         .foregroundColor(.cyan)
                                     Text("Next rotation scheduled for:")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
                                     Text(nextDate, style: .time)
                                         .font(.caption)
                                         .bold()
-                                        .foregroundColor(.cyan)
                                 }
-                                .padding(10)
-                                .background(Color.cyan.opacity(0.1))
-                                .cornerRadius(8)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .macaSubcardStyle(cornerRadius: 6)
                             }
                         }
                     }
@@ -134,7 +130,7 @@ public struct SlideshowView: View {
                     .macaCardStyle(cornerRadius: 16)
 
                     // ── Card 2: Slideshow Playlist Image Picker ──────────────────────
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 18) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Slideshow Playlist Selection")
@@ -150,14 +146,12 @@ public struct SlideshowView: View {
                             Button("Select All") {
                                 slideshow.selectAllWallpapers()
                             }
-                            .buttonStyle(.bordered)
-                            .font(.caption)
+                            .macaButtonStyle(.secondary, size: .small)
 
                             Button("Clear Selection") {
                                 slideshow.clearPlaylist()
                             }
-                            .buttonStyle(.bordered)
-                            .font(.caption)
+                            .macaButtonStyle(.secondary, size: .small)
                         }
 
                         // Search Bar & Thumbnail Size Slider Row
@@ -244,7 +238,7 @@ public struct SlideshowView: View {
                             } label: {
                                 Label("Add Time Rule", systemImage: "plus.circle.fill")
                             }
-                            .buttonStyle(.borderedProminent)
+                            .macaButtonStyle(.primary)
                         }
 
                         Divider()
@@ -289,7 +283,7 @@ public struct SlideshowView: View {
                     Button("Cancel") {
                         showAddSheet = false
                     }
-                    .buttonStyle(.bordered)
+                    .macaButtonStyle(.secondary)
 
                     Spacer()
 
@@ -302,7 +296,7 @@ public struct SlideshowView: View {
                         newLabel = ""
                         showAddSheet = false
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
                 }
             }
             .padding(24)

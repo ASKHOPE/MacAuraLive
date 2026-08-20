@@ -36,36 +36,6 @@ public struct SettingsView: View {
                 }
                 
                 Spacer()
-                
-                if settings.appTheme == "classic" {
-                    HStack(spacing: 8) {
-                        Button(action: { showResetPreferencesAlert = true }) {
-                            Text("Reset")
-                                .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 6)
-                                .background(Color(red: 0.90, green: 0.88, blue: 0.84))
-                                .foregroundColor(MacaThemeTokens.classicTextDark)
-                                .cornerRadius(4)
-                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(MacaThemeTokens.classicBorder, lineWidth: 1))
-                        }
-                        .buttonStyle(.plain)
-                        
-                        Button(action: {
-                            settings.applyAppearanceTheme()
-                            engine.reloadEngine()
-                        }) {
-                            Text("Apply")
-                                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 6)
-                                .background(MacaThemeTokens.classicOlive)
-                                .foregroundColor(.white)
-                                .cornerRadius(4)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
             }
             
             ScrollView {
@@ -86,19 +56,15 @@ public struct SettingsView: View {
                     dataManagementResetCard
                     aboutAppCard
                     
-                    if settings.appTheme == "classic" {
-                        HStack {
-                            Text("© 1984-2026 MacAura Systems.")
-                                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                                .foregroundColor(MacaThemeTokens.classicTextMuted)
-                            Spacer()
-                            Text("Documentation   System Log")
-                                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                                .foregroundColor(MacaThemeTokens.classicTextMuted)
-                        }
-                        .padding(.top, 14)
-                        .padding(.bottom, 8)
+                    HStack {
+                        Spacer()
+                        Text("© 2026 MacAuraLive. All rights reserved.")
+                            .font(.system(size: 11, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                        Spacer()
                     }
+                    .padding(.top, 14)
+                    .padding(.bottom, 8)
                 }
             }
         }
@@ -1221,17 +1187,15 @@ public struct SettingsView: View {
     
     @ViewBuilder
     private var aboutAppCard: some View {
-        // Orion-style About panel layout
+        // Orion-style Rich About panel layout
         HStack(alignment: .top, spacing: 24) {
-            // Large app icon on the left
+            // Large app icon on the left (Uncropped, native aspect fit)
             ZStack {
                 if let appIcon = NSImage(named: "AppIcon") {
                     Image(nsImage: appIcon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(18)
-                        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 4)
+                        .frame(width: 88, height: 88)
                 } else {
                     RoundedRectangle(cornerRadius: 18)
                         .fill(LinearGradient(
@@ -1240,50 +1204,100 @@ public struct SettingsView: View {
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
-                        .frame(width: 80, height: 80)
+                        .frame(width: 88, height: 88)
                     Image(systemName: "sparkles")
-                        .font(.system(size: 36, weight: .medium))
+                        .font(.system(size: 38, weight: .medium))
                         .foregroundColor(.white)
                 }
             }
-            .padding(.top, 4)
+            .padding(.top, 2)
 
-            // Right side: name, version, info, buttons
+            // Right side: name, version, architecture, engine specs, buttons
             VStack(alignment: .leading, spacing: 10) {
-                // App name
-                Text("MacAuraLive")
-                    .font(.system(size: 22, weight: .bold))
+                // App name & Channel
+                HStack(spacing: 8) {
+                    Text("MacAuraLive")
+                        .font(.system(size: 24, weight: .bold))
+                    
+                    Text("v\(AppVersion.current.version)")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.blue.opacity(0.15))
+                        .foregroundColor(.blue)
+                        .cornerRadius(6)
+                    
+                    Text("STABLE")
+                        .font(.system(size: 10, weight: .bold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2.5)
+                        .background(Color.green.opacity(0.15))
+                        .foregroundColor(.green)
+                        .cornerRadius(5)
+                }
 
-                // Version line
-                let appVersion = AppVersion.current.version
-                let buildNumber = AppVersion.current.build
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Version \(appVersion) (\(buildNumber))")
-                        .font(.system(size: 13))
+                // Architecture & OS Requirements
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Universal 2 Native (Apple Silicon M1/M2/M3/M4 & Intel x86_64)")
+                        .font(.system(size: 12.5, weight: .medium))
                         .foregroundColor(.primary)
 
-                    Text("Universal 2 Native (Apple Silicon + Intel)")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-
-                    Text("macOS 13.0 Ventura or later  •  Metal 3, WebKit, AVFoundation")
+                    Text("Target OS: macOS 13.0 Ventura or later  •  Zero Third-Party Binary Bloat")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
+                
+                // Detailed Engine Subsystems Grid
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 12) {
+                        Label("Metal 3 GPU Shaders", systemImage: "bolt.fill")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Label("WebKit WebGL 60 FPS", systemImage: "globe")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Label("AVFoundation 4K Video", systemImage: "film.fill")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack(spacing: 12) {
+                        Label("Keychain Secure Enclave", systemImage: "lock.shield.fill")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Label("100% Offline by Default", systemImage: "wifi.slash")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Label("MIT Open Source", systemImage: "checkmark.seal.fill")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(10)
+                .macaSubcardStyle(cornerRadius: 8)
 
                 // Copyright + tagline
-                Text("MacAuraLive by ASKHOPE. Copyright © 2026 MacAuraLive.\nAll rights reserved. Live your walls.")
-                    .font(.system(size: 12))
+                Text("Created by ASKHOPE. Copyright © 2026 MacAuraLive. All rights reserved.\nLightweight live wallpaper engine for macOS. Live your walls.")
+                    .font(.system(size: 11.5))
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 2)
 
                 // Action buttons row
                 HStack(spacing: 8) {
                     Button {
                         showChangelogModal = true
                     } label: {
-                        Text("What's New")
+                        Label("What's New", systemImage: "sparkles")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+
+                    Button {
+                        if let url = URL(string: "https://askhope.github.io/MacAuraLive/") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        Label("Website ↗", systemImage: "safari")
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
@@ -1293,7 +1307,7 @@ public struct SettingsView: View {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        Text("Send Feedback")
+                        Label("Send Feedback ↗", systemImage: "exclamationmark.bubble")
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
@@ -1301,7 +1315,23 @@ public struct SettingsView: View {
                     Button {
                         showLicenseModal = true
                     } label: {
-                        Text("Licenses")
+                        Label("Licenses", systemImage: "doc.text")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    
+                    Button {
+                        showTOSModal = true
+                    } label: {
+                        Text("Terms")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    
+                    Button {
+                        showDisclaimerModal = true
+                    } label: {
+                        Text("Privacy")
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.regular)
