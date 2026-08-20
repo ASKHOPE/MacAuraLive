@@ -53,6 +53,12 @@
             --radius-sm: 8px;
             --sim-sidebar-w: 250px;
             --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+            /* 🕹️ Retro 8-Bit Pixel Tokens */
+            --pixel-grid-color: rgba(255, 255, 255, 0.035);
+            --pixel-subgrid-color: rgba(6, 182, 212, 0.06);
+            --pixel-dot-color: rgba(99, 102, 241, 0.12);
+            --pixel-dither-opacity: 0.04;
         }
 
         [data-theme="light"] {
@@ -75,6 +81,12 @@
 
             --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.06);
             --shadow-window: 0 25px 60px rgba(0, 0, 0, 0.12), 0 0 80px rgba(59, 130, 246, 0.1);
+
+            /* 🕹️ Retro 8-Bit Pixel Tokens (Light) */
+            --pixel-grid-color: rgba(15, 23, 42, 0.025);
+            --pixel-subgrid-color: rgba(59, 130, 246, 0.04);
+            --pixel-dot-color: rgba(99, 102, 241, 0.06);
+            --pixel-dither-opacity: 0.025;
         }
 
         * {
@@ -92,6 +104,48 @@
             overflow-x: hidden;
             position: relative;
             text-align: center;
+        }
+
+        /* 🕹️ Retro 8-Bit Pixel Matrix & Scanline Canvas Background */
+        .retro-pixel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                linear-gradient(90deg, var(--pixel-grid-color) 1px, transparent 1px),
+                linear-gradient(180deg, var(--pixel-grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--pixel-subgrid-color) 1px, transparent 1px),
+                linear-gradient(180deg, var(--pixel-subgrid-color) 1px, transparent 1px),
+                radial-gradient(circle, var(--pixel-dot-color) 1.5px, transparent 1.5px);
+            background-size: 16px 16px, 16px 16px, 64px 64px, 64px 64px, 32px 32px;
+            background-position: 0 0, 0 0, 0 0, 0 0, 16px 16px;
+            image-rendering: pixelated;
+        }
+
+        .retro-pixel-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 0);
+            background-size: 8px 8px;
+            opacity: var(--pixel-dither-opacity);
+            pointer-events: none;
+        }
+
+        .retro-pixel-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 35%, transparent 25%, rgba(6, 8, 14, 0.4) 100%);
+            pointer-events: none;
+        }
+
+        [data-theme="light"] .retro-pixel-bg::after {
+            background: radial-gradient(circle at 50% 35%, transparent 35%, rgba(241, 245, 249, 0.45) 100%);
         }
 
         /* Ambient Glow Highlights */
@@ -1364,6 +1418,9 @@
     </style>
 </head>
 <body>
+
+    <!-- 🕹️ 8-Bit Retro Pixel Grid Matrix Background -->
+    <div class="retro-pixel-bg" aria-hidden="true"></div>
 
     <div class="ambient-glow-1"></div>
     <div class="ambient-glow-2"></div>
