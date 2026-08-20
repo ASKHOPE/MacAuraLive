@@ -1,6 +1,6 @@
 {
-  "version": "1.8.1",
-  "build": "121",
+  "version": "1.9.0",
+  "build": "122",
   "channel": "stable",
   "minOS": "13.0"
 }

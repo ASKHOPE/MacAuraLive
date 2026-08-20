@@ -1,5 +1,16 @@
 # MacAuraLive Changelog
 
+## [1.9.0] - 2026-08-20
+
+### Added & Major Features
+- **✨ Mood Selector & Custom Profile Templates**: Create, save, and cycle customized playlists and mood profiles (e.g., Deep Focus, Night Sanctuary, Day Flow & Energy, Cyber Lounge).
+- **🌙 Automatic macOS Mode Sync**: Seamlessly syncs with macOS system states — automatically activating linked mood profiles on **Do Not Disturb / Focus Mode**, **macOS Sleep / Screen Dimmed**, and **Dark / Light Appearance** changes.
+- **⚡ In-App Background Updater & 1-Click Relaunch**: Directly checks GitHub releases, streams download progress in the background with verification, and performs zero-friction atomic bundle updates and app relaunch.
+- **📦 Official macOS Setup Wizard Package (`.pkg`)**: Apple-standard installation wizard with introductory feature overview, full Terms of Service agreement step, and automated destination staging.
+- **🎨 Orion-Style Modern About Panel**: Overhauled About section in Settings with an 80pt Apple squircle icon, dynamic version metadata, live taglines, and quick actions ("What's New", "Send Feedback", "Licenses").
+- **🏷️ Dynamic Versioning & Single Source of Truth**: Centralized `version.json` and runtime `AppVersion` model eliminating hardcoded version discrepancies across builds and release channels.
+- **🔒 Rollback Safety & Release Manifests**: Built-in build history tracking (`build_history.json`) and automated rollback CLI tool (`Scripts/rollback.sh`).
+
 ## [1.8.1] - 2026-08-20
 
 ### Fixed

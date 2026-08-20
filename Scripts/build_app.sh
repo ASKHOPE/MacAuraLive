@@ -151,8 +151,20 @@ BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 echo "${SHA256}  ${DMG_NAME}" > "${DMG_OUTPUT}.sha256"
 echo "${MD5}  ${DMG_NAME}"    > "${DMG_OUTPUT}.md5"
 
-# Copy signed .app into release folder for reference
+# Copy signed .app and documentation into release folder for reference
 cp -R "build/MacAuraLive.app" "${RELEASE_DIR}/MacAuraLive.app"
+[ -f "CHANGELOG.md" ] && cp "CHANGELOG.md" "${RELEASE_DIR}/CHANGELOG.md"
+
+# Extract latest release notes from CHANGELOG.md into RELEASE_NOTES.md
+python3 -c "
+import re
+with open('CHANGELOG.md') as f:
+    content = f.read()
+match = re.search(r'## \[${VERSION}\].*?(?=\n## \[|\Z)', content, re.DOTALL)
+if match:
+    with open('${RELEASE_DIR}/RELEASE_NOTES.md', 'w') as out:
+        out.write('# MacAuraLive ' + match.group(0).strip() + '\n')
+" 2>/dev/null || true
 
 # Human-readable CHECKSUMS.txt
 cat > "${RELEASE_DIR}/CHECKSUMS.txt" << CSEOF
