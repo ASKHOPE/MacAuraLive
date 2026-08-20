@@ -1906,34 +1906,43 @@
             <div class="storage-card">
                 <div class="section-title" style="margin-bottom: 20px; text-align: left;">
                     <h2>Minimal Disk & Memory Footprint</h2>
-                    <p>Engineered in pure Swift and Metal without bulky Electron or Chromium runtimes. Total uncompressed application bundle is ~36.8 MB.</p>
+                    <p>Engineered in pure Swift and Metal without bulky Electron or Chromium runtimes. Total uncompressed application bundle is ~36 MB · compressed DMG installer is ~32 MB.</p>
                 </div>
 
                 <div class="storage-bar">
                     <div class="bar-seg seg-binary" style="width: 13%;" title="Universal Binary: 4.8 MB (13%)"></div>
-                    <div class="bar-seg seg-video" style="width: 31%;" title="Bundled 4K Video Loop: 11.3 MB (31%)"></div>
-                    <div class="bar-seg seg-static" style="width: 39%;" title="Bundled 4K Static Wallpapers: 14.4 MB (39%)"></div>
-                    <div class="bar-seg seg-cache" style="width: 17%;" title="High-DPI Retina Icons & Assets: 6.5 MB (17%)"></div>
+                    <div class="bar-seg seg-video" style="width: 31%;" title="Bundled 4K Video Loop: 11 MB (31%)"></div>
+                    <div class="bar-seg seg-static" style="width: 39%;" title="Bundled Static 4K Wallpapers: 14 MB (39%)"></div>
+                    <div class="bar-seg seg-cache" style="width: 11%;" title="Retina Icons & Assets: 4 MB (11%)"></div>
+                    <div class="bar-seg" style="width: 6%; background: #06b6d4;" title="Runtime JS & Effects: ~36 KB (<1%)"></div>
                 </div>
 
                 <div class="storage-legend">
                     <div class="legend-item">
                         <span class="legend-dot" style="background: #3b82f6;"></span>
-                        <span>Universal Dual Binary (4.8 MB • 13%)</span>
+                        <span>Universal Dual Binary (4.8 MB · 13%)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-dot" style="background: #8b5cf6;"></span>
-                        <span>Bundled 4K Video Loop (11.3 MB • 31%)</span>
+                        <span>Bundled 4K Video Loop (11 MB · 31%)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-dot" style="background: #06b6d4;"></span>
-                        <span>Static 4K Wallpapers (14.4 MB • 39%)</span>
+                        <span>Static 4K Wallpapers (14 MB · 39%)</span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-dot" style="background: #10b981;"></span>
-                        <span>Retina Icons & Legal Assets (6.5 MB • 17%)</span>
+                        <span>Retina Icons & Assets (4 MB · 11%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: #06b6d4; opacity: 0.5;"></span>
+                        <span>Runtime JS & Effects (<1%)</span>
                     </div>
                 </div>
+
+                <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 14px; line-height: 1.6; border-top: 1px solid var(--border-glass); padding-top: 10px;">
+                    ⚠️ <strong>Disclaimer:</strong> All storage figures shown are <em>approximate</em> and measured from the compiled release build using <code>du</code> on macOS (which rounds to 4 KB filesystem blocks). Actual on-disk sizes may vary by ±5–10% depending on your macOS version, APFS compression state, and any additional wallpapers imported by the user after install. User-imported media, AI-generated wallpapers, and application cache are stored separately in <code>~/Library/Application Support/MacAuraLive/</code> and are not included in the figures above. The in-app Storage Analytics dashboard (Settings → Storage) calculates your live, real-time usage.
+                </p>
             </div>
         </section>
 

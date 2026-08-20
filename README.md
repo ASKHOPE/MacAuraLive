@@ -100,7 +100,7 @@ MacAuraLive features full automatic dynamic adaptation to macOS Light and Dark m
 - Performance tiers: Full (60fps), Balanced (30fps), Low Power (15fps), Paused.
 
 ### 💾 Minified Footprint & Resource Analytics Dashboard
-- **Minified Binary** — Stripped Universal 2 binary (~4.4 MB total for both ARM64 and x86_64 combined; ~2.2 MB single arch).
+- **Minified Binary** — Stripped Universal 2 binary (~4.8 MB total for both ARM64 and x86_64 lipo'd; ~2.4 MB single arch).
 - **Real-Time Storage Breakdown** — Live analytics dashboard built directly into Settings tracking disk allocation across binary, live shaders, static wallpapers, and cache.
 - **Real-Time File Size Badges** — Wallpaper card footers and quick-look preview modals dynamically display exact file sizes (e.g., `4K UHD • 12.4 MB`).
 - **Duplicate Media Scanner & Cleaner** — Built-in SHA-256 byte scanner detects duplicate video, photo, and GIF assets across your library with 1-click batch cleanup.
@@ -120,8 +120,8 @@ MacAuraLive features full automatic dynamic adaptation to macOS Light and Dark m
 | **Bundled 4K Static Wallpapers** | Media Resource | **14.4 MB** | ~39% | 5 high-res desktop backdrops (Ocean, Mountains, Space, Glacier) |
 | **App Branding & High-DPI Icons** | Asset Catalog | **6.5 MB** | ~17% | Retina 1024×1024 AppIcon.icns, StatusBarIcon & legal suite |
 | **Built-in Shaders & Runtime** | HTML5/GLSL | **~60 KB** | <1% | 60fps Aurora, Matrix, Cyberpunk, Particle Wave shaders |
-| **Total Uncompressed `.app`** | Combined Bundle | **~36.8 MB** | **100%** | Ultra-efficient footprint on Apple Silicon & Intel Macs |
-| **Compressed DMG Installer** | Disk Image | **~34.1 MB** | — | Single universal installer from GitHub Releases |
+| **Total Uncompressed `.app`** | Combined Bundle | **~36 MB** | **100%** | Approximate; varies ±5% by macOS/APFS compression |
+| **Compressed DMG Installer** | Disk Image | **~32 MB** | — | Single universal installer from GitHub Releases |
 
 ---
 

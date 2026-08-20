@@ -73,7 +73,9 @@ public class StorageAnalyticsManager: ObservableObject {
                 binarySize += (try? fileManager.attributesOfItem(atPath: mainExec)[.size] as? Int64) ?? 0
             }
             if binarySize == 0 {
-                binarySize = 7_500_000 // Fallback ~7.5MB standard compiled ARM64 binary
+                // Fallback: ~4.8 MB is the measured stripped Universal 2 binary (arm64 + x86_64 lipo'd).
+                // This is approximate; actual size may vary ±10% depending on build flags and linked symbols.
+                binarySize = 4_800_000
             }
             
             // 2. Built-in & User Live Wallpapers
