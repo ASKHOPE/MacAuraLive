@@ -1,5 +1,12 @@
 # MacAuraLive Changelog
 
+## [1.8.1] - 2026-08-20
+
+### Fixed
+- **🐛 Wallpaper window covers Dock & all apps after screen lock / sleep**: When the Mac locked, slept, or turned off the display, the wallpaper window was raised to screen-saver level for the lock-screen wallpaper feature but was never lowered back to the desktop level on unlock/wake. All windows and the Dock were hidden behind the wallpaper window on login. Fixed by calling `reloadEngine()` on both `com.apple.screenIsUnlocked` and `NSWorkspace.sessionDidBecomeActiveNotification`, and by adding a `NSWorkspace.didWakeNotification` observer in `WallpaperEngine` to reassert the correct window level after display-on / wake from sleep.
+- **✨ Menu bar icon now shows app name tooltip**: Hovering over the status bar icon now displays **"MacAuraLive Live Wallpaper"** as a native macOS tooltip.
+- **🚫 App no longer pins to the Dock**: MacAuraLive now runs as a pure menu-bar app (`activationPolicy = .accessory`). The Dock icon only appears temporarily while the Dashboard window is open, and disappears again when the window is closed — matching the behaviour of apps like Fantastical and Alfred.
+
 ## [1.8.0] - 2026-08-17
 
 ### Added & Enhancements

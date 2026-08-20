@@ -65,9 +65,9 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.8.0</string>
+    <string>1.8.1</string>
     <key>CFBundleVersion</key>
-    <string>120</string>
+    <string>121</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
@@ -87,3 +87,49 @@ echo "🔒 Code signing Universal MacAuraLive.app..."
 codesign --force --deep --sign - "build/MacAuraLive.app"
 
 echo "✅ Universal 2 App bundle created and signed successfully at: build/MacAuraLive.app"
+
+# ── DMG Packaging ─────────────────────────────────────────────────────────────
+VERSION="1.8.1"
+DMG_NAME="MacAuraLive-${VERSION}.dmg"
+DMG_STAGING="build/dmg_staging"
+DMG_OUTPUT="build/${DMG_NAME}"
+
+echo "📦 Creating DMG installer: ${DMG_NAME}..."
+
+# Clean up any previous staging/output
+rm -rf "${DMG_STAGING}" "${DMG_OUTPUT}"
+mkdir -p "${DMG_STAGING}"
+
+# Copy app into staging area
+cp -R "build/MacAuraLive.app" "${DMG_STAGING}/MacAuraLive.app"
+
+# Add a symlink to /Applications for drag-install UX
+ln -s /Applications "${DMG_STAGING}/Applications"
+
+# Copy legal docs into DMG
+for doc in EULA.md LICENSE PRIVACY_POLICY.md THIRD_PARTY_LICENSES.md; do
+    [ -f "${doc}" ] && cp "${doc}" "${DMG_STAGING}/${doc}"
+done
+
+# Build compressed, internet-ready DMG
+hdiutil create \
+    -volname "MacAuraLive ${VERSION}" \
+    -srcfolder "${DMG_STAGING}" \
+    -ov \
+    -format UDZO \
+    -imagekey zlib-level=9 \
+    "${DMG_OUTPUT}"
+
+# Clean staging area
+rm -rf "${DMG_STAGING}"
+
+echo "✅ DMG created at: ${DMG_OUTPUT}"
+
+# Print checksums
+echo ""
+echo "🔐 Cryptographic Checksums"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "SHA-256: $(shasum -a 256 "${DMG_OUTPUT}" | awk '{print $1}')"
+echo "MD5:     $(md5 -q "${DMG_OUTPUT}")"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📁 Output: ${DMG_OUTPUT}"
