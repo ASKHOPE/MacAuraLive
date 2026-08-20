@@ -1,5 +1,13 @@
 # MacAuraLive Changelog
 
+## [1.9.3.1] - 2026-08-20
+
+### Added & Refined
+- **🎚️ Custom Hardware Retro Sliders (`MacaRetroSlider`)**: Built vintage 3D beveled hardware sliders with deep inset track groove, vertical grip ridges, and tick marks for Seek, Speed, Volume, and Zoom controls.
+- **🛡️ Data Management & Reset Retro Theming**: Styled the Data Management & Reset card with sharp 2pt corners and `.macaButtonStyle()` actions.
+- **📐 Form Spacing & Modal Layouts**: Cleaned up section spacing and wallpaper picker grid in Mood Editor Sheet, API Keys modal, and legal dialogs.
+- **🏷️ Dynamic Category Wrapping & Equalized Buttons**: Added horizontal scrolling to category chips and balanced action button sizing in Gallery toolbar.
+
 ## [1.9.3] - 2026-08-20
 
 ### Added & UI/UX Polish
