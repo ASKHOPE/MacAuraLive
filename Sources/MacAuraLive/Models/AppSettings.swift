@@ -196,7 +196,7 @@ public class AppSettings: ObservableObject {
             switch self.appTheme {
             case "dark":
                 NSApp.appearance = NSAppearance(named: .darkAqua)
-            case "light":
+            case "light", "classic":
                 NSApp.appearance = NSAppearance(named: .aqua)
             default:
                 NSApp.appearance = nil // Follow macOS native

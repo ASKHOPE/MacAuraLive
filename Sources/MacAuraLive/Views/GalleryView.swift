@@ -18,6 +18,8 @@ public struct GalleryView: View {
     
     @State private var searchText: String = ""
     @State private var selectedCategory: String = "All"
+    @State private var selectedDayNightFilter: String = "All"
+    @State private var selectedResolutionFilter: String = "All"
     @State private var showGenAIModal: Bool = false
     @State private var showWebImporter: Bool = false
     @State private var previewWallpaper: WallpaperItem? = nil
@@ -38,7 +40,8 @@ public struct GalleryView: View {
     @State private var importMessage: String? = nil
     
     let liveCategories = ["All", "MP4 Video", "GIF", "GenAI", "With Audio"]
-    let staticCategories = ["All", "Day", "Night", "1080p", "2K", "4K UHD", "8K"]
+    let staticCategories = ["All", "Nature", "Abstract", "Vector", "Architecture", "Minimal"]
+    let resolutionPills = ["1080P", "2K", "4K UHD", "8K"]
     
     let aiStyles = ["Neon Cyberpunk", "Procedural Shader", "Particle Cosmos", "Aurora Lights"]
     let aiResolutions = ["1080p", "2K / QHD", "4K UHD", "Retina Dynamic"]
@@ -85,25 +88,43 @@ public struct GalleryView: View {
             if selectedCategory == "All" {
                 catMatch = true
             } else if filterType == .staticOnly {
-                if selectedCategory == "Day" || selectedCategory == "Night" {
-                    catMatch = item.title.localizedCaseInsensitiveContains(selectedCategory) ||
-                               item.description.localizedCaseInsensitiveContains(selectedCategory) ||
-                               item.category.localizedCaseInsensitiveContains(selectedCategory)
-                } else {
-                    catMatch = item.resolutionTag.localizedCaseInsensitiveContains(selectedCategory) ||
-                               item.title.localizedCaseInsensitiveContains(selectedCategory)
-                }
+                catMatch = item.category.localizedCaseInsensitiveContains(selectedCategory) ||
+                           item.title.localizedCaseInsensitiveContains(selectedCategory)
             } else if selectedCategory == "With Audio" {
                 catMatch = item.hasAudio
             } else {
                 catMatch = item.category == selectedCategory
             }
             
+            let dayNightMatch: Bool
+            if selectedDayNightFilter == "All" {
+                dayNightMatch = true
+            } else if selectedDayNightFilter == "Day" {
+                dayNightMatch = item.title.localizedCaseInsensitiveContains("Day") ||
+                                item.description.localizedCaseInsensitiveContains("Day") ||
+                                item.category.localizedCaseInsensitiveContains("Day") ||
+                                !item.title.localizedCaseInsensitiveContains("Night")
+            } else { // Night
+                dayNightMatch = item.title.localizedCaseInsensitiveContains("Night") ||
+                                item.description.localizedCaseInsensitiveContains("Night") ||
+                                item.category.localizedCaseInsensitiveContains("Night") ||
+                                item.title.localizedCaseInsensitiveContains("Dark")
+            }
+            
+            let resMatch: Bool
+            if selectedResolutionFilter == "All" {
+                resMatch = true
+            } else {
+                resMatch = item.resolutionTag.localizedCaseInsensitiveContains(selectedResolutionFilter) ||
+                           item.title.localizedCaseInsensitiveContains(selectedResolutionFilter) ||
+                           item.description.localizedCaseInsensitiveContains(selectedResolutionFilter)
+            }
+            
             let searchMatch = searchText.isEmpty ||
                 item.title.localizedCaseInsensitiveContains(searchText) ||
                 item.description.localizedCaseInsensitiveContains(searchText)
             
-            return sidebarMatch && catMatch && searchMatch
+            return sidebarMatch && catMatch && dayNightMatch && resMatch && searchMatch
         }
     }
 
@@ -111,28 +132,32 @@ public struct GalleryView: View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 20) {
                 // Clean macOS Header Bar
-                HStack(alignment: .center) {
-                    VStack(alignment: .leading, spacing: 4) {
+                // Clean Responsive Header Bar
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 5) {
                         Text(filterType == .staticOnly ? "Static Wallpapers" : (filterType == .liveOnly ? "Live Wallpapers" : "Wallpaper Library"))
                             .font(.system(size: 26, weight: .bold))
-                        Text("Browse high-definition video loops, static photos, and real-time AI live shaders.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary)
+                        
+                        Text(filterType == .staticOnly ? "Browse high-definition static photos and generative art." : "Browse high-definition video loops, static photos, and live shaders.")
+                            .font(.system(size: 13, weight: .regular, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                     }
                     
                     Spacer()
                     
-                    // Search & Actions
-                    HStack(spacing: 10) {
+                    // Search Bar & Day/Night Pill Group
+                    HStack(spacing: 8) {
                         // Search Field
                         HStack(spacing: 6) {
                             Image(systemName: "magnifyingglass")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.65, green: 0.63, blue: 0.58) : .secondary)
                                 .font(.caption)
-                            TextField("Search wallpapers...", text: $searchText)
+                            TextField("Search files...", text: $searchText)
                                 .textFieldStyle(.plain)
-                                .font(.subheadline)
-                                .frame(width: 170)
+                                .font(.system(size: 12.5, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.85, green: 0.83, blue: 0.78) : .primary)
+                                .frame(width: 150)
                             if !searchText.isEmpty {
                                 Button(action: { searchText = "" }) {
                                     Image(systemName: "xmark.circle.fill")
@@ -144,21 +169,107 @@ public struct GalleryView: View {
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .macaSubcardStyle(cornerRadius: 8)
+                        .background(settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.10) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(settings.appTheme == "classic" ? Color(red: 0.25, green: 0.24, blue: 0.22) : Color.clear, lineWidth: 1)
+                        )
                         
+                        // Day / Night Quick Pills
+                        HStack(spacing: 4) {
+                            ForEach(["All", "Day", "Night"], id: \.self) { dn in
+                                Button(action: { selectedDayNightFilter = dn }) {
+                                    HStack(spacing: 4) {
+                                        if dn == "Day" { Image(systemName: "sun.max.fill").font(.system(size: 10)) }
+                                        if dn == "Night" { Image(systemName: "moon.stars.fill").font(.system(size: 10)) }
+                                        Text(dn)
+                                            .font(.system(size: 12, weight: selectedDayNightFilter == dn ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(selectedDayNightFilter == dn ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
+                                    .foregroundColor(selectedDayNightFilter == dn ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                    .cornerRadius(6)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                
+                Divider()
+                
+                // Secondary Filter Row: Resolution & Categories + Action Buttons
+                HStack(spacing: 8) {
+                    // Resolution Pills
+                    HStack(spacing: 4) {
+                        ForEach(["1080P", "2K", "4K UHD", "8K"], id: \.self) { res in
+                            Button(action: {
+                                selectedResolutionFilter = (selectedResolutionFilter == res ? "All" : res)
+                            }) {
+                                Text(res)
+                                    .font(.system(size: 11, weight: selectedResolutionFilter == res ? .bold : .medium, design: .monospaced))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(selectedResolutionFilter == res ? (settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.10) : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
+                                    .foregroundColor(selectedResolutionFilter == res ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                    .cornerRadius(4)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    
+                    // Category Pills
+                    HStack(spacing: 4) {
+                        ForEach(currentCategoryPills, id: \.self) { cat in
+                            Button(action: { selectedCategory = cat }) {
+                                HStack(spacing: 4) {
+                                    if cat == "With Audio" {
+                                        Image(systemName: "speaker.wave.2.fill")
+                                            .font(.system(size: 10))
+                                    }
+                                    Text(cat)
+                                        .font(.system(size: 11.5, weight: selectedCategory == cat ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4.5)
+                                .background(selectedCategory == cat ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
+                                .foregroundColor(selectedCategory == cat ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                .cornerRadius(6)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Sizing & Actions
+                    HStack(spacing: 6) {
                         Button { openFolderPicker() } label: {
                             Label("Import Folder", systemImage: "folder.badge.plus")
                         }
                         .buttonStyle(.bordered)
-                        .controlSize(.regular)
+                        .controlSize(.small)
                         
                         Button { openFilePicker() } label: {
                             Label("Import File", systemImage: "plus.circle.fill")
                         }
                         .buttonStyle(.borderedProminent)
-                        .controlSize(.regular)
+                        .controlSize(.small)
                         
-                        // Multi-Select Toggle Button
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 isSelectionMode.toggle()
@@ -167,11 +278,10 @@ public struct GalleryView: View {
                                 }
                             }
                         } label: {
-                            Label(isSelectionMode ? "Cancel Select" : "Select Items", systemImage: isSelectionMode ? "checkmark.circle.fill" : "checkmark.circle")
+                            Label(isSelectionMode ? "Cancel" : "Select", systemImage: isSelectionMode ? "checkmark.circle.fill" : "checkmark.circle")
                         }
                         .buttonStyle(.bordered)
-                        .tint(isSelectionMode ? .blue : .primary)
-                        .controlSize(.regular)
+                        .controlSize(.small)
                         
                         Menu {
                             Picker("Global Sizing", selection: $settings.wallpaperPlacement) {
@@ -182,108 +292,13 @@ public struct GalleryView: View {
                                 Label("Custom Zoom & Scale", systemImage: "plus.magnifyingglass").tag("zoom")
                             }
                         } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 3) {
                                 Image(systemName: "aspectratio")
-                                Text("Sizing: \(placementLabel(settings.wallpaperPlacement))")
+                                Text(placementLabel(settings.wallpaperPlacement))
                             }
                         }
                         .buttonStyle(.bordered)
-                        .controlSize(.regular)
-                        .help("Global Wallpaper Sizing & Aspect Ratio Mode")
-                    }
-                }
-                
-                // Multi-Selection Action Toolbar (Appears when isSelectionMode is active)
-                if isSelectionMode {
-                    let deletable = filteredWallpapers.map { $0.id }
-                    HStack(spacing: 12) {
-                        Button {
-                            if selectedWallpaperIds.count == deletable.count && !deletable.isEmpty {
-                                selectedWallpaperIds.removeAll()
-                            } else {
-                                selectedWallpaperIds = Set(deletable)
-                            }
-                        } label: {
-                            Label(selectedWallpaperIds.count == deletable.count && !deletable.isEmpty ? "Deselect All" : "Select All (\(deletable.count))", systemImage: "checklist")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        }
-                        .buttonStyle(.bordered)
-                        
-                        Text("\(selectedWallpaperIds.count) of \(deletable.count) selected")
-                            .font(.caption)
-                            .bold()
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.blue.opacity(0.18))
-                            .foregroundColor(.blue)
-                            .cornerRadius(6)
-                        
-                        Spacer()
-                        
-                        if !selectedWallpaperIds.isEmpty {
-                            Button(role: .destructive) {
-                                showMultiDeleteAlert = true
-                            } label: {
-                                Label("Clear Selected (\(selectedWallpaperIds.count))", systemImage: "trash.fill")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.red)
-                        }
-                        
-                        Button {
-                            withAnimation {
-                                isSelectionMode = false
-                                selectedWallpaperIds.removeAll()
-                            }
-                        } label: {
-                            Text("Done")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .padding(10)
-                    .background(Color.blue.opacity(0.08))
-                    .cornerRadius(10)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue.opacity(0.25), lineWidth: 1)
-                    )
-                }
-                
-                // Sleek Filter Bar
-                HStack(spacing: 8) {
-                    ForEach(currentCategoryPills, id: \.self) { cat in
-                        Button(action: { selectedCategory = cat }) {
-                            HStack(spacing: 5) {
-                                if cat == "With Audio" {
-                                    Image(systemName: "speaker.wave.2.fill")
-                                        .font(.caption2)
-                                } else if cat == "Day" {
-                                    Image(systemName: "sun.max.fill")
-                                        .font(.caption2)
-                                } else if cat == "Night" {
-                                    Image(systemName: "moon.stars.fill")
-                                        .font(.caption2)
-                                }
-                                Text(cat)
-                                    .font(.caption)
-                                    .fontWeight(selectedCategory == cat ? .bold : .medium)
-                            }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 6)
-                            .background(selectedCategory == cat ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                            .foregroundColor(selectedCategory == cat ? .white : .primary)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selectedCategory == cat ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
-                            )
-                        }
-                        .buttonStyle(.plain)
+                        .controlSize(.small)
                     }
                 }
                 
@@ -822,6 +837,7 @@ struct WallpaperCardView: View {
     let onPreview: () -> Void
     let onDelete: () -> Void
     
+    @ObservedObject var settings = AppSettings.shared
     @State private var isHovering = false
     @State private var videoThumbnail: NSImage? = nil
 
@@ -844,28 +860,30 @@ struct WallpaperCardView: View {
                 // Top-Left Category & Audio Status Pill Overlay
                 VStack {
                     HStack(spacing: 6) {
-                        Text(wallpaper.category)
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.black.opacity(0.65))
-                            .foregroundColor(.white)
-                            .cornerRadius(6)
+                        Text(wallpaper.category.uppercased())
+                            .font(.system(size: 9.5, weight: .bold, design: .monospaced))
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3.5)
+                            .background(settings.appTheme == "classic" ? Color(red: 0.14, green: 0.13, blue: 0.11) : Color.black.opacity(0.65))
+                            .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.90, green: 0.85, blue: 0.70) : .white)
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(settings.appTheme == "classic" ? Color(red: 0.28, green: 0.26, blue: 0.22) : Color.clear, lineWidth: 0.8)
+                            )
                         
                         // Audio Status Indicator with Animated VU Meter
                         if wallpaper.hasAudio {
                             HStack(spacing: 4) {
                                 VUMeterView(isAnimating: isHovering || isActive)
-                                Text("Audio")
+                                Text("AUDIO")
                             }
-                            .font(.caption2)
-                            .fontWeight(.semibold)
+                            .font(.system(size: 9.5, weight: .bold, design: .monospaced))
                             .padding(.horizontal, 6)
-                            .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.85))
+                            .padding(.vertical, 3.5)
+                            .background(settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue.opacity(0.85))
                             .foregroundColor(.white)
-                            .cornerRadius(6)
+                            .cornerRadius(4)
                         }
                         
                         Spacer()
@@ -891,13 +909,12 @@ struct WallpaperCardView: View {
                             Image(systemName: "checkmark.circle.fill")
                             Text("ACTIVE")
                         }
-                        .font(.caption2)
-                        .bold()
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.green)
+                        .background(settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.green)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .cornerRadius(6)
                         .padding(8)
                     }
                     
@@ -909,7 +926,7 @@ struct WallpaperCardView: View {
                                     .font(.caption2)
                                     .foregroundColor(.white)
                                     .padding(7)
-                                    .background(Color.blue.opacity(0.85))
+                                    .background(settings.appTheme == "classic" ? Color(red: 0.20, green: 0.19, blue: 0.17) : Color.blue.opacity(0.85))
                                     .clipShape(Circle())
                             }
                             .buttonStyle(.plain)
@@ -931,39 +948,64 @@ struct WallpaperCardView: View {
                 }
             }
             
-            // Card Footer
+            // Card Body & Footer
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
+                HStack(alignment: .firstTextBaseline) {
                     Text(wallpaper.title)
-                        .font(.headline)
-                        .foregroundColor(.primary)
+                        .font(.system(size: 14.5, weight: .bold))
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary)
                         .lineLimit(1)
+                    
                     Spacer()
-                    HStack(spacing: 4) {
-                        Text(wallpaper.resolutionTag)
-                        if !wallpaper.formattedFileSize.isEmpty {
-                            Text("•")
-                            Text(wallpaper.formattedFileSize)
-                        }
-                    }
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    
+                    Text(wallpaper.resolutionTag.uppercased())
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                 }
                 
                 Text(wallpaper.description)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 11.5, weight: .regular, design: settings.appTheme == "classic" ? .monospaced : .default))
+                    .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                     .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                // Bottom Metadata Line: Size & Apply Action Icon
+                HStack {
+                    if !wallpaper.formattedFileSize.isEmpty {
+                        Text(wallpaper.formattedFileSize)
+                            .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                    } else {
+                        Text("BUILT-IN")
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: isActive ? "checkmark" : (wallpaper.type == .image ? "arrow.down.to.line" : "play.fill"))
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : (isActive ? .green : .accentColor))
+                }
+                .padding(.top, 4)
             }
             .padding(12)
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(settings.appTheme == "classic" ? MacaThemeTokens.classicCardBg : Color(NSColor.controlBackgroundColor))
         }
-        .cornerRadius(14)
+        .cornerRadius(settings.appTheme == "classic" ? 8 : 14)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(isSelected ? Color.blue : (isActive ? Color.blue : Color(NSColor.separatorColor)), lineWidth: isSelected ? 2.5 : (isActive ? 2 : 1))
+            RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 8 : 14)
+                .stroke(
+                    isSelected ? Color.blue : (isActive ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue) : (settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor))),
+                    lineWidth: isSelected ? 2.5 : (isActive ? 2 : 1)
+                )
         )
-        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+        .shadow(
+            color: settings.appTheme == "classic" ? Color.black.opacity(0.08) : Color.black.opacity(0.06),
+            radius: settings.appTheme == "classic" ? 3 : 4,
+            x: settings.appTheme == "classic" ? 2 : 0,
+            y: settings.appTheme == "classic" ? 2 : 2
+        )
         .scaleEffect(isHovering ? 1.02 : 1.0)
         .animation(.easeInOut(duration: 0.2), value: isHovering)
         .onHover { hover in isHovering = hover }
@@ -1211,34 +1253,5 @@ struct FullWallpaperPreviewModal: View {
                 }
             }
         }
-    }
-}
-
-extension Color {
-    init?(hex: String) {
-        var cString: String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        if cString.hasPrefix("#") {
-            cString.remove(at: cString.startIndex)
-        }
-        if cString.count != 6 {
-            return nil
-        }
-        var rgbValue: UInt64 = 0
-        Scanner(string: cString).scanHexInt64(&rgbValue)
-        self.init(
-            .sRGB,
-            red: Double((rgbValue & 0xFF0000) >> 16) / 255.0,
-            green: Double((rgbValue & 0x00FF00) >> 8) / 255.0,
-            blue: Double(rgbValue & 0x0000FF) / 255.0,
-            opacity: 1.0
-        )
-    }
-    
-    func toHexString() -> String? {
-        guard let nsColor = NSColor(self).usingColorSpace(.sRGB) else { return nil }
-        let r = Int(nsColor.redComponent * 255.0)
-        let g = Int(nsColor.greenComponent * 255.0)
-        let b = Int(nsColor.blueComponent * 255.0)
-        return String(format: "#%02X%02X%02X", r, g, b)
     }
 }

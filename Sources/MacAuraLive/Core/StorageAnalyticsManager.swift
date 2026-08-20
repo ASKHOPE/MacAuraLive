@@ -46,6 +46,28 @@ public class StorageAnalyticsManager: ObservableObject {
         }
     }
     
+    public var volumeFreeSpaceFormatted: String {
+        let fileManager = FileManager.default
+        if let attributes = try? fileManager.attributesOfFileSystem(forPath: NSHomeDirectory()),
+           let freeSize = attributes[.systemFreeSize] as? Int64 {
+            if freeSize < 1024 * 1024 * 1024 {
+                return String(format: "%.1f MB free", Double(freeSize) / (1024.0 * 1024.0))
+            } else {
+                return String(format: "%.1f GB free", Double(freeSize) / (1024.0 * 1024.0 * 1024.0))
+            }
+        }
+        return ""
+    }
+    
+    public var volumeTotalSpaceFormatted: String {
+        let fileManager = FileManager.default
+        if let attributes = try? fileManager.attributesOfFileSystem(forPath: NSHomeDirectory()),
+           let totalSize = attributes[.systemSize] as? Int64 {
+            return String(format: "%.1f GB total", Double(totalSize) / (1024.0 * 1024.0 * 1024.0))
+        }
+        return ""
+    }
+    
     private init() {
         calculateStorage()
     }

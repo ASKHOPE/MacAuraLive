@@ -228,9 +228,10 @@ public struct SettingsView: View {
                     .fontWeight(.medium)
                 
                 Picker("Appearance Mode", selection: $settings.appTheme) {
-                    Text("💻 Follow macOS Native (Auto)").tag("system")
-                    Text("🌙 Dark Mode").tag("dark")
-                    Text("☀️ Light Mode").tag("light")
+                    Text("💻 Auto (macOS)").tag("system")
+                    Text("🌙 Dark").tag("dark")
+                    Text("☀️ Light").tag("light")
+                    Text("📻 OS Classic").tag("classic")
                 }
                 .pickerStyle(.segmented)
             }
@@ -587,6 +588,17 @@ public struct SettingsView: View {
                     .bold()
                 Spacer()
                 
+                if !storageAnalytics.volumeFreeSpaceFormatted.isEmpty {
+                    Text(storageAnalytics.volumeFreeSpaceFormatted)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3.5)
+                        .background(Color.green.opacity(0.15))
+                        .foregroundColor(.green)
+                        .cornerRadius(6)
+                }
+                
                 Text(storageAnalytics.formattedTotalSize)
                     .font(.subheadline)
                     .bold()
@@ -627,7 +639,7 @@ public struct SettingsView: View {
                 Button(action: {
                     NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: WallpaperStorageManager.shared.documentsDirectory.path)
                 }) {
-                    Label("Open Documents Folder", systemImage: "folder.fill")
+                    Label("Open Storage Folder in Finder", systemImage: "folder.fill")
                 }
                 .buttonStyle(.bordered)
                 .font(.caption)

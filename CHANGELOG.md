@@ -1,8 +1,9 @@
 # MacAuraLive Changelog
 
-## [1.9.0] - 2026-08-20
+## [1.9.1] - 2026-08-20
 
 ### Added & Major Features
+- **📻 OS Classic (Retro Studio) Theme**: Added a vintage Apple System 7 / Platinum inspired theme with warm paper canvas (`#F4F1EA`), bone sidebar, monospaced tech typography, recessed search bar, resolution pill filters, and hardware-framed card containers.
 - **✨ Mood Selector & Custom Profile Templates**: Create, save, and cycle customized playlists and mood profiles (e.g., Deep Focus, Night Sanctuary, Day Flow & Energy, Cyber Lounge).
 - **🌙 Automatic macOS Mode Sync**: Seamlessly syncs with macOS system states — automatically activating linked mood profiles on **Do Not Disturb / Focus Mode**, **macOS Sleep / Screen Dimmed**, and **Dark / Light Appearance** changes.
 - **⚡ In-App Background Updater & 1-Click Relaunch**: Directly checks GitHub releases, streams download progress in the background with verification, and performs zero-friction atomic bundle updates and app relaunch.

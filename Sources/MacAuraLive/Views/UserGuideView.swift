@@ -10,6 +10,8 @@ public struct UserGuideView: View {
     enum GuideCategory: String, CaseIterable, Identifiable {
         case all = "All Topics"
         case quickStart = "Quick Start"
+        case moods = "Moods & macOS Sync"
+        case updater = "In-App Updates"
         case marketplace = "Marketplace & APIs"
         case lockScreen = "Lock Screen"
         case slideshow = "Slideshow & Schedules"
@@ -25,6 +27,8 @@ public struct UserGuideView: View {
             switch self {
             case .all: return "sparkles"
             case .quickStart: return "play.circle.fill"
+            case .moods: return "sparkles.rectangle.stack"
+            case .updater: return "arrow.triangle.2.circlepath.circle.fill"
             case .marketplace: return "globe.americas.fill"
             case .lockScreen: return "lock.rectangle.on.rectangle.fill"
             case .slideshow: return "clock.arrow.2.circlepath"
@@ -51,6 +55,56 @@ public struct UserGuideView: View {
     
     private var allTopics: [GuideTopic] {
         [
+            // Mood Profiles & macOS Sync
+            GuideTopic(
+                id: "moods",
+                category: .moods,
+                title: "Mood Profiles: Custom Wallpaper Templates & macOS Mode Sync",
+                summary: "Group wallpapers under customizable mood profiles and automatically trigger them on Focus Mode, Sleep, or Appearance changes.",
+                badge: "NEW in v1.9",
+                badgeColor: .indigo,
+                steps: [
+                    "1. Open 'Moods & Presets' from the sidebar.",
+                    "2. Browse built-in mood profiles: Deep Focus, Night Sanctuary, Day Flow & Energy, and Cyber Lounge.",
+                    "3. Click 'Create New Mood Profile' to make a custom playlist with tailored rotation intervals.",
+                    "4. Link an automatic macOS trigger: 'Focus Mode / DND', 'macOS Sleep', or 'Dark / Light Theme'.",
+                    "5. Whenever your Mac enters that state, MacAuraLive activates the linked mood and updates your desktop seamlessly."
+                ],
+                tips: [
+                    "You can manually switch active moods anytime by clicking the 'Activate Mood' button on any profile card.",
+                    "Mood playlists support mixing 4K videos, live WebGL shaders, and high-res static photos."
+                ],
+                shortcutsOrPaths: [
+                    (label: "System Focus Trigger", value: "Auto-activates on Focus Mode / Do Not Disturb"),
+                    (label: "System Sleep Trigger", value: "Auto-activates when Mac or screen sleeps")
+                ]
+            ),
+            
+            // In-App Updater
+            GuideTopic(
+                id: "updater",
+                category: .updater,
+                title: "In-App Background Updater & 1-Click Relaunch",
+                summary: "Download and apply GitHub releases directly in Settings without visiting a browser.",
+                badge: "NEW in v1.9",
+                badgeColor: .green,
+                steps: [
+                    "1. Open Settings (Command + ,) and scroll down to the 'Software Update' section.",
+                    "2. Click 'Check for Updates' to query the latest MacAuraLive release on GitHub.",
+                    "3. If a new version is available, review the release notes and click 'Download & Install Update'.",
+                    "4. Watch the live background download progress bar.",
+                    "5. Once downloaded, click 'Restart & Update' to relaunch immediately with the new release."
+                ],
+                tips: [
+                    "The updater automatically verifies SHA-256 cryptographic checksums before replacing the application bundle in /Applications.",
+                    "Rollback safety manifests are preserved in build_history.json for complete peace of mind."
+                ],
+                shortcutsOrPaths: [
+                    (label: "Update Check", value: "Settings > Software Update"),
+                    (label: "Release Source", value: "github.com/ASKHOPE/MacAuraLive/releases")
+                ]
+            ),
+            
             // 1. Quick Start
             GuideTopic(
                 id: "quickstart",

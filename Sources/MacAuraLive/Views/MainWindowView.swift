@@ -51,32 +51,54 @@ public struct MainWindowView: View {
             VStack(alignment: .leading, spacing: 14) {
                 // Header Logo
                 HStack(spacing: 14) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.clear)
-                            .frame(width: 42, height: 42)
-                        if let appIcon = NSImage(named: "AppIcon") {
-                            Image(nsImage: appIcon)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 42, height: 42)
-                                .cornerRadius(10)
-                        } else {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 42, height: 42)
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundColor(.white)
+                    if settings.appTheme == "classic" {
+                        // Retro System 7 / Classic Box Badge
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(red: 0.90, green: 0.88, blue: 0.84))
+                                .frame(width: 38, height: 38)
+                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(MacaThemeTokens.classicBorder, lineWidth: 1.5))
+                            Text("MA")
+                                .font(.system(size: 16, weight: .black, design: .monospaced))
+                                .foregroundColor(MacaThemeTokens.classicOlive)
                         }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("MacAuraLive")
-                            .font(.system(size: 20, weight: .bold))
-                        Text("Live Wallpaper Engine")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("MacAura")
+                                .font(.system(size: 19, weight: .bold))
+                                .foregroundColor(MacaThemeTokens.classicTextDark)
+                            Text("V \(AppVersion.current.version) - OS Classic")
+                                .font(.system(size: 10.5, weight: .medium, design: .monospaced))
+                                .foregroundColor(MacaThemeTokens.classicTextMuted)
+                        }
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.clear)
+                                .frame(width: 42, height: 42)
+                            if let appIcon = NSImage(named: "AppIcon") {
+                                Image(nsImage: appIcon)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 42, height: 42)
+                                    .cornerRadius(10)
+                            } else {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .frame(width: 42, height: 42)
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("MacAuraLive")
+                                .font(.system(size: 20, weight: .bold))
+                            Text("Live Wallpaper Engine")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -280,6 +302,39 @@ public struct MainWindowView: View {
                 .padding(12)
                 .macaCardStyle(cornerRadius: 14)
                 .padding(.horizontal, 14)
+                
+                // Retro Import Action Button & Live Engine Status Bar
+                VStack(spacing: 8) {
+                    Button(action: { openQuickFilePicker() }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.up.doc")
+                                .font(.system(size: 12, weight: .bold))
+                            Text("Import File")
+                                .font(.system(size: 12.5, weight: .semibold, design: settings.appTheme == "classic" ? .monospaced : .default))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(!isStatic && engine.isPaused ? Color.orange : Color.green)
+                            .frame(width: 7, height: 7)
+                        Text(isStatic ? "Static Engine Active" : (engine.isPaused ? "Engine Paused" : "Engine Online"))
+                            .font(.system(size: 10.5, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 4)
+                }
+                .padding(.horizontal, 14)
                 .padding(.bottom, 14)
             }
             .navigationSplitViewColumnWidth(min: 250, ideal: 270, max: 320)
@@ -312,11 +367,14 @@ public struct MainWindowView: View {
             .frame(minWidth: 700, minHeight: 520)
         }
         .preferredColorScheme(
-            settings.appTheme == "dark" ? .dark : (settings.appTheme == "light" ? .light : nil)
+            settings.appTheme == "dark" ? .dark : (settings.appTheme == "light" || settings.appTheme == "classic" ? .light : nil)
         )
         .background(
             Group {
-                if settings.enableTransparency {
+                if settings.appTheme == "classic" {
+                    MacaThemeTokens.classicCanvas
+                        .ignoresSafeArea()
+                } else if settings.enableTransparency {
                     VisualEffectBlur(material: .underWindowBackground, blendingMode: .behindWindow)
                         .ignoresSafeArea()
                 } else {
@@ -394,16 +452,23 @@ public struct MainWindowView: View {
                                     }
                                 }
                             }
-                            
-                            if idx == tabMap.count - 1 {
-                                print("[ScreenshotAutomation] 🎉 All Dark & Light mode UI screenshots exported successfully!")
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                    NSApp.terminate(nil)
-                                }
-                            }
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private func openQuickFilePicker() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.movie, .video, .quickTimeMovie, .mpeg4Movie, .gif, .image, .png, .jpeg]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        if panel.runModal() == .OK, let url = panel.url {
+            if let item = WallpaperStorageManager.shared.addCustomFileWallpaper(url: url, title: "") {
+                WallpaperStorageManager.shared.setActiveWallpaper(item)
+                WallpaperEngine.shared.reloadEngine()
             }
         }
     }

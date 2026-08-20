@@ -29,8 +29,9 @@ lipo -create -output "build/universal/MacAuraLive" \
 echo "🗜️ Minifying binary with dead symbol stripping..."
 strip -u -r "build/universal/MacAuraLive"
 
-BUILD_DIR="build/MacAuraLive.app/Contents"
-rm -rf "build/MacAuraLive.app"
+APP_BUNDLE="build/dist/MacAuraLive.app"
+BUILD_DIR="${APP_BUNDLE}/Contents"
+rm -rf "${APP_BUNDLE}"
 mkdir -p "$BUILD_DIR/MacOS"
 mkdir -p "$BUILD_DIR/Resources"
 
@@ -98,9 +99,9 @@ EOF
 
 # Code sign ad-hoc
 echo "🔒 Code signing Universal MacAuraLive.app..."
-codesign --force --deep --sign - "build/MacAuraLive.app"
+codesign --force --deep --sign - "${APP_BUNDLE}"
 
-echo "✅ Universal 2 App bundle created and signed at: build/MacAuraLive.app"
+echo "✅ Universal 2 App bundle created and signed at: ${APP_BUNDLE}"
 
 # ── DMG Packaging ─────────────────────────────────────────────────────────────
 RELEASE_DIR="build/MacAuraLive_${VERSION}"
@@ -116,13 +117,8 @@ echo "📦 Creating DMG installer: ${DMG_NAME}..."
 rm -rf "${DMG_STAGING}" "${DMG_OUTPUT}" "${RELEASE_DIR}/${DMG_NAME}.sha256" "${RELEASE_DIR}/${DMG_NAME}.md5"
 mkdir -p "${DMG_STAGING}"
 
-cp -R "build/MacAuraLive.app" "${DMG_STAGING}/MacAuraLive.app"
+cp -R "${APP_BUNDLE}" "${DMG_STAGING}/MacAuraLive.app"
 ln -s /Applications "${DMG_STAGING}/Applications"
-# Also generate official macOS Installer Wizard (.pkg)
-bash Scripts/package_pkg_installer.sh 2>/dev/null || true
-if [ -f "build/MacAuraLive_${VERSION}/MacAuraLive_Installer_${VERSION}.pkg" ]; then
-    cp "build/MacAuraLive_${VERSION}/MacAuraLive_Installer_${VERSION}.pkg" "${DMG_STAGING}/MacAuraLive Setup Wizard.pkg"
-fi
 
 for doc in EULA.md LICENSE PRIVACY_POLICY.md THIRD_PARTY_LICENSES.md; do
     [ -f "${doc}" ] && cp "${doc}" "${DMG_STAGING}/${doc}"
@@ -152,7 +148,7 @@ echo "${SHA256}  ${DMG_NAME}" > "${DMG_OUTPUT}.sha256"
 echo "${MD5}  ${DMG_NAME}"    > "${DMG_OUTPUT}.md5"
 
 # Copy signed .app and documentation into release folder for reference
-cp -R "build/MacAuraLive.app" "${RELEASE_DIR}/MacAuraLive.app"
+cp -R "${APP_BUNDLE}" "${RELEASE_DIR}/MacAuraLive.app"
 [ -f "CHANGELOG.md" ] && cp "CHANGELOG.md" "${RELEASE_DIR}/CHANGELOG.md"
 
 # Extract latest release notes from CHANGELOG.md into RELEASE_NOTES.md

@@ -7,8 +7,8 @@ public struct AppVersion: Codable {
     public let channel: String
     public let minOS: String
     
-    public static let fallbackVersion = "1.8.1"
-    public static let fallbackBuild = "121"
+    public static let fallbackVersion = "1.9.1"
+    public static let fallbackBuild = "1.9.1"
     
     /// Global dynamic singleton resolved at runtime
     public static let current: AppVersion = {
@@ -29,7 +29,10 @@ public struct AppVersion: Codable {
     }()
     
     public var fullVersionString: String {
-        "v\(version) (Build \(build))"
+        if build.isEmpty || build == version {
+            return "v\(version)"
+        }
+        return "v\(version) (\(build))"
     }
     
     private static func loadFromJSON() -> AppVersion? {

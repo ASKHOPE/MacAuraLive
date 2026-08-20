@@ -92,22 +92,31 @@ MacAuraLive integrates an online marketplace powered by modular API plugins.
 
 ---
 
-## 5. Local Storage Directory Structure
+---
 
-MacAuraLive stores all user files and downloaded wallpapers permanently in your user Documents folder:
+## 5. Storage Space & Local Directory Structure
+
+MacAuraLive maintains an ultra-efficient storage model located natively inside your macOS **Application Support** directory (with seamless legacy support for `~/Documents/MacAuraLiveApp/`):
 
 ```
-~/Documents/MacAuraLiveApp/
-├── livewallpaper/       # MP4, MOV, and M4V video motion loops
-├── staticwallpaper/     # JPEG, PNG, HEIC, TIFF, and WebP 4K photos
+~/Library/Application Support/MacAuraLive/Media/
+├── livewallpaper/       # Hardware-accelerated MP4, MOV, and M4V video loops
+├── staticwallpaper/     # Ultra-HD JPEG, PNG, HEIC, TIFF, and WebP 4K photos
 ├── gif/                 # Animated GIF loops
-└── animatedcode/        # WebGL / HTML5 generative shaders & runtimes
+└── animatedcode/        # WebGL & Canvas AI-generated shaders and runtimes
 ```
 
-### Adding Custom Wallpapers:
+### Storage Space & Resource Breakdown Analytics:
+* **Live Disk Breakdown**: View real-time disk space usage in **Settings > Inbuilt Storage & Resource Breakdown** with categorized progress bars for App Binary, Live Shaders, Static Photos, GIF Loops, AI Code, and Cache.
+* **macOS Free Space Monitor**: Settings displays your active volume's available free disk space in real time.
+* **1-Click Cache Cleaner**: Click **Clear Temporary Cache** in Settings to instantly purge stale web render caches.
+* **Duplicate Wallpaper Scanner**: Automatically scans your entire library with SHA-256 byte-level hash comparison to identify duplicate wallpapers and calculate wasted disk storage.
+* **Open Storage Folder**: Click **Open Storage Folder in Finder** in Settings to directly reveal your local media directory.
+
+### Adding Custom Wallpapers Locally:
 1. Drop any video, photo, GIF, or HTML file directly into the appropriate folder above.
-2. In **Settings > Local Reference Folder & Storage Path**, click **Sync Now**.
-3. Your media will appear in the library with thumbnails and resolution tags.
+2. In **Settings > Local Reference Folder & Storage Path**, click **Sync Now** (or click the **Import File** button in the sidebar).
+3. Your media will appear in the library instantly with generated poster thumbnails and resolution tags.
 
 ---
 
@@ -181,7 +190,52 @@ MacAuraLive is designed for ultra-low power consumption:
 
 ---
 
-## 11. Troubleshooting, Permissions & FAQs
+## 12. Mood Profiles & Automated macOS Sync
+
+Create custom wallpaper playlists organized by mood and sync them with system states.
+
+### Included Starter Moods:
+* 🎯 **Deep Focus**: Minimal high-contrast wallpapers for deep work sessions. Auto-triggers on macOS **Focus Mode / Do Not Disturb**.
+* 🌙 **Night Sanctuary**: Dark, starry, and calming ambient loops. Auto-triggers on **macOS Sleep** or **Dark Mode**.
+* ☀️ **Day Flow & Energy**: Bright, vibrant scenery to start your morning. Auto-triggers on **Light Mode**.
+* 👾 **Cyber Lounge**: Synthwave and procedural shader playlists.
+
+### How to Create a Custom Mood:
+1. Navigate to **Moods & Presets** from the sidebar.
+2. Click **Create New Mood Profile**.
+3. Choose a custom name, icon, and mood theme color.
+4. Select which wallpapers belong to this mood playlist and set a rotation timer.
+5. Link a macOS system trigger (Focus/DND, Sleep, Appearance) to automatically activate it.
+
+---
+
+## 13. In-App Background Updater & 1-Click Relaunch
+
+MacAuraLive includes an integrated background updater that checks GitHub releases directly.
+
+### How to Update:
+1. Open **Settings** (`⌘,`) and scroll to the **Software Update** section.
+2. Click **Check for Updates**.
+3. If an update is found, review the release notes directly in the app.
+4. Click **Download & Install Update**. The download will stream in the background with a live progress bar.
+5. When complete, click **Restart & Update** to apply the new version atomically without manual installation.
+
+---
+
+## 14. UI Themes & OS Classic Retro Studio Experience
+
+MacAuraLive provides three distinct interface appearances under **Settings > App Theme**:
+
+| Theme | Key Characteristics |
+| :--- | :--- |
+| **💻 Auto (macOS)** | Follows your native macOS system appearance (Dark or Light) automatically. |
+| **🌙 Dark Mode** | Deep slate glassmorphism with high-contrast vibrancy. |
+| **☀️ Light Mode** | Crisp Apple aqua translucency with daylight clarity. |
+| **📻 OS Classic** | Retro computing aesthetic with warm paper canvas (`#F4F1EA`), bone sidebar, monospaced tech typography, and hardware-framed card containers. |
+
+---
+
+## 15. Troubleshooting, Permissions & FAQs
 
 ### Permissions Required:
 - **Screen Recording**: Used strictly to detect when another application is in full-screen mode to pause playback. No screen content is recorded or transmitted.

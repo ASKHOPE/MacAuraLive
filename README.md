@@ -14,13 +14,13 @@
 
 <p align="center">
   <a href="https://github.com/ASKHOPE/MacAuraLive/releases/latest">
-    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.8.0%20Universal%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
+    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.9.1%20Universal%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
   </a>
 </p>
 
 > **MacAuraLive** is a lightweight, hardware-accelerated live wallpaper engine for macOS — built in pure Swift and SwiftUI with zero third-party binary dependencies. Runs natively on both **Apple Silicon (M1/M2/M3/M4)** and **Intel** Macs.
 > 
-> 🌐 **[Visit Official Webpage](https://askhope.github.io/MacAuraLive/)** | 📦 **[Download Direct DMG Installer (v1.8.0 Universal)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive_v1.8.0_Universal_Installer.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
+> 🌐 **[Visit Official Webpage](https://askhope.github.io/MacAuraLive/)** | 📦 **[Download Direct DMG Installer (v1.9.1 Universal)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.9.1.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
 > [!TIP]
 > ### 🍎 macOS First-Time Launch Note (Gatekeeper Override)
@@ -37,26 +37,31 @@
 
 ---
 
-## 📸 Application User Interface Gallery (Dark & Light Modes)
+## 📸 Application User Interface Themes (Dark, Light & OS Classic)
 
-### 🌓 Adaptive macOS Appearance
-MacAuraLive features full automatic dynamic adaptation to macOS Light and Dark modes with high-contrast glassmorphism surfaces.
+### 🌓 Adaptive macOS Appearance & OS Classic Retro Studio
+MacAuraLive features dynamic adaptation to macOS Light and Dark modes with liquid glassmorphism, as well as a specialized **OS Classic (Retro Studio)** theme inspired by vintage Apple System 7 and Braun industrial design.
 
-| View / Feature | 🌙 Dark Mode | ☀️ Light Mode |
-| :--- | :---: | :---: |
-| **01. Live Wallpapers Gallery** | ![Dark Live](Documentation/Screenshots/dark/01_live_wallpapers.png) | ![Light Live](Documentation/Screenshots/light/01_live_wallpapers.png) |
-| **02. Static 4K Engine** | ![Dark Static](Documentation/Screenshots/dark/02_static_wallpapers.png) | ![Light Static](Documentation/Screenshots/light/02_static_wallpapers.png) |
-| **03. Slideshow & Schedules** | ![Dark Slideshow](Documentation/Screenshots/dark/03_slideshow_schedule.png) | ![Light Slideshow](Documentation/Screenshots/light/03_slideshow_schedule.png) |
-| **04. Multi-Monitor Displays** | ![Dark Displays](Documentation/Screenshots/dark/04_displays.png) | ![Light Displays](Documentation/Screenshots/light/04_displays.png) |
-| **05. macOS Lock Screen** | ![Dark Lock Screen](Documentation/Screenshots/dark/05_lock_screen.png) | ![Light Lock Screen](Documentation/Screenshots/light/05_lock_screen.png) |
-| **06. Built-in User Guide** | ![Dark User Guide](Documentation/Screenshots/dark/06_user_guide.png) | ![Light User Guide](Documentation/Screenshots/light/06_user_guide.png) |
-| **07. AI Scene Planner** | ![Dark AI Workshop](Documentation/Screenshots/dark/07_ai_workshop.png) | ![Light AI Workshop](Documentation/Screenshots/light/07_ai_workshop.png) |
-| **08. Settings & Storage** | ![Dark Settings](Documentation/Screenshots/dark/08_settings.png) | ![Light Settings](Documentation/Screenshots/light/08_settings.png) |
-| **09. Marketplace Plugins** | ![Dark Marketplace](Documentation/Screenshots/dark/09_marketplace.png) | ![Light Marketplace](Documentation/Screenshots/light/09_marketplace.png) |
+| Theme | Description | Aesthetic |
+| :--- | :--- | :--- |
+| 🌙 **Dark Mode** | High-contrast deep slate glassmorphism with neon accents | Sleek modern darkroom |
+| ☀️ **Light Mode** | Crisp Apple aqua translucency with vibrant highlights | Clean modern daylight |
+| 📻 **OS Classic** | Warm paper canvas (`#F4F1EA`), bone sidebar, monospaced tech typography & hardware frames | Retro computing studio |
 
 ---
 
 ## ✨ Features
+
+### ✨ Mood Selector & Automatic macOS Sync (New in v1.9.0)
+- **Custom Mood Playlists & Templates** — Create, customize, and save tailored sets of live & static wallpapers grouped under distinct moods (*Deep Focus*, *Night Sanctuary*, *Day Flow & Energy*, *Cyber Lounge*).
+- **macOS System Event Integration** — Seamlessly syncs with system state changes:
+  - 🎯 **Do Not Disturb / Focus Mode** (`com.apple.focus.mode`, `com.apple.notificationcenter.dndstatus`) $\rightarrow$ Activates *Deep Focus*.
+  - 🌙 **macOS Sleep / Screen Dimmed** (`NSWorkspace.willSleepNotification`) $\rightarrow$ Activates *Night Sanctuary*.
+  - 🌓 **Dark / Light Appearance Changes** (`AppleInterfaceThemeChangedNotification`) $\rightarrow$ Activates *Day Flow* / *Night Ambient*.
+- **Live Mood Cycling** — Automated rotation timer configured per mood profile.
+
+### ⚡ In-App Background Updater (New in v1.9.0)
+- **Zero-Friction Updates** — Check for updates, inspect release notes, download DMG packages in the background with progress percentage, and perform 1-click atomic application relaunch right inside Settings.
 
 ### 🎬 Live & Static Wallpaper Engine & Sizing Controls
 - **Universal 2 Native Engine** — Pure Swift/Metal rendering running natively on **Apple Silicon (`arm64`)** and **Intel (`x86_64`)** Macs.
@@ -120,8 +125,8 @@ MacAuraLive features full automatic dynamic adaptation to macOS Light and Dark m
 | **Bundled 4K Static Wallpapers** | Media Resource | **14.4 MB** | ~39% | 5 high-res desktop backdrops (Ocean, Mountains, Space, Glacier) |
 | **App Branding & High-DPI Icons** | Asset Catalog | **6.5 MB** | ~17% | Retina 1024×1024 AppIcon.icns, StatusBarIcon & legal suite |
 | **Built-in Shaders & Runtime** | HTML5/GLSL | **~60 KB** | <1% | 60fps Aurora, Matrix, Cyberpunk, Particle Wave shaders |
-| **Total Uncompressed `.app`** | Combined Bundle | **~36 MB** | **100%** | Approximate; varies ±5% by macOS/APFS compression |
-| **Compressed DMG Installer** | Disk Image | **~32 MB** | — | Single universal installer from GitHub Releases |
+| **Total Uncompressed `.app`** | Combined Bundle | **~37 MB** | **100%** | Approximate; varies ±5% by macOS/APFS compression |
+| **Compressed DMG Installer** | Disk Image | **~34 MB** | — | Single universal installer from GitHub Releases |
 
 ---
 
