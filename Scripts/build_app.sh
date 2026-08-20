@@ -49,7 +49,7 @@ if [ -f "version.json" ]; then
     cp "version.json" "$BUILD_DIR/Resources/version.json"
 fi
 
-# Copy AppIcon.icns & AppIcon.png
+# Copy AppIcon.icns, AppIcon.png & AppIcon.svg
 if [ -f "Sources/MacAuraLive/Resources/Assets/AppIcon.icns" ]; then
     cp "Sources/MacAuraLive/Resources/Assets/AppIcon.icns" "$BUILD_DIR/Resources/AppIcon.icns"
     echo "📦 AppIcon.icns copied to bundle Resources/"
@@ -57,6 +57,10 @@ fi
 if [ -f "Sources/MacAuraLive/Resources/Assets/AppIcon.png" ]; then
     cp "Sources/MacAuraLive/Resources/Assets/AppIcon.png" "$BUILD_DIR/Resources/AppIcon.png"
     echo "📦 AppIcon.png copied to bundle Resources/"
+fi
+if [ -f "Sources/MacAuraLive/Resources/Assets/AppIcon.svg" ]; then
+    cp "Sources/MacAuraLive/Resources/Assets/AppIcon.svg" "$BUILD_DIR/Resources/AppIcon.svg"
+    echo "📦 AppIcon.svg copied to bundle Resources/"
 fi
 
 # Copy StatusBarIcon.png

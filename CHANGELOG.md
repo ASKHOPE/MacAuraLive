@@ -1,5 +1,14 @@
 # MacAuraLive Changelog
 
+## [1.9.5] - 2026-08-20
+
+### Added & Refined
+- **📐 Fixed Non-Resizable Dashboard Geometry (`1250 × 950`)**: Standardized fixed dashboard bounds across AppKit and SwiftUI (`window.styleMask.remove(.resizable)`, `.windowResizability(.contentSize)`) preventing window jitter, letterboxing, or layout distortion.
+- **🏷️ Dropdown Filter UX & Segmented Day/Night Selector**: Replaced sprawling filter pills in the wallpaper gallery with clean, compact macOS dropdown menus for Tags and Resolutions alongside unified Day / Night segmented controls.
+- **🎛️ Rock-Solid Hardware Slider Architecture (`MacaRetroSlider`)**: Fixed height constraints and pinned label widths across playback seek, playback speed, and volume controls, eliminating vertical jitter and layout bouncing during video playback.
+- **🖼️ Full-Bleed Edge-to-Edge Canvas & Expanded Sidebar**: Removed letterboxing margins, expanded sidebar width to `265px` with generous internal padding (`18pt` header, `16pt` section titles), and added `30pt` horizontal margin to the detail canvas.
+- **📊 Updated Storage Footprint Breakdown**: Synchronized live binary and asset storage tracking in Settings with the new Universal 2 dual-architecture bundle and high-DPI asset catalog.
+
 ## [1.9.4.1] - 2026-08-20
 
 ### Added & Refined

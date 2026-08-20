@@ -18,7 +18,6 @@ public struct GalleryView: View {
     
     @State private var searchText: String = ""
     @State private var selectedCategory: String = "All"
-    @State private var selectedDayNightFilter: String = "All"
     @State private var selectedResolutionFilter: String = "All"
     @State private var showGenAIModal: Bool = false
     @State private var showWebImporter: Bool = false
@@ -97,9 +96,9 @@ public struct GalleryView: View {
             }
             
             let dayNightMatch: Bool
-            if selectedDayNightFilter == "All" {
+            if settings.dayNightFilter == "All" {
                 dayNightMatch = true
-            } else if selectedDayNightFilter == "Day" {
+            } else if settings.dayNightFilter == "Day" {
                 dayNightMatch = item.title.localizedCaseInsensitiveContains("Day") ||
                                 item.description.localizedCaseInsensitiveContains("Day") ||
                                 item.category.localizedCaseInsensitiveContains("Day") ||
@@ -131,9 +130,8 @@ public struct GalleryView: View {
     public var body: some View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 20) {
-                // Clean macOS Header Bar
                 // Clean Responsive Header Bar
-                HStack(alignment: .top) {
+                HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(filterType == .staticOnly ? "Static Wallpapers" : (filterType == .liveOnly ? "Live Wallpapers" : "Wallpaper Library"))
                             .font(.system(size: 26, weight: .bold))
@@ -146,122 +144,137 @@ public struct GalleryView: View {
                     
                     Spacer()
                     
-                    // Search Bar & Day/Night Pill Group
-                    HStack(spacing: 8) {
-                        // Search Field
-                        HStack(spacing: 6) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.65, green: 0.63, blue: 0.58) : .secondary)
-                                .font(.caption)
-                            TextField("Search files...", text: $searchText)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 12.5, design: settings.appTheme == "classic" ? .monospaced : .default))
-                                .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.85, green: 0.83, blue: 0.78) : .primary)
-                                .frame(width: 150)
-                            if !searchText.isEmpty {
-                                Button(action: { searchText = "" }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.secondary)
-                                        .font(.caption)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.10) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
-                        .cornerRadius(6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(settings.appTheme == "classic" ? Color(red: 0.25, green: 0.24, blue: 0.22) : Color.clear, lineWidth: 1)
-                        )
-                        
-                        // Day / Night Quick Pills
-                        HStack(spacing: 4) {
-                            ForEach(["All", "Day", "Night"], id: \.self) { dn in
-                                let isSelected = selectedDayNightFilter == dn
-                                Button(action: { selectedDayNightFilter = dn }) {
-                                    HStack(spacing: 4) {
-                                        if dn == "Day" { Image(systemName: "sun.max.fill").font(.system(size: 10)) }
-                                        if dn == "Night" { Image(systemName: "moon.stars.fill").font(.system(size: 10)) }
-                                        Text(dn)
-                                            .font(.system(size: 12, weight: isSelected ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
-                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 6)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 6)
-                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
-                
-                Divider()
-                
-                // Secondary Filter Row: Resolution & Categories + Action Buttons
-                HStack(spacing: 10) {
-                    // Resolution Pills
-                    HStack(spacing: 4) {
-                        ForEach(["1080P", "2K", "4K UHD", "8K"], id: \.self) { res in
-                            let isSelected = selectedResolutionFilter == res
-                            Button(action: {
-                                selectedResolutionFilter = (selectedResolutionFilter == res ? "All" : res)
-                            }) {
-                                Text(res)
-                                    .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: .monospaced))
-                                    .fixedSize()
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 5)
-                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
-                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 4)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 4)
-                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
-                                    )
+                    // Search Bar Field
+                    HStack(spacing: 6) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.65, green: 0.63, blue: 0.58) : .secondary)
+                            .font(.caption)
+                        TextField("Search wallpapers...", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 12.5, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? Color(red: 0.85, green: 0.83, blue: 0.78) : .primary)
+                            .frame(width: 180)
+                        if !searchText.isEmpty {
+                            Button(action: { searchText = "" }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
                             }
                             .buttonStyle(.plain)
                         }
                     }
-                    
-                    // Category Pills Scrollable Container
-                    ScrollView(.horizontal, showsIndicators: true) {
-                        HStack(spacing: 4) {
-                            ForEach(currentCategoryPills, id: \.self) { cat in
-                                let isSelected = selectedCategory == cat
-                                Button(action: { selectedCategory = cat }) {
-                                    HStack(spacing: 4) {
-                                        if cat == "With Audio" {
-                                            Image(systemName: "speaker.wave.2.fill")
-                                                .font(.system(size: 10))
-                                        }
-                                        Text(cat)
-                                            .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
-                                            .fixedSize()
-                                    }
-                                    .padding(.horizontal, 9)
-                                    .padding(.vertical, 5)
-                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
-                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 6)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 6)
-                                            .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
-                                    )
-                                }
-                                .buttonStyle(.plain)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.10) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(settings.appTheme == "classic" ? Color(red: 0.25, green: 0.24, blue: 0.22) : Color.clear, lineWidth: 1)
+                    )
+                }
+                
+                Divider()
+                
+                // Secondary Filter Row: Resolution & Tag Dropdowns + Action Buttons
+                HStack(spacing: 8) {
+                    // Tag / Category Dropdown Menu
+                    Menu {
+                        Button(action: { selectedCategory = "All" }) {
+                            HStack {
+                                Text("All Categories")
+                                if selectedCategory == "All" { Image(systemName: "checkmark") }
                             }
                         }
+                        Divider()
+                        ForEach(currentCategoryPills.filter { $0 != "All" }, id: \.self) { cat in
+                            Button(action: { selectedCategory = cat }) {
+                                HStack {
+                                    if cat == "With Audio" { Image(systemName: "speaker.wave.2.fill") }
+                                    Text(cat)
+                                    if selectedCategory == cat { Image(systemName: "checkmark") }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "tag.fill")
+                                .font(.caption2)
+                            Text(selectedCategory == "All" ? "Tag: All" : selectedCategory)
+                                .font(.system(size: 11.5, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 8, weight: .bold))
+                        }
                     }
+                    .macaButtonStyle(selectedCategory != "All" ? .primary : .secondary, size: .small)
+                    .fixedSize()
                     
-                    Spacer(minLength: 4)
+                    // Resolution Dropdown Menu
+                    Menu {
+                        Button(action: { selectedResolutionFilter = "All" }) {
+                            HStack {
+                                Text("All Resolutions")
+                                if selectedResolutionFilter == "All" { Image(systemName: "checkmark") }
+                            }
+                        }
+                        Divider()
+                        ForEach(["1080P", "2K", "4K UHD", "5K Retina", "8K"], id: \.self) { res in
+                            Button(action: { selectedResolutionFilter = res }) {
+                                HStack {
+                                    Text(res)
+                                    if selectedResolutionFilter == res { Image(systemName: "checkmark") }
+                                }
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "tv")
+                                .font(.caption2)
+                            Text(selectedResolutionFilter == "All" ? "Res: All" : selectedResolutionFilter)
+                                .font(.system(size: 11.5, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                .lineLimit(1)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 8, weight: .bold))
+                        }
+                    }
+                    .macaButtonStyle(selectedResolutionFilter != "All" ? .primary : .secondary, size: .small)
+                    .fixedSize()
+                    
+                    // Day / Night Quick Pills
+                    HStack(spacing: 3) {
+                        ForEach(["All", "Day", "Night"], id: \.self) { dn in
+                            let isSelected = settings.dayNightFilter == dn
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    settings.dayNightFilter = dn
+                                }
+                            }) {
+                                HStack(spacing: 3) {
+                                    if dn == "Day" { Image(systemName: "sun.max.fill").font(.system(size: 9)) }
+                                    if dn == "Night" { Image(systemName: "moon.stars.fill").font(.system(size: 9)) }
+                                    Text(dn)
+                                        .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(
+                                    isSelected
+                                        ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                        : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                                )
+                                .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                .cornerRadius(settings.appTheme == "classic" ? 2 : 6)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 6)
+                                        .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : (isSelected ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .fixedSize()
+                    
+                    Spacer(minLength: 8)
                     
                     // Sizing & Action Buttons
                     HStack(spacing: 8) {
@@ -319,9 +332,9 @@ public struct GalleryView: View {
                         .padding(.vertical, 2)
                 }
 
-                // Wallpaper Grid
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 260, maximum: 360), spacing: 20)], spacing: 20) {
+                // Wallpaper Grid (Scrollable)
+                ScrollView(.vertical, showsIndicators: true) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 250, maximum: 360), spacing: 20)], spacing: 20) {
                         ForEach(filteredWallpapers) { wallpaper in
                             WallpaperCardView(
                                 wallpaper: wallpaper,

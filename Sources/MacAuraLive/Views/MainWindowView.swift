@@ -32,7 +32,6 @@ public enum NavigationTab: String, CaseIterable, Identifiable {
 
 public struct MainWindowView: View {
     @State private var selectedTab: NavigationTab = .liveWallpapers
-    @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @ObservedObject var engine = WallpaperEngine.shared
     @ObservedObject var storage = WallpaperStorageManager.shared
     @ObservedObject var settings = AppSettings.shared
@@ -47,7 +46,8 @@ public struct MainWindowView: View {
     }
 
     public var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
+        HStack(spacing: 0) {
+            // MARK: - Persistent Left Sidebar
             VStack(alignment: .leading, spacing: 14) {
                 // Header Logo
                 HStack(spacing: 12) {
@@ -76,8 +76,8 @@ public struct MainWindowView: View {
                             .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(.horizontal, 18)
+                .padding(.top, 40)
                 
                 Divider()
                     .padding(.vertical, 4)
@@ -107,26 +107,21 @@ public struct MainWindowView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                .frame(maxHeight: .infinity)
                 
-                Spacer()
-                
+                // Active Engine & Playback Controller Card (always visible in sidebar)
                 let activeItem = storage.getActiveWallpaper()
                 let isStatic = activeItem == nil || activeItem?.type == .image || activeItem?.category == "Static"
                 let isVideo = activeItem?.type == .video
                 let isClassic = settings.appTheme == "classic"
                 
-                // Sidebar Footer: Active Status + Always Visible Mute / Unmute Controls
-                VStack(alignment: .leading, spacing: 10) {
-                    if let item = activeItem {
-                        // Active Wallpaper Header
-                        VStack(alignment: .leading, spacing: 6) {
+                if let item = activeItem {
+                    VStack(alignment: .leading, spacing: 10) {
+                        // Header Status
+                        VStack(alignment: .leading, spacing: 2) {
                             HStack {
-                                Circle()
-                                    .fill(!isStatic && engine.isPaused ? Color.orange : (isStatic ? Color.blue : Color.green))
-                                    .frame(width: 8, height: 8)
-                                Text(isStatic ? "Active (Static)" : (engine.isPaused ? "Engine Paused" : "Engine Playing"))
-                                    .font(.caption2)
-                                    .bold()
+                                Text(isStatic ? "Active Static Backdrop" : (engine.isPaused ? "Playback Paused" : "Engine Playing"))
+                                    .font(.system(size: 10, weight: .bold, design: isClassic ? .monospaced : .default))
                                     .foregroundColor(!isStatic && engine.isPaused ? .orange : (isStatic ? .blue : .green))
                                 Spacer()
                                  if !isStatic {
@@ -162,6 +157,7 @@ public struct MainWindowView: View {
                                     Text("\(formatTime(engine.playbackCurrentTime)) / \(formatTime(engine.playbackDuration))")
                                         .font(.system(size: 10, weight: .bold, design: .monospaced))
                                         .foregroundColor(.cyan)
+                                        .frame(width: 85, alignment: .trailing)
                                 }
                                 
                                 MacaRetroSlider(
@@ -174,86 +170,91 @@ public struct MainWindowView: View {
                                     in: 0...max(0.1, engine.playbackDuration),
                                     accentColor: .cyan
                                 )
+                                .frame(height: 18)
                             }
                         }
                         
                         Divider()
                             .padding(.vertical, 2)
-                    }
-                    
-                    // Playback Speed & Audio Volume Controls (ALWAYS visible in sidebar bottom)
-                    VStack(alignment: .leading, spacing: 8) {
-                        // Playback Speed Slider Widget
-                        VStack(alignment: .leading, spacing: 3) {
+                        
+                        // Playback Speed & Audio Volume Controls (ALWAYS visible in sidebar bottom)
+                        VStack(alignment: .leading, spacing: 8) {
+                            // Playback Speed Slider Widget
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack {
+                                    Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                                        .font(.caption2)
+                                        .foregroundColor(.orange)
+                                    Text("Speed:")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                    Text(String(format: "%.2fx", settings.playbackRate))
+                                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.orange)
+                                        .frame(width: 48, alignment: .trailing)
+                                }
+                                
+                                MacaRetroSlider(
+                                    value: Binding(
+                                        get: { Double(settings.playbackRate) },
+                                        set: { newVal in
+                                            let rate = Float(newVal)
+                                            settings.playbackRate = rate
+                                            engine.updatePlaybackRate(rate)
+                                        }
+                                    ),
+                                    in: 0.25...3.0,
+                                    step: 0.25,
+                                    accentColor: .orange,
+                                    showTicks: true,
+                                    tickCount: 8
+                                )
+                                .frame(height: 24)
+                            }
+                            
                             HStack {
-                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
-                                    .font(.caption2)
-                                    .foregroundColor(.orange)
-                                Text("Speed:")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                Button(action: {
+                                    settings.isMuted.toggle()
+                                    engine.updateAudioSettings(volume: settings.audioVolume, isMuted: settings.isMuted)
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: settings.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                            .font(.caption)
+                                        Text(settings.isMuted ? "Unmute" : "Mute")
+                                            .font(.system(size: 11, weight: .bold, design: isClassic ? .monospaced : .default))
+                                    }
+                                }
+                                .macaButtonStyle(settings.isMuted ? .destructive : .secondary, size: .small)
+                                
                                 Spacer()
-                                Text(String(format: "%.2fx", settings.playbackRate))
-                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.orange)
+                                
+                                Text(settings.isMuted ? "MUTED" : "\(Int(settings.audioVolume * 100))%")
+                                    .font(.system(size: 10.5, weight: .bold, design: .monospaced))
+                                    .foregroundColor(settings.isMuted ? .red : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
+                                    .frame(width: 52, alignment: .trailing)
                             }
                             
                             MacaRetroSlider(
                                 value: Binding(
-                                    get: { Double(settings.playbackRate) },
-                                    set: { newVal in
-                                        let rate = Float(newVal)
-                                        settings.playbackRate = rate
-                                        engine.updatePlaybackRate(rate)
+                                    get: { settings.audioVolume },
+                                    set: { newValue in
+                                        settings.audioVolume = newValue
+                                        engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
                                     }
                                 ),
-                                in: 0.25...3.0,
-                                step: 0.25,
-                                accentColor: .orange,
-                                showTicks: true,
-                                tickCount: 8
+                                in: 0.0...1.0,
+                                accentColor: isClassic ? MacaThemeTokens.classicOlive : Color.blue
                             )
+                            .frame(height: 18)
+                            .opacity(settings.isMuted ? 0.4 : 1.0)
+                            .disabled(settings.isMuted)
                         }
-                        
-                        HStack {
-                            Button(action: {
-                                settings.isMuted.toggle()
-                                engine.updateAudioSettings(volume: settings.audioVolume, isMuted: settings.isMuted)
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: settings.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                                        .font(.caption)
-                                    Text(settings.isMuted ? "Unmute" : "Mute")
-                                        .font(.system(size: 11, weight: .bold, design: isClassic ? .monospaced : .default))
-                                }
-                            }
-                            .macaButtonStyle(settings.isMuted ? .destructive : .secondary, size: .small)
-                            
-                            Spacer()
-                            
-                            Text(settings.isMuted ? "MUTED" : "\(Int(settings.audioVolume * 100))%")
-                                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                .foregroundColor(settings.isMuted ? .red : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
-                        }
-                        
-                        MacaRetroSlider(
-                            value: Binding(
-                                get: { settings.audioVolume },
-                                set: { newValue in
-                                    settings.audioVolume = newValue
-                                    engine.updateAudioSettings(volume: newValue, isMuted: settings.isMuted)
-                                }
-                            ),
-                            in: 0.0...1.0,
-                            accentColor: isClassic ? MacaThemeTokens.classicOlive : Color.blue
-                        )
-                        .opacity(settings.isMuted ? 0.4 : 1.0)
-                        .disabled(settings.isMuted)
                     }
+                    .padding(12)
+                    .macaCardStyle(cornerRadius: 14)
+                    .padding(.horizontal, 12)
                 }
-                .padding(12)
-                .macaCardStyle(cornerRadius: 14)
-                .padding(.horizontal, 14)
                 
                 // Retro Import Action Button & Live Engine Status Bar
                 VStack(spacing: 8) {
@@ -277,20 +278,35 @@ public struct MainWindowView: View {
                     
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(!isStatic && engine.isPaused ? Color.orange : Color.green)
+                            .fill(!engine.isPaused ? Color.green : Color.orange)
                             .frame(width: 7, height: 7)
-                        Text(isStatic ? "Static Engine Active" : (engine.isPaused ? "Engine Paused" : "Engine Online"))
+                        Text(engine.isPaused ? "Engine Paused" : "Engine Online")
                             .font(.system(size: 10.5, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
                             .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
                         Spacer()
                     }
                     .padding(.horizontal, 4)
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 12)
                 .padding(.bottom, 14)
             }
-            .navigationSplitViewColumnWidth(min: 250, ideal: 270, max: 320)
-        } detail: {
+            .frame(width: 265)
+            .layoutPriority(1)
+            .background(
+                Group {
+                    if settings.appTheme == "classic" {
+                        MacaThemeTokens.classicSidebar
+                    } else if settings.enableTransparency {
+                        VisualEffectBlur(material: .sidebar, blendingMode: .behindWindow)
+                    } else {
+                        Color(NSColor.controlBackgroundColor)
+                    }
+                }
+            )
+            
+            Divider()
+            
+            // MARK: - Right Detail Content Area
             Group {
                 switch selectedTab {
                 case .liveWallpapers:
@@ -315,26 +331,28 @@ public struct MainWindowView: View {
                     SettingsView()
                 }
             }
-            .padding(28)
-            .frame(minWidth: 700, minHeight: 520)
+            .padding(.horizontal, 30)
+            .padding(.bottom, 28)
+            .padding(.top, 40)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(0)
+            .background(
+                Group {
+                    if settings.appTheme == "classic" {
+                        MacaThemeTokens.classicCanvas
+                    } else if settings.enableTransparency {
+                        VisualEffectBlur(material: .underWindowBackground, blendingMode: .behindWindow)
+                    } else {
+                        Color(nsColor: .windowBackgroundColor)
+                    }
+                }
+            )
         }
+        .frame(width: 1250, height: 950)
+        .ignoresSafeArea()
         .id(settings.appTheme)
         .preferredColorScheme(
             settings.appTheme == "dark" ? .dark : (settings.appTheme == "light" || settings.appTheme == "classic" ? .light : nil)
-        )
-        .background(
-            Group {
-                if settings.appTheme == "classic" {
-                    MacaThemeTokens.classicCanvas
-                        .ignoresSafeArea()
-                } else if settings.enableTransparency {
-                    VisualEffectBlur(material: .underWindowBackground, blendingMode: .behindWindow)
-                        .ignoresSafeArea()
-                } else {
-                    Color(nsColor: .windowBackgroundColor)
-                        .ignoresSafeArea()
-                }
-            }
         )
         .onAppear {
             if CommandLine.arguments.contains("--capture-screenshots") {
@@ -345,67 +363,98 @@ public struct MainWindowView: View {
     
     private func exportAllScreenshots() {
         let baseDir = "/Users/hosanna/Documents/wallpapermacs/Documentation/Screenshots"
+        let classicDir = "\(baseDir)/classic"
         let darkDir = "\(baseDir)/dark"
         let lightDir = "\(baseDir)/light"
+        let webDir = "/Users/hosanna/Documents/wallpapermacs/docs/assets/screenshots"
+        
         try? FileManager.default.createDirectory(atPath: baseDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: classicDir, withIntermediateDirectories: true)
         try? FileManager.default.createDirectory(atPath: darkDir, withIntermediateDirectories: true)
         try? FileManager.default.createDirectory(atPath: lightDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(atPath: webDir, withIntermediateDirectories: true)
         
         let tabMap: [(NavigationTab, String)] = [
             (.liveWallpapers, "01_live_wallpapers.png"),
             (.staticWallpapers, "02_static_wallpapers.png"),
-            (.slideshow, "03_slideshow_schedule.png"),
-            (.displays, "04_displays.png"),
-            (.lockScreen, "05_lock_screen.png"),
-            (.userGuide, "06_user_guide.png"),
-            (.aiConfig, "07_ai_workshop.png"),
-            (.settings, "08_settings.png"),
-            (.marketplace, "09_marketplace.png")
+            (.moods, "03_moods_presets.png"),
+            (.slideshow, "04_slideshow_schedule.png"),
+            (.displays, "05_displays.png"),
+            (.lockScreen, "06_lock_screen.png"),
+            (.userGuide, "07_user_guide.png"),
+            (.aiConfig, "08_ai_workshop.png"),
+            (.settings, "09_settings.png"),
+            (.marketplace, "10_marketplace.png")
         ]
         
-        // Phase 1: Capture Dark Theme
-        self.settings.appTheme = "dark"
+        func captureCurrent(targetDir: String, filename: String, prefixMsg: String) {
+            if let window = NSApp.windows.first(where: { $0.isVisible }) {
+                window.makeKeyAndOrderFront(nil)
+                if let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                    let bitmap = NSBitmapImageRep(cgImage: cgImage)
+                    if let pngData = bitmap.representation(using: .png, properties: [:]) {
+                        try? pngData.write(to: URL(fileURLWithPath: "\(targetDir)/\(filename)"))
+                        try? pngData.write(to: URL(fileURLWithPath: "\(webDir)/\(targetDir.components(separatedBy: "/").last ?? "")_\(filename)"))
+                        print("[ScreenshotAutomation] \(prefixMsg) exported to \(targetDir)/\(filename)")
+                    }
+                }
+            }
+        }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+        // Phase 1: Capture Classic OS Theme
+        self.settings.appTheme = "classic"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             for (idx, (tab, filename)) in tabMap.enumerated() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.85) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.7) {
                     self.selectedTab = tab
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        if let window = NSApp.windows.first(where: { $0.isVisible }) {
-                            window.makeKeyAndOrderFront(nil)
-                            if let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
-                                let bitmap = NSBitmapImageRep(cgImage: cgImage)
-                                if let pngData = bitmap.representation(using: .png, properties: [:]) {
-                                    try? pngData.write(to: URL(fileURLWithPath: "\(darkDir)/\(filename)"))
-                                    try? pngData.write(to: URL(fileURLWithPath: "\(baseDir)/\(filename)"))
-                                    print("[ScreenshotAutomation] 🌙 Exported Dark tab '\(tab.rawValue)' to \(darkDir)/\(filename)")
-                                }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        captureCurrent(targetDir: classicDir, filename: filename, prefixMsg: "🕹️ Classic '\(tab.rawValue)'")
+                        // Also write to baseDir as default showcase
+                        if let window = NSApp.windows.first(where: { $0.isVisible }),
+                           let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                            let bitmap = NSBitmapImageRep(cgImage: cgImage)
+                            if let pngData = bitmap.representation(using: .png, properties: [:]) {
+                                try? pngData.write(to: URL(fileURLWithPath: "\(baseDir)/\(filename)"))
                             }
                         }
                     }
                 }
             }
             
-            // Phase 2: Capture Light Theme
-            let phase2Start = Double(tabMap.count) * 0.85 + 1.0
+            // Phase 2: Capture Dark Theme
+            let phase2Start = Double(tabMap.count) * 0.7 + 1.2
             DispatchQueue.main.asyncAfter(deadline: .now() + phase2Start) {
-                self.settings.appTheme = "light"
+                self.settings.appTheme = "dark"
                 
                 for (idx, (tab, filename)) in tabMap.enumerated() {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.85) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.7) {
                         self.selectedTab = tab
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                            if let window = NSApp.windows.first(where: { $0.isVisible }) {
-                                window.makeKeyAndOrderFront(nil)
-                                if let cgImage = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
-                                    let bitmap = NSBitmapImageRep(cgImage: cgImage)
-                                    if let pngData = bitmap.representation(using: .png, properties: [:]) {
-                                        try? pngData.write(to: URL(fileURLWithPath: "\(lightDir)/\(filename)"))
-                                        print("[ScreenshotAutomation] ☀️ Exported Light tab '\(tab.rawValue)' to \(lightDir)/\(filename)")
-                                    }
-                                }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            captureCurrent(targetDir: darkDir, filename: filename, prefixMsg: "🌙 Dark '\(tab.rawValue)'")
+                        }
+                    }
+                }
+                
+                // Phase 3: Capture Light Theme
+                let phase3Start = Double(tabMap.count) * 0.7 + 1.2
+                DispatchQueue.main.asyncAfter(deadline: .now() + phase3Start) {
+                    self.settings.appTheme = "light"
+                    
+                    for (idx, (tab, filename)) in tabMap.enumerated() {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(idx) * 0.7) {
+                            self.selectedTab = tab
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                captureCurrent(targetDir: lightDir, filename: filename, prefixMsg: "☀️ Light '\(tab.rawValue)'")
                             }
                         }
+                    }
+                    
+                    // Reset back to classic theme and live wallpapers
+                    let finishDelay = Double(tabMap.count) * 0.7 + 0.8
+                    DispatchQueue.main.asyncAfter(deadline: .now() + finishDelay) {
+                        self.settings.appTheme = "classic"
+                        self.selectedTab = .liveWallpapers
+                        print("[ScreenshotAutomation] 🎉 All 3-Theme Screenshots Captured & Stored Successfully!")
                     }
                 }
             }
@@ -419,7 +468,7 @@ public struct MainWindowView: View {
                     .font(.system(size: 9.5, weight: .bold, design: .monospaced))
                     .foregroundColor(MacaThemeTokens.classicTextMuted)
                     .tracking(1.0)
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.top, 6)
                     .padding(.bottom, 2)
             } else {
@@ -427,7 +476,7 @@ public struct MainWindowView: View {
                     .font(.caption2)
                     .fontWeight(.bold)
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.top, 6)
                     .padding(.bottom, 2)
             }
@@ -483,7 +532,7 @@ public struct MainWindowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 10)
     }
     
     private func classicIconName(for tab: NavigationTab) -> String {

@@ -471,7 +471,7 @@ public struct MacaRetroSlider: View {
                     }
             )
         }
-        .frame(height: 20)
+        .frame(height: showTicks && isClassic ? 24 : 18)
     }
 }
 
@@ -508,25 +508,33 @@ public extension Color {
 
 public extension NSImage {
     static var appLogo: NSImage? {
-        // 1. Direct PNG in main bundle resources root or Assets subfolder
-        if let path = Bundle.main.path(forResource: "AppIcon", ofType: "png") ??
-                      Bundle.main.path(forResource: "AppIcon", ofType: "png", inDirectory: "Assets"),
-           let img = NSImage(contentsOfFile: path) {
-            return img
+        // 1. Direct SVG or PNG in main bundle resources root or Assets subfolder
+        for ext in ["svg", "png"] {
+            if let path = Bundle.main.path(forResource: "AppIcon", ofType: ext) ??
+                          Bundle.main.path(forResource: "AppIcon", ofType: ext, inDirectory: "Assets"),
+               let img = NSImage(contentsOfFile: path) {
+                return img
+            }
         }
         
         // 2. Module bundle resources
         #if SWIFT_PACKAGE
-        if let url = Bundle.module.url(forResource: "AppIcon", withExtension: "png", subdirectory: "Assets") ??
-                     Bundle.module.url(forResource: "AppIcon", withExtension: "png"),
-           let img = NSImage(contentsOf: url) {
-            return img
+        for ext in ["svg", "png"] {
+            if let url = Bundle.module.url(forResource: "AppIcon", withExtension: ext, subdirectory: "Assets") ??
+                         Bundle.module.url(forResource: "AppIcon", withExtension: ext),
+               let img = NSImage(contentsOf: url) {
+                return img
+            }
         }
         #endif
         
         // 3. Fallback filesystem developer paths
         let devPaths = [
+            "Sources/MacAuraLive/Resources/Assets/AppIcon.svg",
             "Sources/MacAuraLive/Resources/Assets/AppIcon.png",
+            "docs/assets/Appicon.svg",
+            "docs/assets/AppIcon.svg",
+            "build/dist/MacAuraLive.app/Contents/Resources/Assets/AppIcon.svg",
             "build/dist/MacAuraLive.app/Contents/Resources/Assets/AppIcon.png",
             "build/dist/MacAuraLive.app/Contents/Resources/AppIcon.png"
         ]

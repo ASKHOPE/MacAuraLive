@@ -10,6 +10,7 @@ struct MacAuraLiveApp: App {
     var body: some Scene {
         WindowGroup("MacAuraLive Live Wallpaper Dashboard") {
             MainWindowView()
+                .frame(width: 1250, height: 950)
                 .background(WindowAccessor { window in
                     appDelegate.registerMainWindow(window)
                 })
@@ -25,6 +26,7 @@ struct MacAuraLiveApp: App {
         }
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified)
+        .windowResizability(.contentSize)
         .commands {
             CommandGroup(replacing: .appInfo) {
                 Button("About MacAuraLive") {
@@ -51,11 +53,7 @@ struct WindowAccessor: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async {
-            if let window = nsView.window {
-                callback(window)
-            }
-        }
+        // No-op to prevent recursive layout update loops
     }
 }
 
@@ -66,10 +64,18 @@ public class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSWin
     public func registerMainWindow(_ window: NSWindow) {
         self.mainWindow = window
         window.delegate = self
-        window.isOpaque = false
-        window.backgroundColor = .clear
+        window.isOpaque = true
+        window.backgroundColor = NSColor(red: 0.92, green: 0.90, blue: 0.86, alpha: 1.0)
         window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         window.styleMask.insert(.fullSizeContentView)
+        window.styleMask.remove(.resizable)
+        window.showsResizeIndicator = false
+        window.standardWindowButton(.zoomButton)?.isEnabled = false
+        window.minSize = NSSize(width: 1250, height: 950)
+        window.maxSize = NSSize(width: 1250, height: 950)
+        window.setContentSize(NSSize(width: 1250, height: 950))
+        window.center()
     }
 
     /// Intercept red close button click on the main window: hide window instead of destroying it

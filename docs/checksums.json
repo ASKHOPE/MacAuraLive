@@ -1,9 +1,9 @@
 {
-  "version": "1.8.1",
-  "buildNumber": "121",
-  "date": "2026-08-20T06:06:33Z",
-  "filename": "MacAuraLive-1.8.1.dmg",
-  "downloadUrl": "https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.8.1.dmg",
-  "sha256": "f4f75047226b58dce06614ccb6fa530fa6717770e7ea9123c3c6b8fe12e9291b",
-  "md5": "b2d9666d20be9cabfa5fc85846303bda"
+  "version": "1.9.5",
+  "buildNumber": "195",
+  "date": "2026-08-20T16:04:58Z",
+  "filename": "MacAuraLive-1.9.5.dmg",
+  "downloadUrl": "https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.9.5.dmg",
+  "sha256": "1993a8632af5549893bad4ba0323b90492d2c769dc6d3a57f8814dca166b3423",
+  "md5": "f774201bd6e3980f426dc1c7b6c8d3be"
 }

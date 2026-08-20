@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MacAuraLive — Live Wallpaper Engine for macOS</title>
     <meta name="description" content="Hardware-accelerated 60 FPS live video loops, procedural WebGL shaders, and native static backdrops for macOS. Native on Apple Silicon and Intel Macs.">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon_io/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="assets/favicon_io/favicon.ico">
+    <link rel="manifest" href="assets/favicon_io/site.webmanifest">
     <link rel="icon" type="image/png" href="assets/AppIcon.png">
     
     <!-- Google Fonts -->
@@ -1369,7 +1374,7 @@
             <a href="#" class="nav-brand">
                 <img src="assets/AppIcon.png" alt="MacAuraLive Logo">
                 <span>MacAuraLive</span>
-                <span class="nav-badge">v1.8.1</span>
+                <span class="nav-badge">v1.9.5</span>
             </a>
 
             <ul class="nav-links">
@@ -1848,55 +1853,60 @@
             </div>
         </section>
 
-        <!-- Screenshot Gallery (Centered with Dark & Day Theme Switcher) -->
+        <!-- Screenshot Gallery (Centered with Classic, Dark & Light Theme Switcher) -->
         <section id="screenshots" class="section-wrapper">
             <div class="section-title">
                 <h2>Application Interface Tour</h2>
-                <p>A native macOS interface crafted with SwiftUI, adaptive high-contrast glassmorphism, and Apple design standards.</p>
+                <p>A native macOS interface crafted with SwiftUI, fixed non-resizable 1250×950 dashboard geometry, and authentic Apple design themes.</p>
             </div>
 
-            <!-- Interactive Gallery Theme Selector -->
-            <div class="sim-pills-row" style="margin-bottom: 28px; justify-content: center;">
-                <button class="sim-pill active" id="galleryDarkBtn" onclick="switchGalleryTheme('dark')" style="padding: 8px 18px; font-size: 0.85rem;">🌙 macOS Dark Mode</button>
+            <!-- Interactive Gallery Theme Selector (3 Themes) -->
+            <div class="sim-pills-row" style="margin-bottom: 28px; justify-content: center; gap: 10px;">
+                <button class="sim-pill active" id="galleryClassicBtn" onclick="switchGalleryTheme('classic')" style="padding: 8px 18px; font-size: 0.85rem;">🕹️ OS Classic Theme</button>
+                <button class="sim-pill" id="galleryDarkBtn" onclick="switchGalleryTheme('dark')" style="padding: 8px 18px; font-size: 0.85rem;">🌙 macOS Dark Mode</button>
                 <button class="sim-pill" id="galleryLightBtn" onclick="switchGalleryTheme('light')" style="padding: 8px 18px; font-size: 0.85rem;">☀️ macOS Day / Light Mode</button>
             </div>
 
             <div class="screenshot-grid">
                 <div class="screenshot-card">
-                    <img id="shot-01" src="screenshots/dark/01_live_wallpapers.png" alt="Live Wallpapers Gallery">
+                    <img id="shot-01" src="screenshots/classic/01_live_wallpapers.png" alt="Live Wallpapers Gallery">
                     <div class="caption">01. Live Wallpapers Gallery</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-02" src="screenshots/dark/02_static_wallpapers.png" alt="Static Wallpapers">
+                    <img id="shot-02" src="screenshots/classic/02_static_wallpapers.png" alt="Static Wallpapers">
                     <div class="caption">02. Static Wallpaper Engine</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-03" src="screenshots/dark/03_slideshow_schedule.png" alt="Slideshow & Schedule">
-                    <div class="caption">03. Slideshow & Schedules</div>
+                    <img id="shot-03" src="screenshots/classic/03_moods_presets.png" alt="Mood Profiles">
+                    <div class="caption">03. Mood Profiles & System Sync</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-04" src="screenshots/dark/04_displays.png" alt="Multi-Monitor Displays">
-                    <div class="caption">04. Multi-Monitor Displays</div>
+                    <img id="shot-04" src="screenshots/classic/04_slideshow_schedule.png" alt="Slideshow & Schedule">
+                    <div class="caption">04. Slideshow & Schedules</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-05" src="screenshots/dark/05_lock_screen.png" alt="macOS Lock Screen">
-                    <div class="caption">05. macOS Lock Screen</div>
+                    <img id="shot-05" src="screenshots/classic/05_displays.png" alt="Multi-Monitor Displays">
+                    <div class="caption">05. Multi-Monitor Displays</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-06" src="screenshots/dark/06_user_guide.png" alt="Built-in User Guide">
-                    <div class="caption">06. Searchable User Guide</div>
+                    <img id="shot-06" src="screenshots/classic/06_lock_screen.png" alt="macOS Lock Screen">
+                    <div class="caption">06. macOS Lock Screen</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-07" src="screenshots/dark/07_ai_workshop.png" alt="AI Workshop">
-                    <div class="caption">07. AI Scene Planner</div>
+                    <img id="shot-07" src="screenshots/classic/07_user_guide.png" alt="Built-in User Guide">
+                    <div class="caption">07. Searchable User Guide</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-08" src="screenshots/dark/08_settings.png" alt="Settings & Analytics">
-                    <div class="caption">08. Settings & Storage Analytics</div>
+                    <img id="shot-08" src="screenshots/classic/08_ai_workshop.png" alt="AI Workshop">
+                    <div class="caption">08. AI Scene Planner & Studio</div>
                 </div>
                 <div class="screenshot-card">
-                    <img id="shot-09" src="screenshots/dark/09_marketplace.png" alt="Marketplace Plugins">
-                    <div class="caption">09. Marketplace & Content Plugins</div>
+                    <img id="shot-09" src="screenshots/classic/09_settings.png" alt="Settings & Analytics">
+                    <div class="caption">09. Settings & Storage Analytics</div>
+                </div>
+                <div class="screenshot-card">
+                    <img id="shot-10" src="screenshots/classic/10_marketplace.png" alt="Marketplace Plugins">
+                    <div class="caption">10. Marketplace & Content Plugins</div>
                 </div>
             </div>
         </section>
@@ -1906,7 +1916,7 @@
             <div class="storage-card">
                 <div class="section-title" style="margin-bottom: 20px; text-align: left;">
                     <h2>Minimal Disk & Memory Footprint</h2>
-                    <p>Engineered in pure Swift and Metal without bulky Electron or Chromium runtimes. Total uncompressed application bundle is ~36 MB · compressed DMG installer is ~32 MB.</p>
+                    <p>Engineered in pure Swift and Metal without bulky Electron or Chromium runtimes. Total uncompressed application bundle is ~39.4 MB · compressed DMG installer is ~31.5 MB.</p>
                 </div>
 
                 <div class="storage-bar">
@@ -2008,7 +2018,7 @@
             </div>
             
             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
-                Your download for <strong id="modalReleaseTag" style="color: var(--text-main);">MacAuraLive v1.8.1 Universal DMG</strong> has been initiated. Verify package authenticity using the official release checksums:
+                Your download for <strong id="modalReleaseTag" style="color: var(--text-main);">MacAuraLive v1.9.5 Universal DMG</strong> has been initiated. Verify package authenticity using the official release checksums:
             </p>
 
             <div class="checksum-box">
@@ -2086,28 +2096,28 @@
             switchGalleryTheme(theme, false);
         }
 
-        // Switch Screenshot Gallery Theme (Dark / Day)
+        // Switch Screenshot Gallery Theme (Classic / Dark / Light)
         function switchGalleryTheme(theme, updateGlobal = true) {
-            const isDark = theme === 'dark';
+            const galleryClassicBtn = document.getElementById('galleryClassicBtn');
             const galleryDarkBtn = document.getElementById('galleryDarkBtn');
             const galleryLightBtn = document.getElementById('galleryLightBtn');
 
-            if (galleryDarkBtn && galleryLightBtn) {
-                galleryDarkBtn.classList.toggle('active', isDark);
-                galleryLightBtn.classList.toggle('active', !isDark);
-            }
+            if (galleryClassicBtn) galleryClassicBtn.classList.toggle('active', theme === 'classic');
+            if (galleryDarkBtn) galleryDarkBtn.classList.toggle('active', theme === 'dark');
+            if (galleryLightBtn) galleryLightBtn.classList.toggle('active', theme === 'light');
 
-            const folder = isDark ? 'dark' : 'light';
+            const folder = (theme === 'classic') ? 'classic' : (theme === 'light' ? 'light' : 'dark');
             const items = [
                 { id: 'shot-01', file: '01_live_wallpapers.png' },
                 { id: 'shot-02', file: '02_static_wallpapers.png' },
-                { id: 'shot-03', file: '03_slideshow_schedule.png' },
-                { id: 'shot-04', file: '04_displays.png' },
-                { id: 'shot-05', file: '05_lock_screen.png' },
-                { id: 'shot-06', file: '06_user_guide.png' },
-                { id: 'shot-07', file: '07_ai_workshop.png' },
-                { id: 'shot-08', file: '08_settings.png' },
-                { id: 'shot-09', file: '09_marketplace.png' }
+                { id: 'shot-03', file: '03_moods_presets.png' },
+                { id: 'shot-04', file: '04_slideshow_schedule.png' },
+                { id: 'shot-05', file: '05_displays.png' },
+                { id: 'shot-06', file: '06_lock_screen.png' },
+                { id: 'shot-07', file: '07_user_guide.png' },
+                { id: 'shot-08', file: '08_ai_workshop.png' },
+                { id: 'shot-09', file: '09_settings.png' },
+                { id: 'shot-10', file: '10_marketplace.png' }
             ];
 
             items.forEach(item => {
@@ -2122,7 +2132,7 @@
                 }
             });
 
-            if (updateGlobal && document.documentElement.getAttribute('data-theme') !== theme) {
+            if (updateGlobal && theme !== 'classic' && document.documentElement.getAttribute('data-theme') !== theme) {
                 setAppTheme(theme);
             }
         }
@@ -2570,7 +2580,7 @@
                 if (!response.ok) return;
                 const data = await response.json();
                 
-                const tagName = data.tag_name || 'v1.8.1';
+                const tagName = data.tag_name || 'v1.9.5';
                 const dmgAsset = data.assets && data.assets.find(a => a.name.endsWith('.dmg'));
                 if (dmgAsset && dmgAsset.browser_download_url) {
                     currentDownloadUrl = dmgAsset.browser_download_url;
@@ -2578,7 +2588,7 @@
                     currentDownloadUrl = data.html_url;
                 }
                 
-                const sizeMb = dmgAsset ? (dmgAsset.size / (1024 * 1024)).toFixed(1) + ' MB' : '34.1 MB';
+                const sizeMb = dmgAsset ? (dmgAsset.size / (1024 * 1024)).toFixed(1) + ' MB' : '31.5 MB';
                 const totalDownloads = data.assets ? data.assets.reduce((sum, a) => sum + (a.download_count || 0), 0) : 0;
 
                 // Update Navbar Badges
