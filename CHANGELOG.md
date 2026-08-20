@@ -1,5 +1,16 @@
 # MacAuraLive Changelog
 
+## [1.9.3] - 2026-08-20
+
+### Added & UI/UX Polish
+- **🖥️ Authentic OS Classic Design Suite & Sharp 2pt Radii**: Reduced card, thumbnail, subcard, modal dialog, and button corner radii to sharp 2pt across all screens in Classic OS theme for an authentic vintage chassis aesthetic.
+- **🕹️ Global Retro Component Architecture (`MacaThemeButtonStyle` & `MacaRetroToggle`)**: Replaced remaining ad-hoc toggles and default buttons across Slideshow scheduled rules, Mood editor, and Onboarding with unified retro bevels and hardware toggles.
+- **🔒 Context-Aware Frosted Glass Toggle & Tooltip**: Frosted glass vibrancy is automatically disabled with an informative explanatory tooltip when Classic OS theme is active.
+- **📖 Solid High-Contrast User Guide Typography**: Fixed documentation text visibility with adaptive solid black `#1D1C19` text on light/classic backgrounds and high-contrast typography across all guide cards.
+- **🛍️ Retro Themed Marketplace Tags & Action Row Alignment**: Restyled top provider chips, media filters (`All Types`, `4K Photos`, `Video Loops`), and discovery tags to match retro olive/beige themes, and fixed `Download & Set` button spacing.
+- **🎛️ Mood Profile Action Controls Alignment**: Refactored `MoodCard` action row with flexible spacing to prevent button overlapping on smaller screen widths.
+- **🧹 Settings Cleanup**: Removed redundant duplicate copyright notice outside the About card.
+
 ## [1.9.2] - 2026-08-20
 
 ### Added & Major Features

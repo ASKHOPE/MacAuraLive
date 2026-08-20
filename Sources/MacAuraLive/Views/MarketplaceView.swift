@@ -164,11 +164,14 @@ public struct MarketplaceView: View {
     // MARK: - Filter Bar
     
     private var filterBarView: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 12) {
-                // Provider Selector Pills
+                // Providers List
                 HStack(spacing: 6) {
                     ForEach(WallpaperSourceProvider.allCases) { prov in
+                        let isSelected = marketplace.selectedProvider == prov
                         Button(action: {
                             marketplace.selectedProvider = prov
                             Task { await marketplace.fetchMarketplaceWallpapers() }
@@ -177,30 +180,24 @@ public struct MarketplaceView: View {
                                 Image(systemName: prov.iconName)
                                     .font(.caption2)
                                 Text(prov.rawValue)
-                                    .font(.system(size: 12, weight: marketplace.selectedProvider == prov ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                    .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: isClassic ? .monospaced : .default))
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
                             .background(
-                                Group {
-                                    if settings.appTheme == "classic" {
-                                        if marketplace.selectedProvider == prov {
-                                            Color(red: 0.90, green: 0.88, blue: 0.84)
-                                        } else {
-                                            Color(red: 0.96, green: 0.95, blue: 0.93)
-                                        }
-                                    } else {
-                                        marketplace.selectedProvider == prov ? Color.accentColor : Color(NSColor.controlBackgroundColor)
-                                    }
-                                }
+                                isSelected
+                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
                             )
                             .foregroundColor(
-                                settings.appTheme == "classic" ? (marketplace.selectedProvider == prov ? MacaThemeTokens.classicOlive : MacaThemeTokens.classicTextDark) : (marketplace.selectedProvider == prov ? .white : .primary)
+                                isSelected
+                                    ? Color.white
+                                    : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
                             )
-                            .cornerRadius(settings.appTheme == "classic" ? 4 : 8)
+                            .cornerRadius(isClassic ? 2 : 8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 8)
-                                    .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : (marketplace.selectedProvider == prov ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : (isSelected ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
@@ -212,59 +209,83 @@ public struct MarketplaceView: View {
                 
                 // Media Type Selector Pills
                 HStack(spacing: 6) {
+                    let isAllTypes = marketplace.selectedMediaTypeFilter == nil
                     Button(action: {
                         marketplace.selectedMediaTypeFilter = nil
                         Task { await marketplace.fetchMarketplaceWallpapers() }
                     }) {
                         Text("All Types")
-                            .font(.caption)
-                            .fontWeight(marketplace.selectedMediaTypeFilter == nil ? .bold : .medium)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == nil ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == nil ? .white : .primary)
-                            .cornerRadius(8)
+                            .font(.system(size: 11.5, weight: isAllTypes ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                isAllTypes
+                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                            )
+                            .foregroundColor(
+                                isAllTypes
+                                    ? Color.white
+                                    : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
+                            )
+                            .cornerRadius(isClassic ? 2 : 8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == nil ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : (isAllTypes ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
                     
+                    let isPhotos = marketplace.selectedMediaTypeFilter == .image
                     Button(action: {
                         marketplace.selectedMediaTypeFilter = .image
                         Task { await marketplace.fetchMarketplaceWallpapers() }
                     }) {
                         Label("4K Photos", systemImage: "photo.fill")
-                            .font(.caption)
-                            .fontWeight(marketplace.selectedMediaTypeFilter == .image ? .bold : .medium)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .image ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == .image ? .white : .primary)
-                            .cornerRadius(8)
+                            .font(.system(size: 11.5, weight: isPhotos ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                isPhotos
+                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                            )
+                            .foregroundColor(
+                                isPhotos
+                                    ? Color.white
+                                    : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
+                            )
+                            .cornerRadius(isClassic ? 2 : 8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == .image ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : (isPhotos ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
                     
+                    let isVideos = marketplace.selectedMediaTypeFilter == .video
                     Button(action: {
                         marketplace.selectedMediaTypeFilter = .video
                         Task { await marketplace.fetchMarketplaceWallpapers() }
                     }) {
                         Label("Video Loops", systemImage: "play.rectangle.fill")
-                            .font(.caption)
-                            .fontWeight(marketplace.selectedMediaTypeFilter == .video ? .bold : .medium)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(marketplace.selectedMediaTypeFilter == .video ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                            .foregroundColor(marketplace.selectedMediaTypeFilter == .video ? .white : .primary)
-                            .cornerRadius(8)
+                            .font(.system(size: 11.5, weight: isVideos ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                isVideos
+                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                            )
+                            .foregroundColor(
+                                isVideos
+                                    ? Color.white
+                                    : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
+                            )
+                            .cornerRadius(isClassic ? 2 : 8)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(marketplace.selectedMediaTypeFilter == .video ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : (isVideos ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -275,22 +296,30 @@ public struct MarketplaceView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(discoveryTags, id: \.self) { tag in
+                        let isTagActive = marketplace.activeTag == tag
                         Button(action: {
                             marketplace.activeTag = tag
                             marketplace.searchQuery = tag == "All" ? "" : tag
                             Task { await marketplace.fetchMarketplaceWallpapers() }
                         }) {
                             Text(tag == "All" ? "✨ All Discoveries" : "#\(tag)")
-                                .font(.caption2)
-                                .fontWeight(marketplace.activeTag == tag ? .bold : .medium)
-                                .padding(.horizontal, 10)
+                                .font(.system(size: 11, weight: isTagActive ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                                .padding(.horizontal, 9)
                                 .padding(.vertical, 4)
-                                .background(marketplace.activeTag == tag ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                                .foregroundColor(marketplace.activeTag == tag ? .white : .primary)
-                                .cornerRadius(6)
+                                .background(
+                                    isTagActive
+                                        ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                        : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                                    )
+                                .foregroundColor(
+                                    isTagActive
+                                        ? Color.white
+                                        : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
+                                )
+                                .cornerRadius(isClassic ? 2 : 6)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(marketplace.activeTag == tag ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: isClassic ? 2 : 6)
+                                        .stroke(isClassic ? MacaThemeTokens.classicBorder : (isTagActive ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                                 )
                         }
                         .buttonStyle(.plain)

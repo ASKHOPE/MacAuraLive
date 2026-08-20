@@ -61,7 +61,7 @@ public struct UserGuideView: View {
                 category: .moods,
                 title: "Mood Profiles: Custom Wallpaper Templates & macOS Mode Sync",
                 summary: "Group wallpapers under customizable mood profiles and automatically trigger them on Focus Mode, Sleep, or Appearance changes.",
-                badge: "NEW in v1.9.2",
+                badge: "NEW in v1.9.3",
                 badgeColor: .indigo,
                 steps: [
                     "1. Open 'Moods & Presets' from the sidebar.",
@@ -86,7 +86,7 @@ public struct UserGuideView: View {
                 category: .updater,
                 title: "In-App Background Updater & 1-Click Relaunch",
                 summary: "Download and apply GitHub releases directly in Settings without visiting a browser.",
-                badge: "NEW in v1.9.2",
+                badge: "NEW in v1.9.3",
                 badgeColor: .green,
                 steps: [
                     "1. Open Settings (Command + ,) and scroll down to the 'Software Update' section.",
@@ -434,22 +434,31 @@ public struct UserGuideView: View {
             // Category Filter Pills with unified styling
             FlowLayout(spacing: 6) {
                 ForEach(GuideCategory.allCases) { category in
+                    let isSelected = selectedCategory == category
+                    let isClassic = AppSettings.shared.appTheme == "classic"
                     Button(action: { selectedCategory = category }) {
                         HStack(spacing: 5) {
                             Image(systemName: category.iconName)
                                 .font(.caption2)
                             Text(category.rawValue)
-                                .font(.caption)
-                                .fontWeight(selectedCategory == category ? .bold : .medium)
+                                .font(.system(size: 11.5, weight: isSelected ? .bold : .medium, design: isClassic ? .monospaced : .default))
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(selectedCategory == category ? Color.accentColor : Color(NSColor.controlBackgroundColor))
-                        .foregroundColor(selectedCategory == category ? .white : .primary)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            isSelected
+                                ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                        )
+                        .foregroundColor(
+                            isSelected
+                                ? Color.white
+                                : (isClassic ? MacaThemeTokens.classicTextDark : Color.primary)
+                        )
+                        .cornerRadius(isClassic ? 2 : 8)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(selectedCategory == category ? Color.clear : Color(NSColor.separatorColor), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                .stroke(isClassic ? MacaThemeTokens.classicBorder : (isSelected ? Color.clear : Color(NSColor.separatorColor)), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
@@ -475,7 +484,7 @@ public struct UserGuideView: View {
                         searchQuery = ""
                         selectedCategory = .all
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -514,37 +523,45 @@ private struct InteractiveGuideCard: View {
     let onToggle: () -> Void
     
     var body: some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let textPrimaryColor: Color = isClassic ? MacaThemeTokens.classicTextDark : Color.primary
+        let textSecondaryColor: Color = isClassic ? MacaThemeTokens.classicTextMuted : Color.secondary
+        
         VStack(alignment: .leading, spacing: 0) {
             // Card Header (Always Visible)
             Button(action: onToggle) {
                 HStack(alignment: .center, spacing: 14) {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.accentColor.opacity(0.12))
+                        RoundedRectangle(cornerRadius: isClassic ? 2 : 10)
+                            .fill(isClassic ? MacaThemeTokens.classicSubcardBg : Color.accentColor.opacity(0.12))
                             .frame(width: 38, height: 38)
                         Image(systemName: topic.category.iconName)
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .accentColor)
                     }
                     
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Text(topic.title)
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(.primary)
+                                .font(.system(size: 15, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .foregroundColor(textPrimaryColor)
                             
                             Text(topic.badge)
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.system(size: 9, weight: .bold, design: isClassic ? .monospaced : .default))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.white.opacity(0.12))
-                                .foregroundColor(.primary)
-                                .cornerRadius(4)
+                                .background(isClassic ? MacaThemeTokens.classicSubcardBg : Color(NSColor.controlBackgroundColor))
+                                .foregroundColor(textPrimaryColor)
+                                .cornerRadius(isClassic ? 2 : 4)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: isClassic ? 2 : 4)
+                                        .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 0.8)
+                                )
                         }
                         
                         Text(topic.summary)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(textSecondaryColor)
                             .lineLimit(isExpanded ? nil : 1)
                     }
                     
@@ -552,7 +569,7 @@ private struct InteractiveGuideCard: View {
                     
                     Image(systemName: isExpanded ? "chevron.up.circle.fill" : "chevron.down.circle")
                         .font(.system(size: 18))
-                        .foregroundColor(isExpanded ? .accentColor : .secondary)
+                        .foregroundColor(isExpanded ? (isClassic ? MacaThemeTokens.classicOlive : .accentColor) : textSecondaryColor)
                 }
                 .padding(16)
             }
@@ -567,18 +584,18 @@ private struct InteractiveGuideCard: View {
                     // Step-by-Step Instructions
                     VStack(alignment: .leading, spacing: 10) {
                         Text("STEP-BY-STEP INSTRUCTIONS")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 11, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(textSecondaryColor)
                         
                         VStack(alignment: .leading, spacing: 8) {
                             ForEach(topic.steps, id: \.self) { step in
                                 HStack(alignment: .top, spacing: 8) {
                                     Text("•")
                                         .font(.headline)
-                                        .foregroundColor(topic.badgeColor)
+                                        .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : topic.badgeColor)
                                     Text(step)
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.white.opacity(0.92))
+                                        .font(.system(size: 13, design: isClassic ? .monospaced : .default))
+                                        .foregroundColor(textPrimaryColor)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
@@ -591,26 +608,26 @@ private struct InteractiveGuideCard: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 6) {
                                 Image(systemName: "lightbulb.fill")
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .orange)
                                     .font(.caption)
                                 Text("PRO TIP")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.yellow)
+                                    .font(.system(size: 10, weight: .bold, design: isClassic ? .monospaced : .default))
+                                    .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .orange)
                             }
                             
                             ForEach(topic.tips, id: \.self) { tip in
                                 Text(tip)
                                     .font(.caption)
-                                    .foregroundColor(.white.opacity(0.85))
+                                    .foregroundColor(textPrimaryColor)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
                         .padding(12)
-                        .background(Color.yellow.opacity(0.08))
-                        .cornerRadius(8)
+                        .background(isClassic ? MacaThemeTokens.classicSubcardBg : Color.orange.opacity(0.08))
+                        .cornerRadius(isClassic ? 2 : 8)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.yellow.opacity(0.2), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.orange.opacity(0.2), lineWidth: 1)
                         )
                         .padding(.horizontal, 16)
                     }
@@ -619,29 +636,33 @@ private struct InteractiveGuideCard: View {
                     if !topic.shortcutsOrPaths.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("REFERENCE & SHORTCUTS")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 11, weight: .bold, design: isClassic ? .monospaced : .default))
+                                .foregroundColor(textSecondaryColor)
                             
                             VStack(spacing: 6) {
                                 ForEach(topic.shortcutsOrPaths, id: \.label) { item in
                                     HStack {
                                         Text(item.label)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(textSecondaryColor)
                                         Spacer()
                                         Text(item.value)
                                             .font(.system(size: 11, design: .monospaced))
                                             .fontWeight(.semibold)
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 3)
-                                            .background(Color.black.opacity(0.35))
-                                            .cornerRadius(6)
-                                            .foregroundColor(.cyan)
+                                            .background(isClassic ? MacaThemeTokens.classicSubcardBg : Color(NSColor.controlBackgroundColor))
+                                            .cornerRadius(isClassic ? 2 : 6)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: isClassic ? 2 : 6)
+                                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 0.8)
+                                            )
+                                            .foregroundColor(textPrimaryColor)
                                     }
                                 }
                             }
                             .padding(12)
-                            .macaSubcardStyle(cornerRadius: 8)
+                            .macaSubcardStyle(cornerRadius: isClassic ? 2 : 8)
                         }
                         .padding(.horizontal, 16)
                     }
@@ -649,6 +670,6 @@ private struct InteractiveGuideCard: View {
                 .padding(.bottom, 16)
             }
         }
-        .macaCardStyle(cornerRadius: 14)
+        .macaCardStyle(cornerRadius: isClassic ? 2 : 14)
     }
 }

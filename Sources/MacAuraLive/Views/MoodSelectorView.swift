@@ -174,14 +174,14 @@ struct MoodCard: View {
             Divider()
             
             // Bottom Action Controls
-            HStack {
+            HStack(spacing: 8) {
                 Button(action: onActivate) {
                     Label(isActive ? "Active Mood" : "Apply Mood", systemImage: isActive ? "checkmark.circle.fill" : "play.fill")
                 }
-                .macaButtonStyle(.primary)
+                .macaButtonStyle(.primary, size: .small)
                 .disabled(isActive)
                 
-                Spacer()
+                Spacer(minLength: 6)
                 
                 Menu {
                     Button(action: onEdit) {
@@ -196,10 +196,19 @@ struct MoodCard: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
-                        .font(.system(size: 14))
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(MacaThemeTokens.classicTextDark)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(MacaThemeTokens.classicButtonBg)
+                        .macaItemRadius(2)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppSettings.shared.appTheme == "classic" ? 2 : 4)
+                                .stroke(MacaThemeTokens.classicBorder, lineWidth: 1)
+                        )
                 }
                 .menuStyle(.borderlessButton)
-                .frame(width: 24, height: 24)
+                .fixedSize()
             }
         }
         .padding(16)
@@ -245,6 +254,8 @@ struct MoodEditorSheet: View {
     }
     
     var body: some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        
         VStack(alignment: .leading, spacing: 18) {
             // Header
             HStack {
@@ -298,9 +309,9 @@ struct MoodEditorSheet: View {
                                     Image(systemName: sym)
                                         .font(.system(size: 16))
                                         .frame(width: 32, height: 32)
-                                        .background(icon == sym ? Color.accentColor.opacity(0.2) : Color.clear)
-                                        .cornerRadius(6)
-                                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(icon == sym ? Color.accentColor : Color.gray.opacity(0.3)))
+                                        .background(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive.opacity(0.2) : Color.accentColor.opacity(0.2)) : Color.clear)
+                                        .macaItemRadius(4)
+                                        .overlay(RoundedRectangle(cornerRadius: isClassic ? 2 : 6).stroke(icon == sym ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor) : Color.gray.opacity(0.3)))
                                         .onTapGesture { icon = sym }
                                 }
                             }
@@ -313,7 +324,7 @@ struct MoodEditorSheet: View {
                                     Circle()
                                         .fill(Color(hex: hex) ?? .blue)
                                         .frame(width: 24, height: 24)
-                                        .overlay(Circle().stroke(accentColorHex == hex ? Color.white : Color.clear, lineWidth: 2))
+                                        .overlay(Circle().stroke(accentColorHex == hex ? (isClassic ? MacaThemeTokens.classicTextDark : Color.white) : Color.clear, lineWidth: 2))
                                         .shadow(radius: accentColorHex == hex ? 2 : 0)
                                         .onTapGesture { accentColorHex = hex }
                                 }
@@ -336,17 +347,35 @@ struct MoodEditorSheet: View {
                     HStack(spacing: 20) {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Playback Mode").font(.caption).bold()
-                            Picker("", selection: $playbackMode) {
+                            HStack(spacing: 4) {
                                 ForEach(MoodPlaybackMode.allCases, id: \.self) { mode in
-                                    Text(mode.rawValue).tag(mode)
+                                    let isSel = playbackMode == mode
+                                    Button(action: { playbackMode = mode }) {
+                                        Text(mode.rawValue)
+                                            .font(.system(size: 11, weight: isSel ? .bold : .medium, design: isClassic ? .monospaced : .default))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 5)
+                                            .background(
+                                                isSel
+                                                    ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor)
+                                                    : (isClassic ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor))
+                                            )
+                                            .foregroundColor(isSel ? .white : (isClassic ? MacaThemeTokens.classicTextDark : .primary))
+                                            .macaItemRadius(3)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: isClassic ? 2 : 3)
+                                                    .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
+                                            )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
-                            .pickerStyle(.segmented)
                         }
                         
-                        Toggle("Mute Audio", isOn: $isMuted)
-                            .toggleStyle(.checkbox)
-                            .padding(.top, 16)
+                        Spacer()
+                        
+                        MacaRetroToggle("Mute Audio", isOn: $isMuted)
+                            .padding(.top, 14)
                     }
                     
                     // Wallpaper Selection List
@@ -359,25 +388,28 @@ struct MoodEditorSheet: View {
                                 let isSelected = selectedWallpaperIDs.contains(item.id)
                                 VStack(alignment: .leading, spacing: 4) {
                                     ZStack(alignment: .topTrailing) {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.15))
+                                        RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                            .fill(isClassic ? MacaThemeTokens.classicSubcardBg : Color.gray.opacity(0.15))
                                             .frame(height: 80)
                                         
                                         Image(systemName: item.thumbnailIcon)
                                             .font(.system(size: 24))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .secondary)
                                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                                         
                                         if isSelected {
                                             Image(systemName: "checkmark.circle.fill")
-                                                .foregroundColor(.blue)
+                                                .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
                                                 .padding(6)
                                         }
                                     }
-                                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
+                                            .stroke(isSelected ? (isClassic ? MacaThemeTokens.classicOlive : Color.blue) : (isClassic ? MacaThemeTokens.classicBorder : Color.clear), lineWidth: 1.5)
+                                    )
                                     
                                     Text(item.title)
-                                        .font(.caption2)
+                                        .font(.system(size: 11, design: isClassic ? .monospaced : .default))
                                         .lineLimit(1)
                                 }
                                 .onTapGesture {
@@ -397,5 +429,6 @@ struct MoodEditorSheet: View {
         }
         .padding(24)
         .frame(minWidth: 640, minHeight: 520)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
 }

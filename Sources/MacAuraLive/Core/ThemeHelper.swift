@@ -66,11 +66,11 @@ public struct MacaThemeTokens {
 // MARK: - Reusable Themed Card Modifiers
 
 public extension View {
-    /// Applies an adaptive card container style with crisp 4pt corner radius in classic mode
+    /// Applies an adaptive card container style with crisp 2pt corner radius in classic mode
     func macaCardStyle(cornerRadius: CGFloat = 14) -> some View {
         let isClassic = AppSettings.shared.appTheme == "classic"
         let isDark = AppSettings.shared.appTheme == "dark" || (AppSettings.shared.appTheme != "light" && MacaThemeTokens.isDark)
-        let radius: CGFloat = isClassic ? 4 : cornerRadius
+        let radius: CGFloat = isClassic ? 2 : cornerRadius
         
         return self
             .background(
@@ -90,17 +90,17 @@ public extension View {
             )
             .shadow(
                 color: isDark ? Color.black.opacity(0.3) : (isClassic ? Color.black.opacity(0.08) : Color.black.opacity(0.04)),
-                radius: isClassic ? 2 : 4,
+                radius: isClassic ? 1 : 4,
                 x: isClassic ? 1 : 0,
                 y: isClassic ? 1 : 1
             )
     }
     
-    /// Applies an adaptive subtle subcard / item row background with crisp 3pt-4pt corner radius in classic mode
+    /// Applies an adaptive subtle subcard / item row background with crisp 2pt corner radius in classic mode
     func macaSubcardStyle(cornerRadius: CGFloat = 8) -> some View {
         let isClassic = AppSettings.shared.appTheme == "classic"
         let isDark = AppSettings.shared.appTheme == "dark" || (AppSettings.shared.appTheme != "light" && MacaThemeTokens.isDark)
-        let radius: CGFloat = isClassic ? 3 : cornerRadius
+        let radius: CGFloat = isClassic ? 2 : cornerRadius
         
         return self
             .background(
@@ -118,6 +118,11 @@ public extension View {
                         lineWidth: 0.8
                     )
             )
+    }
+    
+    /// Applies adaptive corner radius: 2pt in classic, customizable in modern
+    func macaItemRadius(_ modern: CGFloat = 8) -> some View {
+        self.cornerRadius(AppSettings.shared.appTheme == "classic" ? 2 : modern)
     }
 }
 
@@ -197,9 +202,9 @@ public struct MacaThemeButtonStyle: ButtonStyle {
             .padding(.horizontal, horizontalPad)
             .background(computeBackground(isClassic: isClassic, isPressed: isPressed))
             .foregroundColor(computeTextColor(isClassic: isClassic))
-            .cornerRadius(isClassic ? 3 : 8)
+            .cornerRadius(isClassic ? 2 : 8)
             .overlay(
-                RoundedRectangle(cornerRadius: isClassic ? 3 : 8)
+                RoundedRectangle(cornerRadius: isClassic ? 2 : 8)
                     .stroke(
                         isClassic ? (style == .primary ? MacaThemeTokens.classicOlive : MacaThemeTokens.classicBorder) : (style == .primary ? Color.clear : Color(NSColor.separatorColor)),
                         lineWidth: isClassic ? 1 : 1
@@ -207,7 +212,7 @@ public struct MacaThemeButtonStyle: ButtonStyle {
             )
             .shadow(
                 color: isClassic && style != .ghost ? Color.black.opacity(isPressed ? 0.02 : 0.08) : Color.clear,
-                radius: isPressed ? 0.5 : 1.5,
+                radius: isPressed ? 0.5 : 1.0,
                 x: 0,
                 y: isPressed ? 0.5 : 1.0
             )

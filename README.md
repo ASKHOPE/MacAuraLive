@@ -14,13 +14,13 @@
 
 <p align="center">
   <a href="https://github.com/ASKHOPE/MacAuraLive/releases/latest">
-    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.9.2%20Universal%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
+    <img src="https://img.shields.io/github/v/release/ASKHOPE/MacAuraLive?color=blue&label=Download%20Latest%20Release%20%28v1.9.3%20Universal%29&logo=apple&style=for-the-badge" alt="Download Latest Release"/>
   </a>
 </p>
 
 > **MacAuraLive** is a lightweight, hardware-accelerated live wallpaper engine for macOS — built in pure Swift and SwiftUI with zero third-party binary dependencies. Runs natively on both **Apple Silicon (M1/M2/M3/M4)** and **Intel** Macs.
 > 
-> 🌐 **[Visit Official Webpage](https://askhope.github.io/MacAuraLive/)** | 📦 **[Download Direct DMG Installer (v1.9.2 Universal)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.9.2.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
+> 🌐 **[Visit Official Webpage](https://askhope.github.io/MacAuraLive/)** | 📦 **[Download Direct DMG Installer (v1.9.3 Universal)](https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.9.3.dmg)** | 📄 **[View All Releases & Checksums](https://github.com/ASKHOPE/MacAuraLive/releases)**
 
 > [!TIP]
 > ### 🍎 macOS First-Time Launch Note (Gatekeeper Override)

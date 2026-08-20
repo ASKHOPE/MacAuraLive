@@ -332,13 +332,13 @@ private struct PlaylistThumbnailCard: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: cardWidth, height: cardHeight)
-                                .cornerRadius(10)
+                                .macaItemRadius(8)
                                 .clipped()
                         } else if (item.type == .builtInWeb || item.type == .webUrl),
                                   let url = WallpaperStorageManager.shared.resolveURL(for: item) {
                             MiniWebPreviewView(url: url)
                                 .frame(width: cardWidth, height: cardHeight)
-                                .cornerRadius(10)
+                                .macaItemRadius(8)
                                 .clipped()
                                 .disabled(true)
                         } else {
@@ -358,7 +358,7 @@ private struct PlaylistThumbnailCard: View {
                 // Selection Badge
                 ZStack {
                     Circle()
-                        .fill(isIncluded ? Color.green : Color.black.opacity(0.6))
+                        .fill(isIncluded ? (AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.green) : Color.black.opacity(0.6))
                         .frame(width: 22, height: 22)
                     Image(systemName: isIncluded ? "checkmark" : "plus")
                         .font(.system(size: 10, weight: .bold))
@@ -367,11 +367,11 @@ private struct PlaylistThumbnailCard: View {
                 .padding(6)
             }
             .padding(6)
-            .background(isIncluded ? Color.green.opacity(0.1) : Color.white.opacity(0.03))
-            .cornerRadius(12)
+            .background(isIncluded ? (AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicOlive.opacity(0.2) : Color.green.opacity(0.1)) : (AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicSubcardBg : Color.white.opacity(0.03)))
+            .macaItemRadius(10)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isIncluded ? Color.green.opacity(0.6) : Color.white.opacity(0.1), lineWidth: isIncluded ? 2 : 1)
+                RoundedRectangle(cornerRadius: AppSettings.shared.appTheme == "classic" ? 2 : 10)
+                    .stroke(isIncluded ? (AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.green.opacity(0.6)) : (AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color.white.opacity(0.1)), lineWidth: isIncluded ? 2 : 1)
             )
         }
         .buttonStyle(.plain)
@@ -386,35 +386,40 @@ private struct ScheduleRuleRow: View {
     let rule: ScheduledRule
 
     var body: some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        
         HStack(spacing: 16) {
             // Time Badge
             Text(rule.timeString)
                 .font(.system(size: 15, weight: .bold, design: .monospaced))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.accentColor.opacity(0.15))
-                .foregroundColor(.accentColor)
-                .cornerRadius(8)
+                .background(isClassic ? MacaThemeTokens.classicSubcardBg : Color.accentColor.opacity(0.15))
+                .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .accentColor)
+                .macaItemRadius(4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: isClassic ? 2 : 4)
+                        .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1)
+                )
 
             // Label & Wallpaper Title
             VStack(alignment: .leading, spacing: 2) {
                 Text(rule.label)
-                    .font(.subheadline)
-                    .bold()
+                    .font(.system(size: 13.5, weight: .bold, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                 let wpTitle = storage.wallpapers.first(where: { $0.id == rule.wallpaperId })?.title ?? rule.wallpaperId
                 Text("Wallpaper: \(wpTitle)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextMuted : .secondary)
             }
 
             Spacer()
 
             // Enable Toggle
-            Toggle("", isOn: Binding(
+            MacaRetroToggle("", isOn: Binding(
                 get: { rule.isEnabled },
                 set: { _ in slideshow.toggleRule(id: rule.id) }
             ))
-            .toggleStyle(.switch)
 
             // Delete Button
             Button {
@@ -426,7 +431,7 @@ private struct ScheduleRuleRow: View {
             .buttonStyle(.plain)
         }
         .padding(14)
-        .macaSubcardStyle(cornerRadius: 12)
+        .macaSubcardStyle(cornerRadius: 10)
     }
 }
 

@@ -7,8 +7,8 @@ public struct AppVersion: Codable {
     public let channel: String
     public let minOS: String
     
-    public static let fallbackVersion = "1.9.2"
-    public static let fallbackBuild = "1.9.2"
+    public static let fallbackVersion = "1.9.3"
+    public static let fallbackBuild = "1.9.3"
     
     /// Global dynamic singleton resolved at runtime
     public static let current: AppVersion = {

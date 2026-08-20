@@ -55,17 +55,8 @@ public struct SettingsView: View {
                     settingsBackupCard
                     dataManagementResetCard
                     aboutAppCard
-                    
-                    HStack {
-                        Spacer()
-                        Text("© 2026 MacAuraLive. All rights reserved.")
-                            .font(.system(size: 11, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
-                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
-                        Spacer()
-                    }
-                    .padding(.top, 14)
-                    .padding(.bottom, 8)
                 }
+                .padding(.bottom, 12)
             }
         }
         .alert("Reset Only Media & Wallpapers?", isPresented: $showResetMediaAlert) {
@@ -304,11 +295,14 @@ public struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Enable macOS Frosted Glass Vibrancy & Translucency")
                         .font(.body)
-                    Text("Uses native NSVisualEffectView behind-window blur for an ultra-premium liquid macOS glass aesthetic.")
+                    Text(settings.appTheme == "classic" ? "Frosted glass is disabled in OS Classic theme (uses authentic solid hardware chassis textures)." : "Uses native NSVisualEffectView behind-window blur for an ultra-premium liquid macOS glass aesthetic.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
+            .disabled(settings.appTheme == "classic")
+            .opacity(settings.appTheme == "classic" ? 0.5 : 1.0)
+            .help(settings.appTheme == "classic" ? "Available only in Day and Night themes. Classic OS uses solid hardware chassis textures." : "Toggle window backdrop blur effect.")
             
             Toggle(isOn: $settings.autoDayNightWallpapers) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -1289,8 +1283,7 @@ public struct SettingsView: View {
                     } label: {
                         Label("What's New", systemImage: "sparkles")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
 
                     Button {
                         if let url = URL(string: "https://askhope.github.io/MacAuraLive/") {
@@ -1299,8 +1292,7 @@ public struct SettingsView: View {
                     } label: {
                         Label("Website ↗", systemImage: "safari")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
 
                     Button {
                         if let url = URL(string: "https://github.com/ASKHOPE/MacAuraLive/issues") {
@@ -1309,32 +1301,28 @@ public struct SettingsView: View {
                     } label: {
                         Label("Send Feedback ↗", systemImage: "exclamationmark.bubble")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
 
                     Button {
                         showLicenseModal = true
                     } label: {
                         Label("Licenses", systemImage: "doc.text")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
                     
                     Button {
                         showTOSModal = true
                     } label: {
                         Text("Terms")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
                     
                     Button {
                         showDisclaimerModal = true
                     } label: {
                         Text("Privacy")
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
+                    .macaButtonStyle(.secondary)
                 }
                 .padding(.top, 4)
             }

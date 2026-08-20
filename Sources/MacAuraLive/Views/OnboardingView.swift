@@ -215,12 +215,10 @@ public struct OnboardingView: View {
                     
                     Spacer()
                     
-                    Toggle("", isOn: $settings.launchAtLogin)
-                        .toggleStyle(.switch)
+                    MacaRetroToggle("", isOn: $settings.launchAtLogin)
                 }
                 .padding(12)
-                .background(Color.white.opacity(0.04))
-                .cornerRadius(12)
+                .macaSubcardStyle(cornerRadius: 12)
             }
         }
         .padding(.horizontal, 30)

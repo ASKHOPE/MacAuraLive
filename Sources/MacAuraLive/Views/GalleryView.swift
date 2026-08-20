@@ -179,20 +179,21 @@ public struct GalleryView: View {
                         // Day / Night Quick Pills
                         HStack(spacing: 4) {
                             ForEach(["All", "Day", "Night"], id: \.self) { dn in
+                                let isSelected = selectedDayNightFilter == dn
                                 Button(action: { selectedDayNightFilter = dn }) {
                                     HStack(spacing: 4) {
                                         if dn == "Day" { Image(systemName: "sun.max.fill").font(.system(size: 10)) }
                                         if dn == "Night" { Image(systemName: "moon.stars.fill").font(.system(size: 10)) }
                                         Text(dn)
-                                            .font(.system(size: 12, weight: selectedDayNightFilter == dn ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                                            .font(.system(size: 12, weight: isSelected ? .bold : .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 5)
-                                    .background(selectedDayNightFilter == dn ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
-                                    .foregroundColor(selectedDayNightFilter == dn ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                    .cornerRadius(6)
+                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
+                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 6)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 6)
+                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 6)
                                             .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
                                     )
                                 }
@@ -209,18 +210,19 @@ public struct GalleryView: View {
                     // Resolution Pills
                     HStack(spacing: 4) {
                         ForEach(["1080P", "2K", "4K UHD", "8K"], id: \.self) { res in
+                            let isSelected = selectedResolutionFilter == res
                             Button(action: {
                                 selectedResolutionFilter = (selectedResolutionFilter == res ? "All" : res)
                             }) {
                                 Text(res)
-                                    .font(.system(size: 11, weight: selectedResolutionFilter == res ? .bold : .medium, design: .monospaced))
+                                    .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: .monospaced))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(selectedResolutionFilter == res ? (settings.appTheme == "classic" ? Color(red: 0.12, green: 0.115, blue: 0.10) : Color.accentColor) : (settings.appTheme == "classic" ? Color.white : Color(NSColor.controlBackgroundColor)))
-                                    .foregroundColor(selectedResolutionFilter == res ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
-                                    .cornerRadius(4)
+                                    .background(isSelected ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.accentColor) : (settings.appTheme == "classic" ? MacaThemeTokens.classicButtonBg : Color(NSColor.controlBackgroundColor)))
+                                    .foregroundColor(isSelected ? .white : (settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary))
+                                    .cornerRadius(settings.appTheme == "classic" ? 2 : 4)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 4)
+                                        RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 4)
                                             .stroke(settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor), lineWidth: 1)
                                     )
                             }
@@ -988,9 +990,9 @@ struct WallpaperCardView: View {
             .padding(12)
             .background(settings.appTheme == "classic" ? MacaThemeTokens.classicCardBg : Color(NSColor.controlBackgroundColor))
         }
-        .cornerRadius(settings.appTheme == "classic" ? 8 : 14)
+        .cornerRadius(settings.appTheme == "classic" ? 2 : 14)
         .overlay(
-            RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 8 : 14)
+            RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 2 : 14)
                 .stroke(
                     isSelected ? Color.blue : (isActive ? (settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue) : (settings.appTheme == "classic" ? MacaThemeTokens.classicBorder : Color(NSColor.separatorColor))),
                     lineWidth: isSelected ? 2.5 : (isActive ? 2 : 1)
