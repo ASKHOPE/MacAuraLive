@@ -2008,7 +2008,7 @@
                         <span>SHA-256 Checksum</span>
                     </div>
                     <div class="checksum-hash">
-                        <span id="sha256Hash">a65fb4dbd52da4cf59f8f5cb1d375f7b1c44909caef811766681d2f2ff7ac845</span>
+                        <span id="sha256Hash">Loading...</span>
                         <button class="checksum-copy-btn" onclick="copyHash('sha256Hash', this)">📋 Copy</button>
                     </div>
                 </div>
@@ -2018,7 +2018,7 @@
                         <span>MD5 Checksum</span>
                     </div>
                     <div class="checksum-hash">
-                        <span id="md5Hash">33a0a0ededb15fde9438fe11b4c07253</span>
+                        <span id="md5Hash">Loading...</span>
                         <button class="checksum-copy-btn" onclick="copyHash('md5Hash', this)">📋 Copy</button>
                     </div>
                 </div>
@@ -2027,7 +2027,7 @@
             <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 20px;">
                 <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 6px;">Terminal Verification Command:</div>
                 <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-main); word-break: break-all; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                    <span id="verifyCmd">shasum -a 256 MacAuraLive-1.8.1.dmg</span>
+                    <span id="verifyCmd">Loading...</span>
                     <button class="checksum-copy-btn" onclick="copyHash('verifyCmd', this)">📋 Copy</button>
                 </div>
             </div>
@@ -2473,6 +2473,37 @@
         // -------------------------------------------------------------
         let currentDownloadUrl = 'https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/MacAuraLive-1.8.1.dmg';
 
+        // -------------------------------------------------------------
+        // DYNAMIC CHECKSUMS — reads docs/checksums.json written by build
+        // -------------------------------------------------------------
+        async function fetchLocalChecksums() {
+            try {
+                const res = await fetch('checksums.json?nocache=' + Date.now());
+                if (!res.ok) return;
+                const c = await res.json();
+
+                // Populate checksum hashes
+                const sha = document.getElementById('sha256Hash');
+                const md5 = document.getElementById('md5Hash');
+                const cmd = document.getElementById('verifyCmd');
+                const tag = document.getElementById('modalReleaseTag');
+                if (sha) sha.innerText = c.sha256;
+                if (md5) md5.innerText = c.md5;
+                if (cmd) cmd.innerText = 'shasum -a 256 ' + c.filename;
+                if (tag) tag.innerText = 'MacAuraLive v' + c.version + ' Universal DMG';
+
+                // Update download URL fallback
+                if (c.downloadUrl) currentDownloadUrl = c.downloadUrl;
+
+                // Update nav version badge (will be overridden by GitHub API if available)
+                document.querySelectorAll('.nav-badge').forEach(b => {
+                    b.innerText = 'v' + c.version;
+                });
+            } catch (e) {
+                console.log('checksums.json not available, using GitHub API fallback:', e);
+            }
+        }
+
         function handleDmgDownload(event) {
             if (event) event.preventDefault();
             
@@ -2568,10 +2599,11 @@
         }
 
         // Initialize Simulator Canvas & Dynamic Release Info
-        window.onload = () => {
+        window.onload = async () => {
             resizeSimCanvas();
             animateSim();
-            fetchLatestGitHubRelease();
+            await fetchLocalChecksums();   // fast: local JSON, populates checksums immediately
+            fetchLatestGitHubRelease();    // async: GitHub API updates version badge + download size
         };
     </script>
 </body>

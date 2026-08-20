@@ -1,12 +1,16 @@
 #!/bin/bash
 
 # Build script for MacAuraLive Universal 2 (Apple Silicon & Intel)
+# ── Single source of truth: bump VERSION & BUILD_NUMBER here each release ─────
+VERSION="1.8.1"
+BUILD_NUMBER="121"
+# ─────────────────────────────────────────────────────────────────────────────
 set -e
 
 # 1. Run Pre-Build Verification Test Suite
 bash Scripts/verify_environment.sh
 
-echo "🚀 Building MacAuraLive Universal 2 (Apple Silicon & Intel x86_64)..."
+echo "🚀 Building MacAuraLive ${VERSION} Universal 2 (Apple Silicon & Intel x86_64)..."
 
 swift build -c release --triple arm64-apple-macosx13.0
 swift build -c release --triple x86_64-apple-macosx13.0
@@ -46,7 +50,7 @@ if [ -f "Sources/MacAuraLive/Resources/Assets/StatusBarIcon.png" ]; then
     echo "📦 StatusBarIcon.png copied to bundle Resources/"
 fi
 
-# Generate Info.plist
+# Generate Info.plist — version injected automatically from $VERSION / $BUILD_NUMBER
 cat <<EOF > "$BUILD_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -65,9 +69,9 @@ cat <<EOF > "$BUILD_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.8.1</string>
+    <string>${VERSION}</string>
     <key>CFBundleVersion</key>
-    <string>121</string>
+    <string>${BUILD_NUMBER}</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
@@ -86,32 +90,25 @@ EOF
 echo "🔒 Code signing Universal MacAuraLive.app..."
 codesign --force --deep --sign - "build/MacAuraLive.app"
 
-echo "✅ Universal 2 App bundle created and signed successfully at: build/MacAuraLive.app"
+echo "✅ Universal 2 App bundle created and signed at: build/MacAuraLive.app"
 
 # ── DMG Packaging ─────────────────────────────────────────────────────────────
-VERSION="1.8.1"
 DMG_NAME="MacAuraLive-${VERSION}.dmg"
 DMG_STAGING="build/dmg_staging"
 DMG_OUTPUT="build/${DMG_NAME}"
 
 echo "📦 Creating DMG installer: ${DMG_NAME}..."
 
-# Clean up any previous staging/output
 rm -rf "${DMG_STAGING}" "${DMG_OUTPUT}"
 mkdir -p "${DMG_STAGING}"
 
-# Copy app into staging area
 cp -R "build/MacAuraLive.app" "${DMG_STAGING}/MacAuraLive.app"
-
-# Add a symlink to /Applications for drag-install UX
 ln -s /Applications "${DMG_STAGING}/Applications"
 
-# Copy legal docs into DMG
 for doc in EULA.md LICENSE PRIVACY_POLICY.md THIRD_PARTY_LICENSES.md; do
     [ -f "${doc}" ] && cp "${doc}" "${DMG_STAGING}/${doc}"
 done
 
-# Build compressed, internet-ready DMG
 hdiutil create \
     -volname "MacAuraLive ${VERSION}" \
     -srcfolder "${DMG_STAGING}" \
@@ -120,16 +117,63 @@ hdiutil create \
     -imagekey zlib-level=9 \
     "${DMG_OUTPUT}"
 
-# Clean staging area
 rm -rf "${DMG_STAGING}"
-
 echo "✅ DMG created at: ${DMG_OUTPUT}"
 
-# Print checksums
+# ── Cryptographic Checksums ───────────────────────────────────────────────────
+echo ""
+echo "🔐 Generating checksums..."
+
+SHA256=$(shasum -a 256 "${DMG_OUTPUT}" | awk '{print $1}')
+MD5=$(md5 -q "${DMG_OUTPUT}")
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# .sha256 and .md5 sidecar files next to the DMG
+echo "${SHA256}  ${DMG_NAME}" > "${DMG_OUTPUT}.sha256"
+echo "${MD5}  ${DMG_NAME}"    > "${DMG_OUTPUT}.md5"
+
+# Human-readable CHECKSUMS.txt
+cat > "build/CHECKSUMS.txt" << CSEOF
+===================================================================
+ MacAuraLive v${VERSION} Official Universal Release Checksums
+===================================================================
+File: ${DMG_NAME}
+Architecture: Universal 2 (Apple Silicon ARM64 + Intel x86_64)
+Date: ${BUILD_DATE}
+
+SHA-256:
+${SHA256}  ${DMG_NAME}
+
+MD5:
+${MD5}  ${DMG_NAME}
+
+Verify with:
+  shasum -a 256 ${DMG_NAME}
+  md5 -q ${DMG_NAME}
+===================================================================
+CSEOF
+
+# ── docs/checksums.json — website reads this automatically on load ────────────
+cat > "docs/checksums.json" << JSONEOF
+{
+  "version": "${VERSION}",
+  "buildNumber": "${BUILD_NUMBER}",
+  "date": "${BUILD_DATE}",
+  "filename": "${DMG_NAME}",
+  "downloadUrl": "https://github.com/ASKHOPE/MacAuraLive/releases/latest/download/${DMG_NAME}",
+  "sha256": "${SHA256}",
+  "md5": "${MD5}"
+}
+JSONEOF
+
 echo ""
 echo "🔐 Cryptographic Checksums"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "SHA-256: $(shasum -a 256 "${DMG_OUTPUT}" | awk '{print $1}')"
-echo "MD5:     $(md5 -q "${DMG_OUTPUT}")"
+echo "SHA-256: ${SHA256}"
+echo "MD5:     ${MD5}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📁 Output: ${DMG_OUTPUT}"
+echo "📁 DMG:              ${DMG_OUTPUT}"
+echo "📁 SHA-256 sidecar:  ${DMG_OUTPUT}.sha256"
+echo "📁 MD5 sidecar:      ${DMG_OUTPUT}.md5"
+echo "📁 CHECKSUMS.txt:    build/CHECKSUMS.txt"
+echo "📁 Website JSON:     docs/checksums.json"
