@@ -449,7 +449,7 @@ public struct SettingsView: View {
                     let path = WallpaperStorageManager.shared.documentsDirectory
                     NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: path.path)
                 }
-                .buttonStyle(.bordered)
+                .macaButtonStyle(.secondary, size: .small)
             }
         }
         .padding(18)
@@ -492,7 +492,7 @@ public struct SettingsView: View {
                 Button("Select Folder...") {
                     openReferenceFolderPicker()
                 }
-                .buttonStyle(.bordered)
+                .macaButtonStyle(.secondary, size: .small)
                 
                 if storage.referencedFolderURL != nil {
                     Button("Sync Now") {
@@ -500,7 +500,7 @@ public struct SettingsView: View {
                         engine.reloadEngine()
                         syncStatusMessage = "Synced \(count) new item(s) from reference folder."
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary, size: .small)
                 }
             }
             
@@ -555,8 +555,7 @@ public struct SettingsView: View {
                     Button("Lock Features Now") {
                         settings.isAdminUnlocked = false
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
+                    .macaButtonStyle(.destructive, size: .small)
                 } else {
                     Text("Passcode Gate Active")
                         .font(.caption)
@@ -695,12 +694,11 @@ public struct SettingsView: View {
                     .background(Color.indigo.opacity(0.2))
                     .foregroundColor(.indigo)
                     .cornerRadius(8)
-                    
                 Button(action: { storageAnalytics.calculateStorage() }) {
                     Image(systemName: "arrow.clockwise")
                         .font(.caption)
                 }
-                .buttonStyle(.bordered)
+                .macaButtonStyle(.secondary, size: .small)
                 .help("Recalculate storage breakdown")
             }
             
@@ -729,17 +727,14 @@ public struct SettingsView: View {
                 }) {
                     Label("Open Storage Folder in Finder", systemImage: "folder.fill")
                 }
-                .buttonStyle(.bordered)
-                .font(.caption)
+                .macaButtonStyle(.secondary, size: .small)
                 
                 Spacer()
                 
                 Button(action: { storageAnalytics.clearCache() }) {
                     Label("Clear Temporary Cache", systemImage: "trash")
                 }
-                .buttonStyle(.bordered)
-                .font(.caption)
-                .foregroundColor(.orange)
+                .macaButtonStyle(.destructive, size: .small)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -771,8 +766,7 @@ public struct SettingsView: View {
                         Text(updater.status == .checking ? "Checking..." : "Check for Updates")
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.cyan)
+                .macaButtonStyle(.primary, size: .small)
                 .disabled(updater.status == .checking)
             }
             
@@ -794,11 +788,8 @@ public struct SettingsView: View {
                 Spacer()
                 Button(action: { showChangelogModal = true }) {
                     Label("What's New (Changelog)", systemImage: "sparkles")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.bordered)
-                .tint(.cyan)
+                .macaButtonStyle(.secondary, size: .small)
                 
                 if let lastDate = updater.lastCheckedDate {
                     Text("Last checked: \(lastDate.formatted(date: .omitted, time: .shortened))")
@@ -842,8 +833,7 @@ public struct SettingsView: View {
                     Button("Update Now (In-App)") {
                         updater.startInAppUpdate()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
+                    .macaButtonStyle(.primary, size: .small)
                 }
                 
                 Text(notes)
@@ -868,8 +858,7 @@ public struct SettingsView: View {
                     Button("Cancel") {
                         updater.cancelDownload()
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .macaButtonStyle(.secondary, size: .small)
                 }
                 ProgressView(value: progress)
                     .tint(.purple)
@@ -922,8 +911,7 @@ public struct SettingsView: View {
                     Button("Install & Restart") {
                         updater.installAndRelaunch(dmgPath: dmgPath)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                    .macaButtonStyle(.primary, size: .small)
                 }
             }
             .padding(14)
@@ -951,8 +939,7 @@ public struct SettingsView: View {
                 Button("Retry") {
                     updater.checkForUpdates()
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
+                .macaButtonStyle(.secondary, size: .small)
             }
             .padding(10)
             .background(Color.orange.opacity(0.12))
@@ -984,8 +971,7 @@ public struct SettingsView: View {
                     Button(action: { duplicateFinder.scanForDuplicates() }) {
                         Label("Scan for Duplicates", systemImage: "sparkle.magnifyingglass")
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.cyan)
+                    .macaButtonStyle(.primary, size: .small)
                 }
             }
             
@@ -1019,9 +1005,7 @@ public struct SettingsView: View {
                             Button("Clean Duplicate") {
                                 duplicateFinder.cleanDuplicates(in: group)
                             }
-                            .buttonStyle(.bordered)
-                            .tint(.orange)
-                            .font(.caption)
+                            .macaButtonStyle(.destructive, size: .small)
                         }
                         .padding(8)
                         .macaSubcardStyle(cornerRadius: 6)
@@ -1029,11 +1013,8 @@ public struct SettingsView: View {
                     
                     Button(role: .destructive, action: { duplicateFinder.cleanAllDuplicates() }) {
                         Label("Clean All Duplicates (Reclaim \(duplicateFinder.formattedTotalWastedSize))", systemImage: "trash.fill")
-                            .font(.caption)
-                            .fontWeight(.bold)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .macaButtonStyle(.destructive, size: .small)
                 }
             }
         }
@@ -1077,19 +1058,13 @@ public struct SettingsView: View {
             HStack(spacing: 12) {
                 Button(action: { backupManager.exportSettings() }) {
                     Label("Export Settings (JSON)...", systemImage: "square.and.arrow.up")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.bordered)
-                .tint(.purple)
+                .macaButtonStyle(.secondary, size: .small)
                 
                 Button(action: { backupManager.importSettings() }) {
                     Label("Import Settings (JSON)...", systemImage: "square.and.arrow.down")
-                        .font(.caption)
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.bordered)
-                .tint(.blue)
+                .macaButtonStyle(.primary, size: .small)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1568,14 +1543,13 @@ struct APIKeyCardRow: View {
                         .font(.caption2)
                 }
                 .buttonStyle(.plain)
-                .foregroundColor(.blue)
+                .foregroundColor(AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicOlive : .blue)
             }
             
             HStack(spacing: 8) {
                 if isEditing {
                     SecureField(placeholder, text: $tempKey)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.caption)
+                        .macaTextFieldStyle()
                     
                     Button("Save") {
                         key = tempKey
@@ -1585,19 +1559,17 @@ struct APIKeyCardRow: View {
                             saveStatus = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .font(.caption)
+                    .macaButtonStyle(.primary, size: .small)
                     
                     Button("Cancel") {
                         isEditing = false
                         tempKey = ""
                     }
-                    .buttonStyle(.bordered)
-                    .font(.caption)
+                    .macaButtonStyle(.secondary, size: .small)
                 } else {
                     HStack {
                         Text(key.isEmpty ? "No API key configured (using public rate limits)" : "••••••••••••••••••••••••••••••••")
-                            .font(.caption)
+                            .font(.system(size: 11, design: AppSettings.shared.appTheme == "classic" ? .monospaced : .default))
                             .foregroundColor(key.isEmpty ? .secondary : .primary)
                         Spacer()
                     }
@@ -1609,8 +1581,7 @@ struct APIKeyCardRow: View {
                         tempKey = key
                         isEditing = true
                     }
-                    .buttonStyle(.bordered)
-                    .font(.caption)
+                    .macaButtonStyle(.secondary, size: .small)
                     
                     if !key.isEmpty {
                         Button(role: .destructive) {
@@ -1622,9 +1593,7 @@ struct APIKeyCardRow: View {
                         } label: {
                             Image(systemName: "trash")
                         }
-                        .buttonStyle(.bordered)
-                        .font(.caption)
-                        .foregroundColor(.red)
+                        .macaButtonStyle(.destructive, size: .small)
                     }
                 }
             }

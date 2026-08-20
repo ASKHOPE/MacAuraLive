@@ -49,13 +49,12 @@ public struct AdminGateView<Content: View>: View {
                 VStack(spacing: 14) {
                     HStack(spacing: 10) {
                         SecureField("Enter Admin Passcode...", text: $passcode)
-                            .textFieldStyle(.roundedBorder)
+                            .macaTextFieldStyle()
                             .frame(width: 260)
                             .onSubmit { unlock() }
 
                         Button("Unlock") { unlock() }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.purple)
+                            .macaButtonStyle(.primary)
                     }
 
                     if let err = errorMessage {
@@ -66,12 +65,7 @@ public struct AdminGateView<Content: View>: View {
                     }
                 }
                 .padding(24)
-                .background(Color.white.opacity(0.04))
-                .cornerRadius(16)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                )
+                .macaCardStyle(cornerRadius: 14)
 
                 Spacer()
             }

@@ -132,7 +132,7 @@ public struct AIConfigurationView: View {
                         
                         HStack(spacing: 12) {
                             TextField("Enter prompt to generate live shader (e.g. 'rain')...", text: $testPromptInput)
-                                .textFieldStyle(.roundedBorder)
+                                .macaTextFieldStyle()
                             
                             if isGenerating {
                                 Button(action: { stopGeneration() }) {
@@ -243,7 +243,7 @@ public struct AIConfigurationView: View {
                 
                 HStack(spacing: 8) {
                     SecureField("AIzaSy...", text: $geminiApiKey)
-                        .textFieldStyle(.roundedBorder)
+                        .macaTextFieldStyle()
                     
                     Button(action: {
                         let clean = geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -365,7 +365,7 @@ public struct AIConfigurationView: View {
                 
                 HStack(spacing: 8) {
                     SecureField("sk-or-v1-...", text: $settings.openRouterApiKey)
-                        .textFieldStyle(.roundedBorder)
+                        .macaTextFieldStyle()
                     
                     Button(action: {
                         let clean = settings.openRouterApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -450,7 +450,7 @@ public struct AIConfigurationView: View {
                 
                 HStack {
                     TextField("http://localhost:1234/v1 or http://localhost:11434/v1", text: $settings.localApiEndpoint)
-                        .textFieldStyle(.roundedBorder)
+                        .macaTextFieldStyle()
                     
                     Button(action: { validateKey(provider: "Local AI") }) {
                         HStack(spacing: 6) {

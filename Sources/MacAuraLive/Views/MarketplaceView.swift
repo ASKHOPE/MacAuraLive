@@ -52,7 +52,7 @@ public struct MarketplaceView: View {
                     Button("Retry Fetch") {
                         Task { await marketplace.fetchMarketplaceWallpapers() }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .macaButtonStyle(.primary)
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -455,7 +455,7 @@ public struct MarketplaceView: View {
             
             HStack(spacing: 8) {
                 SecureField("Paste API Key here...", text: keyBinding)
-                    .textFieldStyle(.roundedBorder)
+                    .macaTextFieldStyle()
                 
                 Button(action: {
                     Task {
@@ -485,7 +485,6 @@ public struct MarketplaceView: View {
                 }
                 .macaButtonStyle(.secondary, size: .small)
             }
-            
             if let result = testResults[provider] {
                 HStack(spacing: 6) {
                     Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
@@ -497,14 +496,15 @@ public struct MarketplaceView: View {
             }
         }
         .padding(14)
-        .background(Color.white.opacity(0.06))
-        .cornerRadius(12)
+        .macaSubcardStyle(cornerRadius: 8)
     }
     
     // MARK: - Terms & Licensing Modal
     
     private var termsAndLicensingModal: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 18) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Marketplace Terms, Licenses & Disclosures")
@@ -516,13 +516,14 @@ public struct MarketplaceView: View {
                 }
                 Spacer()
                 Button("Close") { showTermsModal = false }
+                    .macaButtonStyle(.primary)
                     .keyboardShortcut(.defaultAction)
             }
             
             Divider()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 16) {
                     // Unsplash
                     disclosureSection(
                         title: "1. Unsplash Content & API Guidelines",
@@ -550,43 +551,51 @@ public struct MarketplaceView: View {
                     // Network & Tracking Disclosure
                     VStack(alignment: .leading, spacing: 6) {
                         Text("4. Network Connectivity & Direct API Calls")
-                            .font(.headline)
+                            .font(.system(size: 13, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                         Text("When you browse or download from the Marketplace, MacAuraLive connects directly from your Mac to the respective third-party API servers (Unsplash, Pixabay, Pexels) over HTTPS. MacAuraLive runs no proxy or tracking server. Third-party providers may process your IP address and standard HTTP request headers according to their respective privacy policies.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     .padding(14)
-                    .background(Color.white.opacity(0.04))
-                    .cornerRadius(10)
+                    .macaSubcardStyle(cornerRadius: 8)
                     
                     // Local Storage & File Permissions
                     VStack(alignment: .leading, spacing: 6) {
                         Text("5. Local Machine Storage & Offline Persistence")
-                            .font(.headline)
+                            .font(.system(size: 13, weight: .bold, design: isClassic ? .monospaced : .default))
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                         Text("All downloaded wallpapers are saved directly on your local device under '~/Library/Application Support/MacAuraLive/Media/' in their respective 'livewallpaper', 'staticwallpaper', and 'gif' folders. Once downloaded, wallpapers function 100% offline without recurring network requests.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     .padding(14)
-                    .macaSubcardStyle(cornerRadius: 10)
+                    .macaSubcardStyle(cornerRadius: 8)
                 }
+                .padding(.vertical, 4)
             }
         }
         .padding(24)
         .frame(width: 600, height: 600)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
     
     private func disclosureSection(title: String, termsUrl: String, licenseUrl: String, content: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let isClassic = settings.appTheme == "classic"
+        
+        return VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(title)
-                    .font(.headline)
+                    .font(.system(size: 13, weight: .bold, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                 Spacer()
                 HStack(spacing: 8) {
                     Link("Terms ↗", destination: URL(string: termsUrl)!)
-                        .font(.caption2)
+                        .font(.system(size: 11, weight: .medium, design: isClassic ? .monospaced : .default))
+                        .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
                     Link("License ↗", destination: URL(string: licenseUrl)!)
-                        .font(.caption2)
+                        .font(.system(size: 11, weight: .medium, design: isClassic ? .monospaced : .default))
+                        .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
                 }
             }
             Text(content)
@@ -594,8 +603,7 @@ public struct MarketplaceView: View {
                 .foregroundColor(.secondary)
         }
         .padding(14)
-        .background(Color.white.opacity(0.04))
-        .cornerRadius(10)
+        .macaSubcardStyle(cornerRadius: 8)
     }
 }
 
@@ -710,7 +718,7 @@ private struct MarketplaceCardView: View {
             VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(item.title)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 13, weight: .semibold, design: AppSettings.shared.appTheme == "classic" ? .monospaced : .default))
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     
@@ -721,7 +729,7 @@ private struct MarketplaceCardView: View {
                         if let authorUrl = item.authorUrl, let url = URL(string: authorUrl) {
                             Link(item.authorName, destination: url)
                                 .font(.caption2)
-                                .foregroundColor(.blue)
+                                .foregroundColor(AppSettings.shared.appTheme == "classic" ? MacaThemeTokens.classicOlive : .blue)
                                 .lineLimit(1)
                         } else {
                             Text(item.authorName)
@@ -758,7 +766,7 @@ private struct MarketplaceCardView: View {
                         .macaButtonStyle(.primary, size: .small)
                     }
                 } else {
-                    HStack {
+                    HStack(spacing: 8) {
                         Button(action: {
                             Task {
                                 _ = await marketplace.downloadAndInstallWallpaper(item, applyImmediately: true)
@@ -782,6 +790,8 @@ private struct MarketplaceCardView: View {
                     }
                 }
             }
+            .padding([.horizontal, .bottom], 10)
+            .padding(.top, 4)
         }
         .macaCardStyle(cornerRadius: 12)
         .onHover { hover in
@@ -803,7 +813,10 @@ private struct OnlineWallpaperPreviewModal: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let radius: CGFloat = isClassic ? 2 : 14
+        
+        return VStack(spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.title)
@@ -817,7 +830,7 @@ private struct OnlineWallpaperPreviewModal: View {
                 Button("Done") {
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                .macaButtonStyle(.secondary)
             }
             
             // Full Preview Image Canvas
@@ -847,10 +860,10 @@ private struct OnlineWallpaperPreviewModal: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .cornerRadius(14)
+            .cornerRadius(radius)
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.white.opacity(0.15), lineWidth: 1)
             )
             
             HStack {
@@ -861,7 +874,7 @@ private struct OnlineWallpaperPreviewModal: View {
                     if let authorUrl = item.authorUrl, let url = URL(string: authorUrl) {
                         Link("View Creator Profile ↗", destination: url)
                             .font(.caption2)
-                            .foregroundColor(.blue)
+                            .foregroundColor(isClassic ? MacaThemeTokens.classicOlive : .blue)
                     }
                 }
                 
@@ -877,14 +890,13 @@ private struct OnlineWallpaperPreviewModal: View {
                         ProgressView().controlSize(.small)
                     } else {
                         Label("Download & Set as Wallpaper", systemImage: "arrow.down.circle.fill")
-                            .fontWeight(.semibold)
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
+                .macaButtonStyle(.primary)
             }
         }
         .padding(20)
         .frame(minWidth: 720, minHeight: 520)
+        .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
     }
 }

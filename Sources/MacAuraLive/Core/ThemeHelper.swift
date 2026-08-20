@@ -124,6 +124,41 @@ public extension View {
     func macaItemRadius(_ modern: CGFloat = 8) -> some View {
         self.cornerRadius(AppSettings.shared.appTheme == "classic" ? 2 : modern)
     }
+    
+    /// Applies retro crisp 2pt inset text field styling or sleek modern style
+    func macaTextFieldStyle() -> some View {
+        self.modifier(MacaTextFieldModifier())
+    }
+}
+
+public struct MacaTextFieldModifier: ViewModifier {
+    public func body(content: Content) -> some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let isDark = AppSettings.shared.appTheme == "dark" || (AppSettings.shared.appTheme != "light" && MacaThemeTokens.isDark)
+        let radius: CGFloat = isClassic ? 2 : 6
+        
+        content
+            .textFieldStyle(.plain)
+            .font(.system(size: 12, design: isClassic ? .monospaced : .default))
+            .padding(.horizontal, 9)
+            .padding(.vertical, 6)
+            .background(
+                isClassic
+                    ? Color(red: 0.98, green: 0.97, blue: 0.94)
+                    : (isDark ? Color.black.opacity(0.3) : Color(NSColor.controlBackgroundColor))
+            )
+            .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
+            .cornerRadius(radius)
+            .overlay(
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(
+                        isClassic
+                            ? MacaThemeTokens.classicBorder
+                            : (isDark ? Color.white.opacity(0.12) : Color(NSColor.separatorColor)),
+                        lineWidth: 1
+                    )
+            )
+    }
 }
 
 // MARK: - Reusable Retro & Modern Button Styles
@@ -192,12 +227,14 @@ public struct MacaThemeButtonStyle: ButtonStyle {
         let isClassic = AppSettings.shared.appTheme == "classic"
         let isPressed = configuration.isPressed
         
-        let verticalPad: CGFloat = controlSize == .small ? 4 : (controlSize == .large ? 10 : 6)
-        let horizontalPad: CGFloat = controlSize == .small ? 8 : (controlSize == .large ? 16 : 12)
+        let verticalPad: CGFloat = controlSize == .small ? 5 : (controlSize == .large ? 10 : 6)
+        let horizontalPad: CGFloat = controlSize == .small ? 10 : (controlSize == .large ? 16 : 12)
         let fontSize: CGFloat = controlSize == .small ? 11 : (controlSize == .large ? 14 : 12.5)
         
         return configuration.label
             .font(.system(size: fontSize, weight: .bold, design: isClassic ? .monospaced : .default))
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
             .padding(.vertical, verticalPad)
             .padding(.horizontal, horizontalPad)
             .background(computeBackground(isClassic: isClassic, isPressed: isPressed))

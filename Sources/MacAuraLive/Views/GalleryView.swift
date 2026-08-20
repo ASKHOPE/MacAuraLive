@@ -264,16 +264,18 @@ public struct GalleryView: View {
                     Spacer(minLength: 4)
                     
                     // Sizing & Action Buttons
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Button { openFolderPicker() } label: {
                             Label("Import Folder", systemImage: "folder.badge.plus")
                         }
                         .macaButtonStyle(.secondary, size: .small)
+                        .fixedSize()
                         
                         Button { openFilePicker() } label: {
                             Label("Import File", systemImage: "plus.circle.fill")
                         }
                         .macaButtonStyle(.primary, size: .small)
+                        .fixedSize()
                         
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -286,6 +288,7 @@ public struct GalleryView: View {
                             Label(isSelectionMode ? "Cancel" : "Select", systemImage: isSelectionMode ? "checkmark.circle.fill" : "checkmark.circle")
                         }
                         .macaButtonStyle(.secondary, size: .small)
+                        .fixedSize()
                         
                         Menu {
                             Picker("Global Sizing", selection: $settings.wallpaperPlacement) {
@@ -296,13 +299,17 @@ public struct GalleryView: View {
                                 Label("Custom Zoom & Scale", systemImage: "plus.magnifyingglass").tag("zoom")
                             }
                         } label: {
-                            HStack(spacing: 3) {
+                            HStack(spacing: 5) {
                                 Image(systemName: "aspectratio")
                                 Text(placementLabel(settings.wallpaperPlacement))
+                                    .lineLimit(1)
+                                    .fixedSize()
                             }
                         }
                         .macaButtonStyle(.secondary, size: .small)
+                        .fixedSize()
                     }
+                    .fixedSize(horizontal: true, vertical: false)
                 }
                 
                 if let msg = importMessage {
@@ -472,7 +479,7 @@ public struct GalleryView: View {
                         storage.updateWallpaperSetting(id: activeWallpaper.id, key: setting.key, value: newValue)
                     }
                 ))
-                .textFieldStyle(.roundedBorder)
+                .macaTextFieldStyle()
             }
         }
     }
@@ -654,28 +661,28 @@ public struct GalleryView: View {
                 Text("Web Page URL:")
                     .font(.caption)
                 TextField("https://example.com/wallpaper.html", text: $webUrlInput)
-                    .textFieldStyle(.roundedBorder)
+                    .macaTextFieldStyle()
             }
             
             VStack(alignment: .leading, spacing: 6) {
                 Text("Title (Optional):")
                     .font(.caption)
                 TextField("My Web Wallpaper", text: $webTitleInput)
-                    .textFieldStyle(.roundedBorder)
+                    .macaTextFieldStyle()
             }
             
             HStack {
                 Spacer()
                 Button("Cancel") { showWebImporter = false }
-                    .buttonStyle(.plain)
+                    .macaButtonStyle(.secondary)
                 Button("Add Web Wallpaper") {
                     if let item = WallpaperStorageManager.shared.addCustomWebWallpaper(urlString: webUrlInput, title: webTitleInput) {
                         WallpaperStorageManager.shared.setActiveWallpaper(item)
                         engine.reloadEngine()
-                        showWebImporter = false
                     }
+                    showWebImporter = false
                 }
-                .buttonStyle(.borderedProminent)
+                .macaButtonStyle(.primary)
                 .disabled(webUrlInput.isEmpty)
             }
         }
@@ -1121,7 +1128,7 @@ struct FullWallpaperPreviewModal: View {
                 Button("Done") {
                     dismiss()
                 }
-                .buttonStyle(.borderedProminent)
+                .macaButtonStyle(.primary)
             }
             
             // Large Full Preview Stage
@@ -1226,10 +1233,8 @@ struct FullWallpaperPreviewModal: View {
                     dismiss()
                 }) {
                     Label("Apply as Desktop Wallpaper", systemImage: "checkmark.circle.fill")
-                        .fontWeight(.semibold)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
+                .macaButtonStyle(.primary)
             }
         }
         .padding(20)

@@ -1,5 +1,13 @@
 # MacAuraLive Changelog
 
+## [1.9.4] - 2026-08-20
+
+### Added & Refined
+- **📐 Universal Retro Form Inputs (`MacaTextFieldModifier`)**: Replaced all high-radius `.textFieldStyle(.roundedBorder)` across the entire app with `.macaTextFieldStyle()` enforcing vintage 2pt rectangular borders, classic paper background, and monospaced typography in Classic OS mode.
+- **🖼️ Lock Screen Library Thumbnail 2pt Retro Radius**: Updated the Lock Screen Library wallpaper horizontal strip to use adaptive 2pt corner radius and vintage background ribbons in Classic OS theme.
+- **🎛️ Comprehensive Settings & Modal Button Theming**: Audited and converted all action buttons across Storage Management (`Clear Temporary Cache`, `Open Storage Folder`), Software Updates (`Check for Updates`, `What's New`), Duplicate Cleaner, Settings Backup (`Export/Import JSON`), and API Key configuration to `.macaButtonStyle()`.
+- **🛍️ Marketplace Alignment & Terms Retro Theming**: Fixed card footer action button alignment and padding, and fully themed the Marketplace Terms & Licensing modal with classic canvas backgrounds and retro subcards.
+
 ## [1.9.3.1] - 2026-08-20
 
 ### Added & Refined

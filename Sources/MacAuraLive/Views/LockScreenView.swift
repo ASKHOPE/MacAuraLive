@@ -380,6 +380,9 @@ private struct WallpaperThumbnailButton: View {
     let onTap: () -> Void
 
     var body: some View {
+        let isClassic = AppSettings.shared.appTheme == "classic"
+        let radius: CGFloat = isClassic ? 2 : 8
+
         Button(action: onTap) {
             ZStack(alignment: .bottom) {
                 Group {
@@ -388,7 +391,7 @@ private struct WallpaperThumbnailButton: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     } else {
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: radius)
                             .fill(Color.white.opacity(0.1))
                         Image(systemName: item.thumbnailIcon)
                             .foregroundColor(.secondary)
@@ -399,23 +402,23 @@ private struct WallpaperThumbnailButton: View {
 
                 // Title strip
                 Text(item.title)
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.white)
+                    .font(.system(size: 9, weight: .semibold, design: isClassic ? .monospaced : .default))
+                    .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .white)
                     .lineLimit(1)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
                     .frame(maxWidth: .infinity)
-                    .background(.ultraThinMaterial)
+                    .background(isClassic ? MacaThemeTokens.classicCanvas.opacity(0.92) : Color.black.opacity(0.6))
             }
             .frame(width: 120, height: 80)
-            .cornerRadius(10)
+            .cornerRadius(radius)
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color.accentColor : Color.white.opacity(0.12),
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(isSelected ? (isClassic ? MacaThemeTokens.classicOlive : Color.accentColor) : (isClassic ? MacaThemeTokens.classicBorder : Color.white.opacity(0.12)),
                             lineWidth: isSelected ? 2 : 1)
             )
-            .shadow(color: isSelected ? Color.accentColor.opacity(0.3) : .clear, radius: 6)
-            .scaleEffect(isSelected ? 1.03 : 1.0)
+            .shadow(color: isSelected ? (isClassic ? Color.black.opacity(0.15) : Color.accentColor.opacity(0.3)) : .clear, radius: isClassic ? 1 : 6)
+            .scaleEffect(isSelected ? 1.02 : 1.0)
             .animation(.spring(response: 0.25), value: isSelected)
         }
         .buttonStyle(.plain)

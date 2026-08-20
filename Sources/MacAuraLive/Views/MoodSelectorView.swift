@@ -297,9 +297,9 @@ struct MoodEditorSheet: View {
                             .font(.system(size: 12, weight: .bold, design: isClassic ? .monospaced : .default))
                             .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
                         TextField("e.g. Deep Coding, Relaxing Rain, Nightshift", text: $name)
-                            .textFieldStyle(.roundedBorder)
+                            .macaTextFieldStyle()
                         TextField("Description of what this mood is for", text: $description)
-                            .textFieldStyle(.roundedBorder)
+                            .macaTextFieldStyle()
                     }
                     .padding(14)
                     .macaSubcardStyle(cornerRadius: 8)

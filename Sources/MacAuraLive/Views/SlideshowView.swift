@@ -275,7 +275,7 @@ public struct SlideshowView: View {
                     .foregroundColor(isClassic ? MacaThemeTokens.classicTextDark : .primary)
 
                 TextField("Rule Label (e.g. Morning Glow)", text: $newLabel)
-                    .textFieldStyle(.roundedBorder)
+                    .macaTextFieldStyle()
 
                 DatePicker("Trigger Time:", selection: $newTime, displayedComponents: .hourAndMinute)
                     .datePickerStyle(.field)

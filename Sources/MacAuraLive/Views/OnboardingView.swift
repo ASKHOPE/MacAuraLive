@@ -45,7 +45,7 @@ public struct OnboardingView: View {
                     Button("Back") {
                         withAnimation { currentStep -= 1 }
                     }
-                    .buttonStyle(.bordered)
+                    .macaButtonStyle(.secondary)
                 }
                 
                 Spacer()
@@ -54,15 +54,13 @@ public struct OnboardingView: View {
                     Button("Continue") {
                         withAnimation { currentStep += 1 }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.blue)
+                    .macaButtonStyle(.primary)
                 } else {
                     Button("Get Started with MacAuraLive") {
                         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
                         isPresented = false
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
+                    .macaButtonStyle(.primary)
                 }
             }
             .padding(.horizontal, 30)
@@ -160,9 +158,7 @@ public struct OnboardingView: View {
                             }
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(hasScreenRecordingPermission ? .green : .orange)
-                    .font(.caption)
+                    .macaButtonStyle(hasScreenRecordingPermission ? .secondary : .primary, size: .small)
                     .disabled(hasScreenRecordingPermission)
                 }
                 .padding(12)
