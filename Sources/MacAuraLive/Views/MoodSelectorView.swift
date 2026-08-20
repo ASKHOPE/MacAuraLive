@@ -466,5 +466,10 @@ struct MoodEditorSheet: View {
         .padding(24)
         .frame(minWidth: 680, minHeight: 560)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
 }

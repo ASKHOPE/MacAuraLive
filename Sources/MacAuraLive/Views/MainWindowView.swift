@@ -50,59 +50,34 @@ public struct MainWindowView: View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             VStack(alignment: .leading, spacing: 14) {
                 // Header Logo
-                HStack(spacing: 14) {
-                    if settings.appTheme == "classic" {
-                        // Retro System 7 / Classic Box Badge
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(red: 0.90, green: 0.88, blue: 0.84))
-                                .frame(width: 38, height: 38)
-                                .overlay(RoundedRectangle(cornerRadius: 4).stroke(MacaThemeTokens.classicBorder, lineWidth: 1.5))
-                            Text("MA")
-                                .font(.system(size: 16, weight: .black, design: .monospaced))
-                                .foregroundColor(MacaThemeTokens.classicOlive)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text("MacAura")
-                                .font(.system(size: 19, weight: .bold))
-                                .foregroundColor(MacaThemeTokens.classicTextDark)
-                            Text("V \(AppVersion.current.version) - OS Classic")
-                                .font(.system(size: 10.5, weight: .medium, design: .monospaced))
-                                .foregroundColor(MacaThemeTokens.classicTextMuted)
-                        }
+                HStack(spacing: 12) {
+                    if let appIcon = NSImage.appLogo {
+                        Image(nsImage: appIcon)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 38, height: 38)
                     } else {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.clear)
-                                .frame(width: 42, height: 42)
-                            if let appIcon = NSImage(named: "AppIcon") {
-                                Image(nsImage: appIcon)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 42, height: 42)
-                                    .cornerRadius(10)
-                            } else {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .frame(width: 42, height: 42)
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("MacAuraLive")
+                            RoundedRectangle(cornerRadius: settings.appTheme == "classic" ? 4 : 10)
+                                .fill(settings.appTheme == "classic" ? MacaThemeTokens.classicOlive : Color.blue)
+                                .frame(width: 38, height: 38)
+                            Image(systemName: "sparkles")
                                 .font(.system(size: 20, weight: .bold))
-                            Text("Live Wallpaper Engine")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white)
                         }
                     }
+                    
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("MacAuraLive")
+                            .font(.system(size: settings.appTheme == "classic" ? 17 : 18, weight: .bold, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextDark : .primary)
+                        Text(settings.appTheme == "classic" ? "v\(AppVersion.current.version) • OS Classic" : "Live Wallpaper Engine")
+                            .font(.system(size: 10, weight: .medium, design: settings.appTheme == "classic" ? .monospaced : .default))
+                            .foregroundColor(settings.appTheme == "classic" ? MacaThemeTokens.classicTextMuted : .secondary)
+                    }
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 18)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
                 
                 Divider()
                     .padding(.vertical, 4)
@@ -343,6 +318,7 @@ public struct MainWindowView: View {
             .padding(28)
             .frame(minWidth: 700, minHeight: 520)
         }
+        .id(settings.appTheme)
         .preferredColorScheme(
             settings.appTheme == "dark" ? .dark : (settings.appTheme == "light" || settings.appTheme == "classic" ? .light : nil)
         )

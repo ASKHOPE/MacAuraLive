@@ -61,7 +61,7 @@ public struct UserGuideView: View {
                 category: .moods,
                 title: "Mood Profiles: Custom Wallpaper Templates & macOS Mode Sync",
                 summary: "Group wallpapers under customizable mood profiles and automatically trigger them on Focus Mode, Sleep, or Appearance changes.",
-                badge: "NEW in v1.9.4",
+                badge: "NEW in v1.9.4.1",
                 badgeColor: .indigo,
                 steps: [
                     "1. Open 'Moods & Presets' from the sidebar.",

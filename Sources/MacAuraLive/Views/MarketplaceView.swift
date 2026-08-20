@@ -293,7 +293,7 @@ public struct MarketplaceView: View {
             }
             
             // Quick Discovery Tags
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(.horizontal, showsIndicators: true) {
                 HStack(spacing: 6) {
                     ForEach(discoveryTags, id: \.self) { tag in
                         let isTagActive = marketplace.activeTag == tag
@@ -425,6 +425,11 @@ public struct MarketplaceView: View {
         .padding(24)
         .frame(width: 600, height: 580)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
     
     private func providerKeyCard(
@@ -578,6 +583,11 @@ public struct MarketplaceView: View {
         .padding(24)
         .frame(width: 600, height: 600)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
     
     private func disclosureSection(title: String, termsUrl: String, licenseUrl: String, content: String) -> some View {

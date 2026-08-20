@@ -1,5 +1,13 @@
 # MacAuraLive Changelog
 
+## [1.9.4.1] - 2026-08-20
+
+### Added & Refined
+- **🖼️ Transparent Logo & Sidebar Header Sync**: Replaced asset loading with a dedicated `NSImage.appLogo` resolver that eliminates dark background artifacts on transparent PNGs, and displays the full uncropped brand logo in both Sidebar and About panels.
+- **🔄 Instant Theme Switching & Zero Lingering Styles**: Attached `.id(settings.appTheme)` to the root window view tree to force a complete and instantaneous re-evaluation of all UI styles and color tokens whenever toggling between Classic, Day, and Night themes.
+- **📐 2pt Sharp Modal Chassis for Classic OS**: Added rectangular clipping and vintage border chassis overlays to Mood Editor, API Key Manager, Terms & Licensing, Disclaimer, and Changelog modal sheets.
+- **↔️ Horizontal Tag & Discovery Scrollbars**: Enabled smooth horizontal scrollbars on category chips and Marketplace quick discovery tag carousels.
+
 ## [1.9.4] - 2026-08-20
 
 ### Added & Refined

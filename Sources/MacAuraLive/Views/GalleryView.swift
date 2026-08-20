@@ -232,7 +232,7 @@ public struct GalleryView: View {
                     }
                     
                     // Category Pills Scrollable Container
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    ScrollView(.horizontal, showsIndicators: true) {
                         HStack(spacing: 4) {
                             ForEach(currentCategoryPills, id: \.self) { cat in
                                 let isSelected = selectedCategory == cat

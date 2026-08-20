@@ -1147,11 +1147,11 @@ public struct SettingsView: View {
         HStack(alignment: .top, spacing: 24) {
             // Large app icon on the left (Uncropped, native aspect fit)
             ZStack {
-                if let appIcon = NSImage(named: "AppIcon") {
+                if let appIcon = NSImage.appLogo {
                     Image(nsImage: appIcon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 88, height: 88)
+                        .frame(width: 80, height: 80)
                 } else {
                     RoundedRectangle(cornerRadius: 18)
                         .fill(LinearGradient(
@@ -1160,7 +1160,7 @@ public struct SettingsView: View {
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ))
-                        .frame(width: 88, height: 88)
+                        .frame(width: 80, height: 80)
                     Image(systemName: "sparkles")
                         .font(.system(size: 38, weight: .medium))
                         .foregroundColor(.white)
@@ -1337,6 +1337,11 @@ public struct SettingsView: View {
         .padding(24)
         .frame(width: 580, height: 480)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
     
     private var licenseModalView: some View {
@@ -1374,6 +1379,11 @@ public struct SettingsView: View {
         .padding(24)
         .frame(width: 580, height: 420)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
     
     private var disclaimerModalView: some View {
@@ -1409,6 +1419,11 @@ public struct SettingsView: View {
         .padding(24)
         .frame(width: 580, height: 420)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
     
     private var changelogModalView: some View {
@@ -1473,6 +1488,11 @@ public struct SettingsView: View {
         .padding(24)
         .frame(width: 580, height: 500)
         .background(isClassic ? MacaThemeTokens.classicCanvas : Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: isClassic ? 2 : 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: isClassic ? 2 : 14)
+                .stroke(isClassic ? MacaThemeTokens.classicBorder : Color.clear, lineWidth: 1.5)
+        )
     }
 
     private func openReferenceFolderPicker() {

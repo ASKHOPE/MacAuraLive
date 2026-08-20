@@ -503,3 +503,41 @@ public extension Color {
         return String(format: "#%02X%02X%02X", r, g, b)
     }
 }
+
+// MARK: - Native Transparent App Logo Loader
+
+public extension NSImage {
+    static var appLogo: NSImage? {
+        // 1. Direct PNG in main bundle resources root or Assets subfolder
+        if let path = Bundle.main.path(forResource: "AppIcon", ofType: "png") ??
+                      Bundle.main.path(forResource: "AppIcon", ofType: "png", inDirectory: "Assets"),
+           let img = NSImage(contentsOfFile: path) {
+            return img
+        }
+        
+        // 2. Module bundle resources
+        #if SWIFT_PACKAGE
+        if let url = Bundle.module.url(forResource: "AppIcon", withExtension: "png", subdirectory: "Assets") ??
+                     Bundle.module.url(forResource: "AppIcon", withExtension: "png"),
+           let img = NSImage(contentsOf: url) {
+            return img
+        }
+        #endif
+        
+        // 3. Fallback filesystem developer paths
+        let devPaths = [
+            "Sources/MacAuraLive/Resources/Assets/AppIcon.png",
+            "build/dist/MacAuraLive.app/Contents/Resources/Assets/AppIcon.png",
+            "build/dist/MacAuraLive.app/Contents/Resources/AppIcon.png"
+        ]
+        for path in devPaths {
+            if FileManager.default.fileExists(atPath: path),
+               let img = NSImage(contentsOfFile: path) {
+                return img
+            }
+        }
+        
+        // 4. Default asset catalog / bundle icon fallback
+        return NSImage(named: "AppIcon")
+    }
+}
